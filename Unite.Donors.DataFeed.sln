@@ -1,0 +1,23 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unite.Donors.DataFeed.Web", "Unite.Donors.DataFeed.Web\Unite.Donors.DataFeed.Web.csproj", "{39F67517-2804-471C-B9D9-B75E85A649F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unite.Donors.DataFeed.Domain", "Unite.Donors.DataFeed.Domain\Unite.Donors.DataFeed.Domain.csproj", "{4EDB3646-5D13-4632-9BF2-3DACDFADBB0C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{39F67517-2804-471C-B9D9-B75E85A649F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39F67517-2804-471C-B9D9-B75E85A649F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39F67517-2804-471C-B9D9-B75E85A649F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39F67517-2804-471C-B9D9-B75E85A649F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EDB3646-5D13-4632-9BF2-3DACDFADBB0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EDB3646-5D13-4632-9BF2-3DACDFADBB0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EDB3646-5D13-4632-9BF2-3DACDFADBB0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EDB3646-5D13-4632-9BF2-3DACDFADBB0C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
