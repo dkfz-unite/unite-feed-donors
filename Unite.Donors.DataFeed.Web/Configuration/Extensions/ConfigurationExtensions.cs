@@ -42,7 +42,6 @@ namespace Unite.Donors.DataFeed.Web.Configuration.Extensions
 
         private static void AddValidation(this IServiceCollection services)
         {
-            services.AddTransient<IValidator<Donor>, DonorValidator>();
             services.AddTransient<IValidator<IEnumerable<Donor>>, DonorsValidator>();
 
             services.AddTransient<IValidationService, ValidationService>();

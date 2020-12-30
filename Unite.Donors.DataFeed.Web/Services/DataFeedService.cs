@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Unite.Data.Entities;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Services;
+using Unite.Donors.DataFeed.Domain.Resources.Extensions;
 using Unite.Donors.DataFeed.Web.Services.Audit;
 using Unite.Donors.DataFeed.Web.Services.Extensions;
 using Unite.Donors.DataFeed.Web.Services.Repositories;
@@ -65,12 +66,12 @@ namespace Unite.Donors.DataFeed.Web.Services
             {
                 donorResource.Sanitize();
 
-                var donorModel = donorResource.ToEntity();
+                var donorModel = donorResource.GetDonor();
                 var donor = CreateOrUpdate(donorModel, ref audit);
 
                 if (donorResource.ClinicalData != null)
                 {
-                    var clinicalDataModel = donorResource.ClinicalData.ToEntity(donor.Id);
+                    var clinicalDataModel = donorResource.ClinicalData.GetClinicalData(donor.Id);
                     var clinicalData = CreateOrUpdate(clinicalDataModel, ref audit);
                 }
 
@@ -81,7 +82,7 @@ namespace Unite.Donors.DataFeed.Web.Services
                         var therapyModel = treatmentResource.GetTherapy();
                         var therapy = GetOrCreate(therapyModel, ref audit);
 
-                        var treatmentModel = treatmentResource.ToEntity();
+                        var treatmentModel = treatmentResource.GetTreatment();
                         treatmentModel.Donor = donor;
                         treatmentModel.Therapy = therapy;
 

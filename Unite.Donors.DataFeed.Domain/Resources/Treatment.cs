@@ -10,25 +10,12 @@ namespace Unite.Donors.DataFeed.Domain.Resources
         public DateTime? EndDate { get; set; }
         public string Results { get; set; }
 
-        public Data.Entities.Donors.Treatment ToEntity()
+
+        public void Sanitise()
         {
-            var treatment = new Data.Entities.Donors.Treatment();
-
-            treatment.Details = Details;
-            treatment.StartDate = StartDate;
-            treatment.EndDate = EndDate;
-            treatment.Results = Results;
-
-            return treatment;
-        }
-
-        public Data.Entities.Donors.Therapy GetTherapy()
-        {
-            var therapy = new Data.Entities.Donors.Therapy();
-
-            therapy.Name = Therapy;
-
-            return therapy;
+            Therapy = Therapy?.Trim();
+            Details = Details?.Trim();
+            Results = Results?.Trim();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.Collections.Generic;
+using FluentValidation;
 
 namespace Unite.Donors.DataFeed.Domain.Resources.Validation
 {
@@ -39,6 +40,18 @@ namespace Unite.Donors.DataFeed.Domain.Resources.Validation
             RuleForEach(donor => donor.Studies)
                 .NotEmpty().WithMessage("Should not be empty")
                 .MaximumLength(100).WithMessage("Maximum length is 100");
+        }
+    }
+
+    public class DonorsValidator : AbstractValidator<IEnumerable<Donor>>
+    {
+        private readonly IValidator<Donor> _donorValidator;
+
+        public DonorsValidator()
+        {
+            _donorValidator = new DonorValidator();
+
+            RuleForEach(donors => donors).SetValidator(_donorValidator);
         }
     }
 }

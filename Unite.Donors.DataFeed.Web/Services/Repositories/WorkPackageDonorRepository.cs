@@ -13,8 +13,8 @@ namespace Unite.Donors.DataFeed.Web.Services.Repositories
         public WorkPackageDonor Find(int workPackageId, string donorId)
         {
             var workpackageDonor = Find(workpackageDonor =>
-                    workpackageDonor.WorkPackageId == workPackageId &&
-                    workpackageDonor.DonorId == donorId);
+                workpackageDonor.WorkPackageId == workPackageId &&
+                workpackageDonor.DonorId == donorId);
 
             return workpackageDonor;
         }

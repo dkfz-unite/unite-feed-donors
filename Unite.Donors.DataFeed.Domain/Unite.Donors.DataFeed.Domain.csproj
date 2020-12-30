@@ -6,11 +6,12 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="9.3.0" />
-    <PackageReference Include="Unite.Data" Version="1.0.5" />
+    <PackageReference Include="Unite.Data" Version="1.0.7" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
     <Folder Include="Resources\Validation\" />
     <Folder Include="Validation\" />
+    <Folder Include="Resources\Extensions\" />
   </ItemGroup>
 </Project>

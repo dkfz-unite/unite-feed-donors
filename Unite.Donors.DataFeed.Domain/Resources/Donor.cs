@@ -20,34 +20,6 @@ namespace Unite.Donors.DataFeed.Domain.Resources
         public string[] Studies { get; set; }
 
 
-        public Data.Entities.Donors.Donor ToEntity()
-        {
-            var donor = new Data.Entities.Donors.Donor();
-
-            donor.Id = Pid;
-            donor.Origin = Origin;
-            donor.MtaProtected = MtaProtected;
-            donor.PrimarySite = GetPrimarySite(PrimarySite);
-            donor.Diagnosis = Diagnosis;
-            donor.DiagnosisDate = DiagnosisDate;
-
-            return donor;
-        }
-
-        public Data.Entities.Donors.PrimarySite GetPrimarySite(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return null;
-            }
-
-            var primarySite = new Data.Entities.Donors.PrimarySite();
-
-            primarySite.Value = value;
-
-            return primarySite;
-        }
-
         public void Sanitize()
         {
             Pid = Pid?.Trim();
@@ -55,18 +27,13 @@ namespace Unite.Donors.DataFeed.Domain.Resources
             PrimarySite = PrimarySite?.Trim();
             Diagnosis = Diagnosis?.Trim();
 
-            if(ClinicalData != null)
-            {
-                ClinicalData.Localization = ClinicalData.Localization?.Trim();
-            }
+            ClinicalData?.Sanitise();
 
             if(Treatments != null)
             {
                 foreach(var treatment in Treatments)
                 {
-                    treatment.Therapy = treatment.Therapy?.Trim();
-                    treatment.Details = treatment.Details?.Trim();
-                    treatment.Results = treatment.Results?.Trim();
+                    treatment.Sanitise();
                 }
             }
 

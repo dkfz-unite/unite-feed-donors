@@ -372,8 +372,8 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices
                 var index = new MutationIndex();
 
                 index.Id = mutation.Id;
-                index.ReferenceId = mutation.ReferenceId;
                 index.Code = mutation.Code;
+                index.Name = mutation.Name;
                 index.Chromosome = mutation.ChromosomeId?.ToDefinitionString();
                 index.Contig = mutation.Contig?.Value;
                 index.SequenceType = mutation.SequenceTypeId.ToDefinitionString();

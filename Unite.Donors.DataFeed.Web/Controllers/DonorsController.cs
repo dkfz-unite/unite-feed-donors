@@ -13,18 +13,18 @@ namespace Unite.Donors.DataFeed.Web.Controllers
     public class DonorsController : Controller
     {
         private readonly IValidationService _validationService;
-        private readonly IValidator<IEnumerable<Donor>> _donorsValidator;
+        private readonly IValidator<IEnumerable<Donor>> _validator;
         private readonly IDataFeedService _dataFeedService;
         private readonly ILogger _logger; 
 
         public DonorsController(
             IValidationService validationService,
-            IValidator<IEnumerable<Donor>> donorsValidator,
+            IValidator<IEnumerable<Donor>> validator,
             IDataFeedService dataFeedService,
             ILogger<DonorsController> logger)
         {
             _validationService = validationService;
-            _donorsValidator = donorsValidator;
+            _validator = validator;
             _dataFeedService = dataFeedService;
             _logger = logger;
         }
@@ -39,7 +39,7 @@ namespace Unite.Donors.DataFeed.Web.Controllers
                 return BadRequest(modelStateErrorMessage);
             }
 
-            if (!_validationService.ValidateParameter(donors, _donorsValidator, out string modelErrorMessage))
+            if (!_validationService.ValidateParameter(donors, _validator, out string modelErrorMessage))
             {
                 _logger.LogWarning(modelErrorMessage);
 
