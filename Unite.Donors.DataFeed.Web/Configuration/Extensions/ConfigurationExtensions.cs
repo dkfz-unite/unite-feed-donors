@@ -26,7 +26,7 @@ namespace Unite.Donors.DataFeed.Web.Configuration.Extensions
             services.AddTransient<UniteDbContext>();
 
             services.AddTransient<IDataFeedService, DataFeedService>();
-            services.AddTransient<IIndexCreationService, IndexCreationService>();
+            services.AddTransient<DonorIndexCreationService>();
             services.AddTransient<IIndexingService<DonorIndex>, DonorIndexingService>();
             services.AddTransient<ITaskProcessingService, TaskProcessingService>();
 

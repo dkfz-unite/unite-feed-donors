@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Unite.Data.Entities;
+using Unite.Data.Entities.Donors;
 using Unite.Data.Services;
 
 namespace Unite.Donors.DataFeed.Web.Services.Repositories
@@ -8,15 +8,6 @@ namespace Unite.Donors.DataFeed.Web.Services.Repositories
     {
         public WorkPackageDonorRepository(UniteDbContext database, ILogger logger) : base(database, logger)
         {
-        }
-
-        public WorkPackageDonor Find(int workPackageId, string donorId)
-        {
-            var workpackageDonor = Find(workpackageDonor =>
-                workpackageDonor.WorkPackageId == workPackageId &&
-                workpackageDonor.DonorId == donorId);
-
-            return workpackageDonor;
         }
 
         protected override void Map(in WorkPackageDonor source, ref WorkPackageDonor target)

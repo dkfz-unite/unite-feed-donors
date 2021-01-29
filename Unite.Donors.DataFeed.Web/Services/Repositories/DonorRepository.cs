@@ -15,14 +15,6 @@ namespace Unite.Donors.DataFeed.Web.Services.Repositories
             _primariSiteRepository = new PrimarySiteRepository(database, logger);
         }
 
-        public Donor Find(string id)
-        {
-            var donor = Find(donor =>
-                donor.Id == id);
-
-            return donor;
-        }
-
         protected override void Map(in Donor source, ref Donor target)
         {
             target.Id = source.Id;
@@ -48,7 +40,9 @@ namespace Unite.Donors.DataFeed.Web.Services.Repositories
                 return null;
             }
 
-            var entity = _primariSiteRepository.Find(primarySite => primarySite.Value == value);
+            var entity = _primariSiteRepository.Find(primarySite =>
+                primarySite.Value == value
+            );
 
             if(entity == null)
             {

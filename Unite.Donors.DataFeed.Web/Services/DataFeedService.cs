@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Unite.Data.Entities;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Services;
 using Unite.Donors.DataFeed.Domain.Resources.Extensions;
@@ -18,14 +16,14 @@ namespace Unite.Donors.DataFeed.Web.Services
         private readonly ILogger _logger;
         private readonly UniteDbContext _database;
 
-        private readonly DonorRepository _donorRepository;
-        private readonly ClinicalDataRepository _clinicalDataRepository;
-        private readonly TherapyRepository _therapyRepository;
-        private readonly TreatmentRepository _treatmentRepository;
-        private readonly WorkPackageRepository _workPackageRepository;
-        private readonly WorkPackageDonorRepository _workPackageDonorRepository;
-        private readonly StudyRepository _studyRepository;
-        private readonly StudyDonorRepository _studyDonorRepository;
+        private readonly Repository<Donor> _donorRepository;
+        private readonly Repository<ClinicalData> _clinicalDataRepository;
+        private readonly Repository<Therapy> _therapyRepository;
+        private readonly Repository<Treatment> _treatmentRepository;
+        private readonly Repository<WorkPackage> _workPackageRepository;
+        private readonly Repository<WorkPackageDonor> _workPackageDonorRepository;
+        private readonly Repository<Study> _studyRepository;
+        private readonly Repository<StudyDonor> _studyDonorRepository;
 
         private readonly DonorIndexingTaskRepository _donorIndexingTaskRepository;
         private readonly MutationIndexingTaskRepository _mutationIndexingTaskRepository;
@@ -97,10 +95,7 @@ namespace Unite.Donors.DataFeed.Web.Services
                         var workPackageModel = new WorkPackage() { Name = workPackageName };
                         var workPackage = GetOrCreate(workPackageModel, ref audit);
 
-                        var workPackageDonorModel = new WorkPackageDonor();
-                        workPackageDonorModel.WorkPackage = workPackage;
-                        workPackageDonorModel.Donor = donor;
-                        
+                        var workPackageDonorModel = new WorkPackageDonor() { WorkPackage = workPackage, Donor = donor };                        
                         var workPackageDonor = GetOrCreate(workPackageDonorModel, ref audit);
                     }
                 }
@@ -112,10 +107,7 @@ namespace Unite.Donors.DataFeed.Web.Services
                         var studyModel = new Study() { Name = studyName };
                         var study = GetOrCreate(studyModel, ref audit);
 
-                        var studyDonorModel = new StudyDonor();
-                        studyDonorModel.Study = study;
-                        studyDonorModel.Donor = donor;
-
+                        var studyDonorModel = new StudyDonor() { Study = study, Donor = donor };
                         var studyDonor = GetOrCreate(studyDonorModel, ref audit);
                     }
                 }
@@ -133,7 +125,11 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         private Donor CreateOrUpdate(in Donor donor, ref UploadAudit audit)
         {
-            var entity = _donorRepository.Find(donor.Id);
+            var donorId = donor.Id;
+
+            var entity = _donorRepository.Find(donor =>
+                donor.Id == donorId
+            );
 
             if (entity == null)
             {
@@ -153,7 +149,11 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         private ClinicalData CreateOrUpdate(in ClinicalData clinicalData, ref UploadAudit audit)
         {
-            var entity = _clinicalDataRepository.Find(clinicalData.DonorId);
+            var donorId = clinicalData.DonorId;
+
+            var entity = _clinicalDataRepository.Find(clinicalData =>
+                clinicalData.DonorId == donorId
+            );
 
             if (entity == null)
             {
@@ -173,7 +173,11 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         private Therapy GetOrCreate(in Therapy therapy, ref UploadAudit audit)
         {
-            var entity = _therapyRepository.Find(therapy.Name);
+            var name = therapy.Name;
+
+            var entity = _therapyRepository.Find(therapy =>
+                therapy.Name == name
+            );
 
             if (entity == null)
             {
@@ -187,11 +191,15 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         private Treatment CreateOrUpdate(in Treatment treatment, ref UploadAudit audit)
         {
-            var entity = _treatmentRepository.Find(
-                treatment.Donor.Id,
-                treatment.Therapy.Id,
-                treatment.StartDate,
-                treatment.EndDate);
+            var donorId = treatment.DonorId;
+            var therapyId = treatment.TherapyId;
+            var startDate = treatment.StartDate;
+
+            var entity = _treatmentRepository.Find(treatment =>
+                treatment.DonorId == donorId &&
+                treatment.TherapyId == therapyId &&
+                treatment.StartDate == startDate
+            );
 
             if(entity == null)
             {
@@ -211,7 +219,11 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         private WorkPackage GetOrCreate(in WorkPackage workPackage, ref UploadAudit audit)
         {
-            var entity = _workPackageRepository.Find(workPackage.Name);
+            var name = workPackage.Name;
+
+            var entity = _workPackageRepository.Find(workPackage =>
+                workPackage.Name == name
+            );
 
             if (entity == null)
             {
@@ -225,9 +237,13 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         private WorkPackageDonor GetOrCreate(in WorkPackageDonor workPackageDonor, ref UploadAudit audit)
         {
-            var entity = _workPackageDonorRepository.Find(
-                workPackageDonor.WorkPackage.Id,
-                workPackageDonor.Donor.Id);
+            var workPackageId = workPackageDonor.WorkPackageId;
+            var donorId = workPackageDonor.DonorId;
+
+            var entity = _workPackageDonorRepository.Find(workPackageDonor =>
+                workPackageDonor.WorkPackageId == workPackageId &&
+                workPackageDonor.DonorId == donorId
+            );
 
             if (entity == null)
             {
@@ -241,7 +257,11 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         private Study GetOrCreate(in Study study, ref UploadAudit audit)
         {
-            var entity = _studyRepository.Find(study.Name);
+            var name = study.Name;
+
+            var entity = _studyRepository.Find(study =>
+                study.Name == name
+            );
 
             if(entity == null)
             {
@@ -255,9 +275,13 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         private StudyDonor GetOrCreate(in StudyDonor studyDonor, ref UploadAudit audit)
         {
-            var entity = _studyDonorRepository.Find(
-                studyDonor.Study.Id,
-                studyDonor.Donor.Id);
+            var studyId = studyDonor.StudyId;
+            var donorId = studyDonor.DonorId;
+
+            var entity = _studyDonorRepository.Find(studyDonor =>
+                studyDonor.StudyId == studyId &&
+                studyDonor.DonorId == donorId
+            );
 
             if(entity == null)
             {
@@ -272,11 +296,11 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         private IEnumerable<int> GetDonorMutations(string donorId)
         {
-            var mutations = _database.SampleMutations
-                .Include(sampleMutaton => sampleMutaton.Sample)
-                .Where(sampleMutation => sampleMutation.Sample.DonorId == donorId)
-                .Select(sampleMutation => sampleMutation.MutationId)
-                .Distinct();
+            var mutations = _database.MutationOccurrences
+                .Where(mutationOccurrence => mutationOccurrence.AnalysedSample.Sample.DonorId == donorId)
+                .Select(mutationOccurrence => mutationOccurrence.MutationId)
+                .Distinct()
+                .ToArray();
 
             return mutations;
         }

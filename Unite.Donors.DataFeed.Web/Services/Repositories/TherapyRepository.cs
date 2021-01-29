@@ -10,14 +10,6 @@ namespace Unite.Donors.DataFeed.Web.Services.Repositories
         {
         }
 
-        public Therapy Find(string name)
-        {
-            var therapy = Find(therapy =>
-                therapy.Name == name);
-
-            return therapy;
-        }
-
         protected override void Map(in Therapy source, ref Therapy target)
         {
             target.Name = source.Name;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Unite.Data.Services;
@@ -11,13 +12,13 @@ namespace Unite.Donors.DataFeed.Web.Services
     public class TaskProcessingService : ITaskProcessingService
     {
         private readonly UniteDbContext _database;
-        private readonly IIndexCreationService _indexCreationService;
+        private readonly DonorIndexCreationService _indexCreationService;
         private readonly IIndexingService<DonorIndex> _indexingService;
         private readonly ILogger _logger;
 
         public TaskProcessingService(
             UniteDbContext database,
-            IIndexCreationService indexCreationService,
+            DonorIndexCreationService indexCreationService,
             IIndexingService<DonorIndex> indexingService,
             ILogger<TaskProcessingService> logger)
         {
@@ -40,12 +41,20 @@ namespace Unite.Donors.DataFeed.Web.Services
 
 				foreach (var task in tasks)
 				{
-                    var index = _indexCreationService.CreateIndex(task.DonorId);
+                    try
+                    {
+                        var index = _indexCreationService.CreateIndex(task.DonorId);
 
-					if (index != null)
-					{
-						indices.Add(index);
-					}
+                        if (index != null)
+                        {
+                            indices.Add(index);
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        _logger.LogError(ex, $"Could not create index fro donor '{task.DonorId}'");
+                    }
+                    
 				}
 
                 _logger.LogInformation($"Starting to index {indices.Count()} donors");
@@ -57,8 +66,6 @@ namespace Unite.Donors.DataFeed.Web.Services
                 _database.SaveChanges();
 
                 _logger.LogInformation($"Indexing of {indices.Count()} donors completed");
-
-                
 			}
 		}
     }

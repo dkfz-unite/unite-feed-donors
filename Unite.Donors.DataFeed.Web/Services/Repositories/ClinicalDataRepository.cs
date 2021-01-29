@@ -6,19 +6,11 @@ namespace Unite.Donors.DataFeed.Web.Services.Repositories
 {
     public class ClinicalDataRepository : Repository<ClinicalData>
     {
-        private readonly LocalizationRepository _localizationRepository;
+        private readonly Repository<Localization> _localizationRepository;
 
         public ClinicalDataRepository(UniteDbContext database, ILogger logger) : base(database, logger)
         {
             _localizationRepository = new LocalizationRepository(database, logger);
-        }
-
-        public ClinicalData Find(string donorId)
-        {
-            var clinicalData = Find(clinicalData =>
-                clinicalData.DonorId == donorId);
-
-            return clinicalData;
         }
 
         protected override void Map(in ClinicalData source, ref ClinicalData target)
@@ -46,7 +38,9 @@ namespace Unite.Donors.DataFeed.Web.Services.Repositories
                 return null;
             }
 
-            var entity = _localizationRepository.Find(localization => localization.Value == value);
+            var entity = _localizationRepository.Find(localization =>
+                localization.Value == value
+            );
 
             if (entity == null)
             {
