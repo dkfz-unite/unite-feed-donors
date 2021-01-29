@@ -13,9 +13,7 @@ namespace Unite.Donors.DataFeed.Web.Services
 {
     public class DataFeedService : IDataFeedService
     {
-        private readonly ILogger _logger;
         private readonly UniteDbContext _database;
-
         private readonly Repository<Donor> _donorRepository;
         private readonly Repository<ClinicalData> _clinicalDataRepository;
         private readonly Repository<Therapy> _therapyRepository;
@@ -24,9 +22,9 @@ namespace Unite.Donors.DataFeed.Web.Services
         private readonly Repository<WorkPackageDonor> _workPackageDonorRepository;
         private readonly Repository<Study> _studyRepository;
         private readonly Repository<StudyDonor> _studyDonorRepository;
-
         private readonly DonorIndexingTaskRepository _donorIndexingTaskRepository;
         private readonly MutationIndexingTaskRepository _mutationIndexingTaskRepository;
+        private readonly ILogger _logger;
 
 
         public DataFeedService(
@@ -63,6 +61,8 @@ namespace Unite.Donors.DataFeed.Web.Services
             foreach (var donorResource in donors)
             {
                 donorResource.Sanitize();
+
+                var transaction = _database.Database.BeginTransaction();
 
                 var donorModel = donorResource.GetDonor();
                 var donor = CreateOrUpdate(donorModel, ref audit);
@@ -113,10 +113,14 @@ namespace Unite.Donors.DataFeed.Web.Services
                 }
 
                 donorsToIndex.Add(donor.Id);
+
                 mutationsToIndex.AddRange(GetDonorMutations(donor.Id));
+
+                transaction.Commit();
             }
 
             _donorIndexingTaskRepository.AddRange(donorsToIndex.ToArray());
+
             _mutationIndexingTaskRepository.AddRange(mutationsToIndex.ToArray());
 
             _logger.LogInformation(audit.ToString());
@@ -191,8 +195,8 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         private Treatment CreateOrUpdate(in Treatment treatment, ref UploadAudit audit)
         {
-            var donorId = treatment.DonorId;
-            var therapyId = treatment.TherapyId;
+            var donorId = treatment.Donor.Id;
+            var therapyId = treatment.Therapy.Id;
             var startDate = treatment.StartDate;
 
             var entity = _treatmentRepository.Find(treatment =>
@@ -237,12 +241,14 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         private WorkPackageDonor GetOrCreate(in WorkPackageDonor workPackageDonor, ref UploadAudit audit)
         {
-            var workPackageId = workPackageDonor.WorkPackageId;
-            var donorId = workPackageDonor.DonorId;
+            var donorId = workPackageDonor.Donor.Id;
+            var workPackageId = workPackageDonor.WorkPackage.Id;
+            
 
             var entity = _workPackageDonorRepository.Find(workPackageDonor =>
-                workPackageDonor.WorkPackageId == workPackageId &&
-                workPackageDonor.DonorId == donorId
+                workPackageDonor.DonorId == donorId &&
+                workPackageDonor.WorkPackageId == workPackageId
+                
             );
 
             if (entity == null)
@@ -275,12 +281,12 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         private StudyDonor GetOrCreate(in StudyDonor studyDonor, ref UploadAudit audit)
         {
-            var studyId = studyDonor.StudyId;
-            var donorId = studyDonor.DonorId;
+            var donorId = studyDonor.Donor.Id;
+            var studyId = studyDonor.Study.Id;
 
             var entity = _studyDonorRepository.Find(studyDonor =>
-                studyDonor.StudyId == studyId &&
-                studyDonor.DonorId == donorId
+                studyDonor.DonorId == donorId &&
+                studyDonor.StudyId == studyId
             );
 
             if(entity == null)
