@@ -8,12 +8,12 @@ using Unite.Data.Services;
 namespace Unite.Donors.DataFeed.Web.Controllers
 {
     [Route("api/[controller]")]
-    public class IndexController : Controller
+    public class IndicesController : Controller
     {
         private readonly UniteDbContext _database;
         private readonly ILogger _logger;
 
-        public IndexController(UniteDbContext database, ILogger<IndexController> logger)
+        public IndicesController(UniteDbContext database, ILogger<IndicesController> logger)
         {
             _database = database;
             _logger = logger;
