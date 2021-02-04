@@ -53,6 +53,21 @@
 			return clinicalData;
 		}
 
+		public static Data.Entities.Epigenetics.EpigeneticsData GetEpigeneticsData(this EpigeneticsData epigeneticsDataResource, string donorId)
+        {
+			var epigeneticsData = new Data.Entities.Epigenetics.EpigeneticsData();
+
+			epigeneticsData.DonorId = donorId;
+			epigeneticsData.GeneExpressionSubtypeId = epigeneticsDataResource.GeneExpressionSubtypeId;
+			epigeneticsData.IdhStatusId = epigeneticsDataResource.IdhStatusId;
+			epigeneticsData.IdhMutationId = epigeneticsDataResource.IdhMutationId;
+			epigeneticsData.MethylationStatusId = epigeneticsDataResource.MethylationStatusId;
+			epigeneticsData.MethylationSubtypeId = epigeneticsDataResource.MethylationSubtypeId;
+			epigeneticsData.GcimpMethylation = epigeneticsDataResource.GcimpMethylation;
+
+			return epigeneticsData;
+		}
+
 		private static Data.Entities.Donors.Localization GetLocalization(string value)
 		{
 			if (string.IsNullOrWhiteSpace(value))

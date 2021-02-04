@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Unite.Data.Entities.Donors;
+using Unite.Data.Entities.Epigenetics;
 using Unite.Data.Services;
 using Unite.Donors.DataFeed.Domain.Resources.Extensions;
 using Unite.Donors.DataFeed.Web.Services.Audit;
@@ -16,6 +17,7 @@ namespace Unite.Donors.DataFeed.Web.Services
         private readonly UniteDbContext _database;
         private readonly Repository<Donor> _donorRepository;
         private readonly Repository<ClinicalData> _clinicalDataRepository;
+        private readonly Repository<EpigeneticsData> _epigeneticsDataRepository;
         private readonly Repository<Therapy> _therapyRepository;
         private readonly Repository<Treatment> _treatmentRepository;
         private readonly Repository<WorkPackage> _workPackageRepository;
@@ -36,6 +38,7 @@ namespace Unite.Donors.DataFeed.Web.Services
 
             _donorRepository = new DonorRepository(database, logger);
             _clinicalDataRepository = new ClinicalDataRepository(database, logger);
+            _epigeneticsDataRepository = new EpigeneticsDataRepository(database, logger);
             _therapyRepository = new TherapyRepository(database, logger);
             _treatmentRepository = new TreatmentRepository(database, logger);
             _workPackageRepository = new WorkPackageRepository(database, logger);
@@ -71,6 +74,12 @@ namespace Unite.Donors.DataFeed.Web.Services
                 {
                     var clinicalDataModel = donorResource.ClinicalData.GetClinicalData(donor.Id);
                     var clinicalData = CreateOrUpdate(clinicalDataModel, ref audit);
+                }
+
+                if (donorResource.EpigeneticsData != null)
+                {
+                    var epigeneticsDataModel = donorResource.EpigeneticsData.GetEpigeneticsData(donor.Id);
+                    var epigeneticsData = CreateOrUpdate(epigeneticsDataModel, ref audit);
                 }
 
                 if (donorResource.Treatments != null)
@@ -170,6 +179,30 @@ namespace Unite.Donors.DataFeed.Web.Services
                 _clinicalDataRepository.Update(ref entity, clinicalData);
 
                 audit.ClinicalDataUpdated++;
+            }
+
+            return entity;
+        }
+
+        private EpigeneticsData CreateOrUpdate(in EpigeneticsData epigeneticsData, ref UploadAudit audit)
+        {
+            var donorId = epigeneticsData.DonorId;
+
+            var entity = _epigeneticsDataRepository.Find(epigeneticsData =>
+                epigeneticsData.DonorId == donorId
+            );
+
+            if (entity == null)
+            {
+                entity = _epigeneticsDataRepository.Add(epigeneticsData);
+
+                audit.EpigeneticsDataCreated++;
+            }
+            else
+            {
+                _epigeneticsDataRepository.Update(ref entity, epigeneticsData);
+
+                audit.EpigeneticsDataUpdated++;
             }
 
             return entity;

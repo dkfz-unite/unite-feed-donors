@@ -6,11 +6,13 @@ namespace Unite.Donors.DataFeed.Domain.Resources.Validation
     public class DonorValidator : AbstractValidator<Donor>
     {
         private readonly IValidator<ClinicalData> _clinicalDataValidator;
+        private readonly IValidator<EpigeneticsData> _epigeneticsDataValidator;
         private readonly IValidator<Treatment> _treatmentValidator;
 
         public DonorValidator()
         {
             _clinicalDataValidator = new ClinicalDataValidator();
+            _epigeneticsDataValidator = new EpigeneticsDataValidator();
             _treatmentValidator = new TreatmentValidator();
 
             RuleFor(donor => donor.Pid)
@@ -29,6 +31,9 @@ namespace Unite.Donors.DataFeed.Domain.Resources.Validation
 
             RuleFor(donor => donor.ClinicalData)
                 .SetValidator(_clinicalDataValidator);
+
+            RuleFor(donor => donor.EpigeneticsData)
+                .SetValidator(_epigeneticsDataValidator);
 
             RuleForEach(donor => donor.Treatments)
                 .SetValidator(_treatmentValidator);

@@ -13,6 +13,7 @@ namespace Unite.Donors.DataFeed.Domain.Resources
         public DateTime? DiagnosisDate { get; set; }
 
         public ClinicalData ClinicalData { get; set; }
+        public EpigeneticsData EpigeneticsData { get; set; }
 
         public Treatment[] Treatments { get; set; }
 
@@ -28,6 +29,7 @@ namespace Unite.Donors.DataFeed.Domain.Resources
             Diagnosis = Diagnosis?.Trim();
 
             ClinicalData?.Sanitise();
+            EpigeneticsData?.Sanitise();
 
             if(Treatments != null)
             {

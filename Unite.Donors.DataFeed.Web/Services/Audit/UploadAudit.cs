@@ -8,6 +8,8 @@ namespace Unite.Donors.DataFeed.Web.Services.Audit
         public int DonorsUpdated;
 		public int ClinicalDataCreated;
 		public int ClinicalDataUpdated;
+		public int EpigeneticsDataCreated;
+		public int EpigeneticsDataUpdated;
 		public int TherapiesCreated;
 		public int TreatmentsCreated;
 		public int TreatmentsUpdated;
@@ -24,6 +26,8 @@ namespace Unite.Donors.DataFeed.Web.Services.Audit
 			message.AppendLine($"{DonorsUpdated} existing donors updated");
 			message.AppendLine($"{ClinicalDataCreated} new donor clinical data created");
 			message.AppendLine($"{ClinicalDataUpdated} existing donor clinical data updated");
+			message.AppendLine($"{EpigeneticsDataCreated} new donor epigenetics data created");
+			message.AppendLine($"{EpigeneticsDataUpdated} existing donor epigenetics data updated");
 			message.AppendLine($"{TherapiesCreated} new therapies created");
 			message.AppendLine($"{TreatmentsCreated} new donor treatments created");
 			message.AppendLine($"{TreatmentsUpdated} existing donor treatments updated");
