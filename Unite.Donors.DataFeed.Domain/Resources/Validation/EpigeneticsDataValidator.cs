@@ -6,14 +6,14 @@ namespace Unite.Donors.DataFeed.Domain.Resources.Validation
     {
         public EpigeneticsDataValidator()
         {
-            RuleFor(epigeneticsData => epigeneticsData.IdhMutationId)
+            RuleFor(epigeneticsData => epigeneticsData.IdhMutation)
                 .Empty()
-                .When(epigeneticsData => epigeneticsData.IdhStatusId != Data.Entities.Epigenetics.Enums.IDHStatus.Mutant)
+                .When(epigeneticsData => epigeneticsData.IdhStatus != Data.Entities.Epigenetics.Enums.IDHStatus.Mutant)
                 .WithMessage("IDH mutation can be set only if IDH status is 'Mutant'");
 
-            RuleFor(epigeneticsData => epigeneticsData.MethylationSubtypeId)
+            RuleFor(epigeneticsData => epigeneticsData.MethylationSubtype)
                 .Empty()
-                .When(epigeneticsData => epigeneticsData.MethylationStatusId != Data.Entities.Epigenetics.Enums.MethylationStatus.Methylated)
+                .When(epigeneticsData => epigeneticsData.MethylationStatus != Data.Entities.Epigenetics.Enums.MethylationStatus.Methylated)
                 .WithMessage("Methylation type can be set only if methylation status is 'Methylated'");
 
             RuleFor(epigeneticsData => epigeneticsData)
@@ -23,9 +23,9 @@ namespace Unite.Donors.DataFeed.Domain.Resources.Validation
 
         private bool AtLeastOneFiledIsSet(EpigeneticsData epigeneticsData)
         {
-            return epigeneticsData.GeneExpressionSubtypeId != null ||
-                   epigeneticsData.IdhStatusId != null ||
-                   epigeneticsData.MethylationStatusId != null ||
+            return epigeneticsData.GeneExpressionSubtype != null ||
+                   epigeneticsData.IdhStatus != null ||
+                   epigeneticsData.MethylationStatus != null ||
                    epigeneticsData.GcimpMethylation != null;
         }
     }

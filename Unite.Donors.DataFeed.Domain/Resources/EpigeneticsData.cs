@@ -4,11 +4,11 @@ namespace Unite.Donors.DataFeed.Domain.Resources
 {
     public class EpigeneticsData
     {
-        public GeneExpressionSubtype? GeneExpressionSubtypeId { get; set; }
-        public IDHStatus? IdhStatusId { get; set; }
-        public IDHMutation? IdhMutationId { get; set; }
-        public MethylationStatus? MethylationStatusId { get; set; }
-        public MethylationSubtype? MethylationSubtypeId { get; set; }
+        public GeneExpressionSubtype? GeneExpressionSubtype { get; set; }
+        public IDHStatus? IdhStatus { get; set; }
+        public IDHMutation? IdhMutation { get; set; }
+        public MethylationStatus? MethylationStatus { get; set; }
+        public MethylationSubtype? MethylationSubtype { get; set; }
         public bool? GcimpMethylation { get; set; }
 
         public void Sanitise()

@@ -58,11 +58,11 @@
 			var epigeneticsData = new Data.Entities.Epigenetics.EpigeneticsData();
 
 			epigeneticsData.DonorId = donorId;
-			epigeneticsData.GeneExpressionSubtypeId = epigeneticsDataResource.GeneExpressionSubtypeId;
-			epigeneticsData.IdhStatusId = epigeneticsDataResource.IdhStatusId;
-			epigeneticsData.IdhMutationId = epigeneticsDataResource.IdhMutationId;
-			epigeneticsData.MethylationStatusId = epigeneticsDataResource.MethylationStatusId;
-			epigeneticsData.MethylationSubtypeId = epigeneticsDataResource.MethylationSubtypeId;
+			epigeneticsData.GeneExpressionSubtypeId = epigeneticsDataResource.GeneExpressionSubtype;
+			epigeneticsData.IdhStatusId = epigeneticsDataResource.IdhStatus;
+			epigeneticsData.IdhMutationId = epigeneticsDataResource.IdhMutation;
+			epigeneticsData.MethylationStatusId = epigeneticsDataResource.MethylationStatus;
+			epigeneticsData.MethylationSubtypeId = epigeneticsDataResource.MethylationSubtype;
 			epigeneticsData.GcimpMethylation = epigeneticsDataResource.GcimpMethylation;
 
 			return epigeneticsData;

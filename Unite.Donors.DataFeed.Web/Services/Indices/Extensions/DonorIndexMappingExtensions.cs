@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Unite.Data.Entities.Donors;
+using Unite.Data.Entities.Epigenetics;
 using Unite.Data.Entities.Extensions;
 using Unite.Indices.Entities.Basic.Donors;
+using Unite.Indices.Entities.Basic.Epigenetics;
 
 namespace Unite.Donors.DataFeed.Web.Services.Indices.Extensions
 {
@@ -23,6 +25,7 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices.Extensions
             index.MtaProtected = donor.MtaProtected;
 
             index.ClinicalData = CreateFrom(donor.ClinicalData);
+            index.EpigeneticsData = CreateFrom(donor.EpigeneticsData);
             index.Treatments = CreateFrom(donor.Treatments);
             index.WorkPackages = CreateFrom(donor.DonorWorkPackages);
             index.Studies = CreateFrom(donor.DonorStudies);
@@ -50,6 +53,25 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices.Extensions
             index.RelapseFreeDays = clinicalData.RelapseFreeDays;
             index.KpsBaseline = clinicalData.KpsBaseline;
             index.SteroidsBaseline = clinicalData.SteroidsBaseline;
+
+            return index;
+        }
+
+        private static EpigeneticsDataIndex CreateFrom(in EpigeneticsData epigeneticsData)
+        {
+            if(epigeneticsData is null)
+            {
+                return null;
+            }
+
+            var index = new EpigeneticsDataIndex();
+
+            index.GeneExpressionSubtype = epigeneticsData.GeneExpressionSubtypeId?.ToDefinitionString();
+            index.IdhStatus = epigeneticsData.IdhStatusId?.ToDefinitionString();
+            index.IdhMutation = epigeneticsData.IdhMutationId?.ToDefinitionString();
+            index.MethylationStatus = epigeneticsData.MethylationStatusId?.ToDefinitionString();
+            index.MethylationSubtype = epigeneticsData.MethylationSubtypeId?.ToDefinitionString();
+            index.GcimpMethylation = epigeneticsData.GcimpMethylation;
 
             return index;
         }
