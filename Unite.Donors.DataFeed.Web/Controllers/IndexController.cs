@@ -11,10 +11,12 @@ namespace Unite.Donors.DataFeed.Web.Controllers
     public class IndexController : Controller
     {
         private readonly UniteDbContext _database;
+        private readonly ILogger _logger;
 
         public IndexController(UniteDbContext database, ILogger<IndexController> logger)
         {
             _database = database;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -27,6 +29,8 @@ namespace Unite.Donors.DataFeed.Web.Controllers
             var tasks = donors
                 .Select(CreateTask)
                 .ToArray();
+
+            _logger.LogInformation($"Adding indexing tasks for {donors.Length} donors");
 
             _database.DonorIndexingTasks.AddRange(tasks);
             _database.SaveChanges();
