@@ -28,7 +28,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Macross.Json.Extensions" Version="1.5.0" />
-    <PackageReference Include="Unite.Data" Version="1.2.0" />
-    <PackageReference Include="Unite.Indices" Version="1.0.9" />
+    <PackageReference Include="Unite.Indices" Version="1.2.2" />
   </ItemGroup>
 </Project>

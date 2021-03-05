@@ -36,7 +36,7 @@ namespace Unite.Donors.DataFeed.Web.Configuration.Extensions
         private static void AddOptions(this IServiceCollection services)
         {
             services.AddTransient<IndexingOptions>();
-            services.AddTransient<IMySqlOptions, MySqlOptions>();
+            services.AddTransient<ISqlOptions, SqlOptions>();
             services.AddTransient<IElasticOptions, ElasticOptions>();
         }
 

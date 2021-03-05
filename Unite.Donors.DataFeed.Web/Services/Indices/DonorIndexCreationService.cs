@@ -64,11 +64,8 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices
                 .Distinct()
                 .Count();
 
-            index.NumberOfGenes = index.Mutations
-                .Where(mutation => mutation.Gene != null)
-                .Select(mutation => mutation.Gene.Id)
-                .Distinct()
-                .Count();
+            // TODO: Calculate number of genes affected by mutation via transcripts
+            index.NumberOfGenes = 0;
 
             return index;
         }
@@ -78,9 +75,7 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices
         {
             var mutations = _database.MutationOccurrences
                 .Include(mutationOccurrence => mutationOccurrence.Mutation)
-                    .ThenInclude(mutation => mutation.Gene)
                 .Include(mutationOccurrence => mutationOccurrence.Mutation)
-                    .ThenInclude(mutation => mutation.Contig)
                 .Where(mutationOccurrence => mutationOccurrence.AnalysedSample.Sample.DonorId == donorId)
                 .Select(mutationOccurrence => mutationOccurrence.Mutation)
                 .Distinct() // TODO: Insure Distinc works as expected

@@ -15,31 +15,13 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices.Extensions
 
             index.Id = mutation.Id;
             index.Code = mutation.Code;
-            index.Name = mutation.Name;
-            index.Chromosome = mutation.ChromosomeId?.ToDefinitionString();
-            index.Contig = mutation.Contig?.Value;
+            index.Chromosome = mutation.ChromosomeId.ToDefinitionString();
             index.SequenceType = mutation.SequenceTypeId.ToDefinitionString();
-            index.Position = mutation.Position;
+            index.Start = mutation.Start;
+            index.End = mutation.End;
             index.Type = mutation.TypeId.ToDefinitionString();
             index.Ref = mutation.ReferenceBase;
             index.Alt = mutation.AlternateBase;
-
-            index.Gene = CreateFrom(mutation.Gene);
-        }
-
-        private static GeneIndex CreateFrom(in Gene gene)
-        {
-            if (gene is null)
-            {
-                return null;
-            }
-
-            var index = new GeneIndex();
-
-            index.Id = gene.Id;
-            index.Name = gene.Name;
-
-            return index;
         }
     }
 }

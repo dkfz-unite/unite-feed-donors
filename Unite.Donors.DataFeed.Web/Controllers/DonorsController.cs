@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Unite.Donors.DataFeed.Domain.Resources;
 using Unite.Donors.DataFeed.Domain.Validation;
-using Unite.Donors.DataFeed.Web.Controllers.Extensions;
 using Unite.Donors.DataFeed.Web.Services;
 
 namespace Unite.Donors.DataFeed.Web.Controllers
@@ -32,13 +31,6 @@ namespace Unite.Donors.DataFeed.Web.Controllers
         [HttpPost]
         public ActionResult Post([FromBody] Donor[] donors)
         {
-            if (!ModelState.IsValid(out string modelStateErrorMessage))
-            {
-                _logger.LogWarning(modelStateErrorMessage);
-
-                return BadRequest(modelStateErrorMessage);
-            }
-
             if (!_validationService.ValidateParameter(donors, _validator, out string modelErrorMessage))
             {
                 _logger.LogWarning(modelErrorMessage);

@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
+using Unite.Donors.DataFeed.Web.Controllers.Extensions;
 
 namespace Unite.Donors.DataFeed.Web.Configuration.Filters
 {
@@ -16,61 +16,17 @@ namespace Unite.Donors.DataFeed.Web.Configuration.Filters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            var method = context.HttpContext.Request.Method;
-            var urlBase = context.HttpContext.Request.PathBase;
-            var url = context.HttpContext.Request.Path;
+			if (!context.ModelState.IsValid(out var modelStateErrorMessage))
+			{
+				_logger.LogWarning(modelStateErrorMessage);
 
-			AddStopwatchData(context.HttpContext);
-
-			_logger.LogInformation("{0}:{1}{2}", method, urlBase.ToString(), url.ToString());
-        }
+				context.Result = new BadRequestObjectResult(modelStateErrorMessage);
+			}
+		}
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
-			var stopwatch = GetStopwatchData(context.HttpContext);
-
-			if (stopwatch != null)
-			{
-				_logger.LogInformation($"Executed. Elapsed {stopwatch.ElapsedMilliseconds}ms");
-			}
-			else
-			{
-				_logger.LogInformation("Executed");
-			}
-		}
-
-		private void AddStopwatchData(HttpContext context)
-		{
-			var stopwatch = new Stopwatch();
-
-			stopwatch.Start();
-
-			context.Items.Add("stopwatch", stopwatch);
-		}
-
-		private Stopwatch GetStopwatchData(HttpContext context)
-		{
-			try
-			{
-				var stopwatchItem = context.Items["stopwatch"];
-
-				if (stopwatchItem != null)
-				{
-					var stopwatch = (Stopwatch)stopwatchItem;
-
-					stopwatch.Stop();
-
-					return stopwatch;
-				}
-				else
-				{
-					return null;
-				}
-			}
-			catch
-			{
-				return null;
-			}
+			
 		}
 	}
 }
