@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Linq;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Services;
 
@@ -8,9 +8,9 @@ namespace Unite.Donors.DataFeed.Web.Services.Repositories
     {
         private readonly Repository<Localization> _localizationRepository;
 
-        public ClinicalDataRepository(UniteDbContext database, ILogger logger) : base(database, logger)
+        public ClinicalDataRepository(UniteDbContext database) : base(database)
         {
-            _localizationRepository = new LocalizationRepository(database, logger);
+            _localizationRepository = new LocalizationRepository(database);
         }
 
         protected override void Map(in ClinicalData source, ref ClinicalData target)
@@ -38,7 +38,7 @@ namespace Unite.Donors.DataFeed.Web.Services.Repositories
                 return null;
             }
 
-            var entity = _localizationRepository.Find(localization =>
+            var entity = _localizationRepository.Entities.FirstOrDefault(localization =>
                 localization.Value == value
             );
 

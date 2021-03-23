@@ -1,12 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using Unite.Data.Entities.Donors;
+﻿using Unite.Data.Entities.Donors;
 using Unite.Data.Services;
 
 namespace Unite.Donors.DataFeed.Web.Services.Repositories
 {
     public class WorkPackageRepository : Repository<WorkPackage>
     {
-        public WorkPackageRepository(UniteDbContext database, ILogger logger) : base(database, logger)
+        public WorkPackageRepository(UniteDbContext database) : base(database)
         {
         }
 

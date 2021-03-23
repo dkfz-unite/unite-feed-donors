@@ -18,7 +18,6 @@
     <Folder Include="Services\Extensions\" />
     <Folder Include="Services\Audit\" />
     <Folder Include="Services\Indices\" />
-    <Folder Include="Services\Repositories\Tasks\" />
     <Folder Include="Services\Indices\Extensions\" />
   </ItemGroup>
   <ItemGroup>
@@ -27,7 +26,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Macross.Json.Extensions" Version="1.5.0" />
-    <PackageReference Include="Unite.Indices" Version="1.2.2" />
+    <PackageReference Include="Macross.Json.Extensions" Version="2.0.0" />
+    <PackageReference Include="Unite.Indices" Version="1.3.3" />
   </ItemGroup>
 </Project>

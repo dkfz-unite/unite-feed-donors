@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using Unite.Data.Entities.Tasks;
+using Unite.Data.Entities.Tasks.Enums;
 using Unite.Data.Services;
 using Unite.Donors.DataFeed.Web.Services.Indices;
 using Unite.Indices.Entities.Donors;
@@ -30,9 +32,10 @@ namespace Unite.Donors.DataFeed.Web.Services
 
         public void ProcessIndexingTasks(int bucketSize)
         {
-			while (_database.DonorIndexingTasks.Any())
+			while (_database.Tasks.Any(IsDonorIndexingTask))
 			{
-				var tasks = _database.DonorIndexingTasks
+				var tasks = _database.Tasks
+                    .Where(IsDonorIndexingTask)
                     .OrderBy(task => task.Date)
                     .Take(bucketSize)
                     .ToArray();
@@ -43,7 +46,7 @@ namespace Unite.Donors.DataFeed.Web.Services
 				{
                     try
                     {
-                        var index = _indexCreationService.CreateIndex(task.DonorId);
+                        var index = _indexCreationService.CreateIndex(task.Target);
 
                         if (index != null)
                         {
@@ -52,7 +55,7 @@ namespace Unite.Donors.DataFeed.Web.Services
                     }
                     catch(Exception ex)
                     {
-                        _logger.LogError(ex, $"Could not create index fro donor '{task.DonorId}'");
+                        _logger.LogError(ex, $"Could not create index fro donor '{task.Target}'");
                     }
                     
 				}
@@ -61,12 +64,17 @@ namespace Unite.Donors.DataFeed.Web.Services
 
                 _indexingService.IndexMany(indices);
 
-                _database.DonorIndexingTasks.RemoveRange(tasks);
+                _database.Tasks.RemoveRange(tasks);
 
                 _database.SaveChanges();
 
                 _logger.LogInformation($"Indexing of {indices.Count()} donors completed");
 			}
 		}
+
+        private bool IsDonorIndexingTask(Task task)
+        {
+            return task.TypeId == TaskType.Indexing && task.TargetTypeId == TaskTargetType.Donor;
+        }
     }
 }

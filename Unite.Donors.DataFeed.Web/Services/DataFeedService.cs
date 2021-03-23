@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Epigenetics;
+using Unite.Data.Entities.Tasks;
+using Unite.Data.Entities.Tasks.Enums;
 using Unite.Data.Services;
 using Unite.Donors.DataFeed.Domain.Resources.Extensions;
 using Unite.Donors.DataFeed.Web.Services.Audit;
-using Unite.Donors.DataFeed.Web.Services.Extensions;
 using Unite.Donors.DataFeed.Web.Services.Repositories;
-using Unite.Donors.DataFeed.Web.Services.Repositories.Tasks;
 
 namespace Unite.Donors.DataFeed.Web.Services
 {
@@ -24,8 +26,6 @@ namespace Unite.Donors.DataFeed.Web.Services
         private readonly Repository<WorkPackageDonor> _workPackageDonorRepository;
         private readonly Repository<Study> _studyRepository;
         private readonly Repository<StudyDonor> _studyDonorRepository;
-        private readonly DonorIndexingTaskRepository _donorIndexingTaskRepository;
-        private readonly MutationIndexingTaskRepository _mutationIndexingTaskRepository;
         private readonly ILogger _logger;
 
 
@@ -36,18 +36,15 @@ namespace Unite.Donors.DataFeed.Web.Services
             _logger = logger;
             _database = database;
 
-            _donorRepository = new DonorRepository(database, logger);
-            _clinicalDataRepository = new ClinicalDataRepository(database, logger);
-            _epigeneticsDataRepository = new EpigeneticsDataRepository(database, logger);
-            _therapyRepository = new TherapyRepository(database, logger);
-            _treatmentRepository = new TreatmentRepository(database, logger);
-            _workPackageRepository = new WorkPackageRepository(database, logger);
-            _workPackageDonorRepository = new WorkPackageDonorRepository(database, logger);
-            _studyRepository = new StudyRepository(database, logger);
-            _studyDonorRepository = new StudyDonorRepository(database, logger);
-
-            _donorIndexingTaskRepository = new DonorIndexingTaskRepository(database, logger);
-            _mutationIndexingTaskRepository = new MutationIndexingTaskRepository(database, logger);            
+            _donorRepository = new DonorRepository(database);
+            _clinicalDataRepository = new ClinicalDataRepository(database);
+            _epigeneticsDataRepository = new EpigeneticsDataRepository(database);
+            _therapyRepository = new TherapyRepository(database);
+            _treatmentRepository = new TreatmentRepository(database);
+            _workPackageRepository = new WorkPackageRepository(database);
+            _workPackageDonorRepository = new WorkPackageDonorRepository(database);
+            _studyRepository = new StudyRepository(database);
+            _studyDonorRepository = new StudyDonorRepository(database);           
         }
 
 
@@ -57,8 +54,6 @@ namespace Unite.Donors.DataFeed.Web.Services
 
             _logger.LogInformation($"Processing {totalDonors} donors");
 
-            var donorsToIndex = new HashSet<string>();
-            var mutationsToIndex = new HashSet<int>();
             var audit = new UploadAudit();
 
             foreach (var donorResource in donors)
@@ -121,38 +116,36 @@ namespace Unite.Donors.DataFeed.Web.Services
                     }
                 }
 
-                donorsToIndex.Add(donor.Id);
-
-                mutationsToIndex.AddRange(GetDonorMutations(donor.Id));
+                audit.Donors.Add(donor.Id);
 
                 transaction.Commit();
             }
 
-            _donorIndexingTaskRepository.AddRange(donorsToIndex.ToArray());
-
-            _mutationIndexingTaskRepository.AddRange(mutationsToIndex.ToArray());
+            PopulateTasks(audit.Donors);
 
             _logger.LogInformation(audit.ToString());
         }
 
 
-        private Donor CreateOrUpdate(in Donor donor, ref UploadAudit audit)
+        private Donor CreateOrUpdate(in Donor model, ref UploadAudit audit)
         {
-            var donorId = donor.Id;
+            var donorId = model.Id;
 
-            var entity = _donorRepository.Find(donor =>
-                donor.Id == donorId
+            var entity = _donorRepository.Entities
+                .Include(entity => entity.PrimarySite)
+                .FirstOrDefault(entity =>
+                    entity.Id == donorId
             );
 
             if (entity == null)
             {
-                entity = _donorRepository.Add(donor);
+                entity = _donorRepository.Add(model);
 
                 audit.DonorsCreated++;
             }
             else
             {
-                _donorRepository.Update(ref entity, donor);
+                _donorRepository.Update(ref entity, model);
 
                 audit.DonorsUpdated++;
             }
@@ -160,23 +153,25 @@ namespace Unite.Donors.DataFeed.Web.Services
             return entity;
         }
 
-        private ClinicalData CreateOrUpdate(in ClinicalData clinicalData, ref UploadAudit audit)
+        private ClinicalData CreateOrUpdate(in ClinicalData model, ref UploadAudit audit)
         {
-            var donorId = clinicalData.DonorId;
+            var donorId = model.DonorId;
 
-            var entity = _clinicalDataRepository.Find(clinicalData =>
-                clinicalData.DonorId == donorId
+            var entity = _clinicalDataRepository.Entities
+                .Include(entity => entity.Localization)
+                .FirstOrDefault(entity =>
+                    entity.DonorId == donorId
             );
 
             if (entity == null)
             {
-                entity = _clinicalDataRepository.Add(clinicalData);
+                entity = _clinicalDataRepository.Add(model);
 
                 audit.ClinicalDataCreated++;
             }
             else
             {
-                _clinicalDataRepository.Update(ref entity, clinicalData);
+                _clinicalDataRepository.Update(ref entity, model);
 
                 audit.ClinicalDataUpdated++;
             }
@@ -184,23 +179,24 @@ namespace Unite.Donors.DataFeed.Web.Services
             return entity;
         }
 
-        private EpigeneticsData CreateOrUpdate(in EpigeneticsData epigeneticsData, ref UploadAudit audit)
+        private EpigeneticsData CreateOrUpdate(in EpigeneticsData model, ref UploadAudit audit)
         {
-            var donorId = epigeneticsData.DonorId;
+            var donorId = model.DonorId;
 
-            var entity = _epigeneticsDataRepository.Find(epigeneticsData =>
-                epigeneticsData.DonorId == donorId
+            var entity = _epigeneticsDataRepository.Entities
+                .FirstOrDefault(entity =>
+                    entity.DonorId == donorId
             );
 
             if (entity == null)
             {
-                entity = _epigeneticsDataRepository.Add(epigeneticsData);
+                entity = _epigeneticsDataRepository.Add(model);
 
                 audit.EpigeneticsDataCreated++;
             }
             else
             {
-                _epigeneticsDataRepository.Update(ref entity, epigeneticsData);
+                _epigeneticsDataRepository.Update(ref entity, model);
 
                 audit.EpigeneticsDataUpdated++;
             }
@@ -208,17 +204,18 @@ namespace Unite.Donors.DataFeed.Web.Services
             return entity;
         }
 
-        private Therapy GetOrCreate(in Therapy therapy, ref UploadAudit audit)
+        private Therapy GetOrCreate(in Therapy model, ref UploadAudit audit)
         {
-            var name = therapy.Name;
+            var name = model.Name;
 
-            var entity = _therapyRepository.Find(therapy =>
-                therapy.Name == name
+            var entity = _therapyRepository.Entities
+                .FirstOrDefault(entity =>
+                    entity.Name == name
             );
 
             if (entity == null)
             {
-                entity = _therapyRepository.Add(therapy);
+                entity = _therapyRepository.Add(model);
 
                 audit.TherapiesCreated++;
             }
@@ -226,27 +223,28 @@ namespace Unite.Donors.DataFeed.Web.Services
             return entity;
         }
 
-        private Treatment CreateOrUpdate(in Treatment treatment, ref UploadAudit audit)
+        private Treatment CreateOrUpdate(in Treatment model, ref UploadAudit audit)
         {
-            var donorId = treatment.Donor.Id;
-            var therapyId = treatment.Therapy.Id;
-            var startDate = treatment.StartDate;
+            var donorId = model.Donor.Id;
+            var therapyId = model.Therapy.Id;
+            var startDate = model.StartDate;
 
-            var entity = _treatmentRepository.Find(treatment =>
-                treatment.DonorId == donorId &&
-                treatment.TherapyId == therapyId &&
-                treatment.StartDate == startDate
+            var entity = _treatmentRepository.Entities
+                .FirstOrDefault(entity =>
+                    entity.DonorId == donorId &&
+                    entity.TherapyId == therapyId &&
+                    entity.StartDate == startDate
             );
 
             if(entity == null)
             {
-                entity = _treatmentRepository.Add(treatment);
+                entity = _treatmentRepository.Add(model);
 
                 audit.TreatmentsCreated++;
             }
             else
             {
-                _treatmentRepository.Update(ref entity, treatment);
+                _treatmentRepository.Update(ref entity, model);
 
                 audit.TreatmentsUpdated++;
             }
@@ -254,17 +252,18 @@ namespace Unite.Donors.DataFeed.Web.Services
             return entity;
         }
 
-        private WorkPackage GetOrCreate(in WorkPackage workPackage, ref UploadAudit audit)
+        private WorkPackage GetOrCreate(in WorkPackage model, ref UploadAudit audit)
         {
-            var name = workPackage.Name;
+            var name = model.Name;
 
-            var entity = _workPackageRepository.Find(workPackage =>
-                workPackage.Name == name
+            var entity = _workPackageRepository.Entities
+                .FirstOrDefault(entity =>
+                    entity.Name == name
             );
 
             if (entity == null)
             {
-                entity = _workPackageRepository.Add(workPackage);
+                entity = _workPackageRepository.Add(model);
 
                 audit.WorkPackagesCreated++;
             }
@@ -272,21 +271,21 @@ namespace Unite.Donors.DataFeed.Web.Services
             return entity;
         }
 
-        private WorkPackageDonor GetOrCreate(in WorkPackageDonor workPackageDonor, ref UploadAudit audit)
+        private WorkPackageDonor GetOrCreate(in WorkPackageDonor model, ref UploadAudit audit)
         {
-            var donorId = workPackageDonor.Donor.Id;
-            var workPackageId = workPackageDonor.WorkPackage.Id;
+            var donorId = model.Donor.Id;
+            var workPackageId = model.WorkPackage.Id;
             
 
-            var entity = _workPackageDonorRepository.Find(workPackageDonor =>
-                workPackageDonor.DonorId == donorId &&
-                workPackageDonor.WorkPackageId == workPackageId
-                
+            var entity = _workPackageDonorRepository.Entities
+                .FirstOrDefault(entity =>
+                    entity.DonorId == donorId &&
+                    entity.WorkPackageId == workPackageId
             );
 
             if (entity == null)
             {
-                entity = _workPackageDonorRepository.Add(workPackageDonor);
+                entity = _workPackageDonorRepository.Add(model);
 
                 audit.WorkPackagesAssociated++;
             }
@@ -294,17 +293,18 @@ namespace Unite.Donors.DataFeed.Web.Services
             return entity;
         }
 
-        private Study GetOrCreate(in Study study, ref UploadAudit audit)
+        private Study GetOrCreate(in Study model, ref UploadAudit audit)
         {
-            var name = study.Name;
+            var name = model.Name;
 
-            var entity = _studyRepository.Find(study =>
-                study.Name == name
+            var entity = _studyRepository.Entities
+                .FirstOrDefault(entity =>
+                    entity.Name == name
             );
 
             if(entity == null)
             {
-                entity = _studyRepository.Add(study);
+                entity = _studyRepository.Add(model);
 
                 audit.StudiesCreated++;
             }
@@ -312,19 +312,20 @@ namespace Unite.Donors.DataFeed.Web.Services
             return entity;
         }
 
-        private StudyDonor GetOrCreate(in StudyDonor studyDonor, ref UploadAudit audit)
+        private StudyDonor GetOrCreate(in StudyDonor model, ref UploadAudit audit)
         {
-            var donorId = studyDonor.Donor.Id;
-            var studyId = studyDonor.Study.Id;
+            var donorId = model.Donor.Id;
+            var studyId = model.Study.Id;
 
-            var entity = _studyDonorRepository.Find(studyDonor =>
-                studyDonor.DonorId == donorId &&
-                studyDonor.StudyId == studyId
+            var entity = _studyDonorRepository.Entities
+                .FirstOrDefault(entity =>
+                    entity.DonorId == donorId &&
+                    entity.StudyId == studyId
             );
 
             if(entity == null)
             {
-                entity = _studyDonorRepository.Add(studyDonor);
+                entity = _studyDonorRepository.Add(model);
 
                 audit.StudiesAssociated++;
             }
@@ -332,6 +333,23 @@ namespace Unite.Donors.DataFeed.Web.Services
             return entity;
         }
 
+
+        private void PopulateTasks(IEnumerable<string> donorIds)
+        {
+            var donorIndexingTasks = donorIds
+                .Select(donorId => CreateTask(TaskTargetType.Donor, donorId))
+                .ToArray();
+
+            var mutationIndexingTasks = donorIds
+                .SelectMany(donorId => GetDonorMutations(donorId))
+                .Distinct()
+                .Select(mutationId => CreateTask(TaskTargetType.Mutation, mutationId))
+                .ToArray();
+
+            _database.Tasks.AddRange(donorIndexingTasks);
+            _database.Tasks.AddRange(mutationIndexingTasks);
+            _database.SaveChanges();
+        }
 
         private IEnumerable<int> GetDonorMutations(string donorId)
         {
@@ -342,6 +360,20 @@ namespace Unite.Donors.DataFeed.Web.Services
                 .ToArray();
 
             return mutations;
+        }
+
+        private Task CreateTask(TaskTargetType targetType, object target)
+        {
+            var task = new Task()
+            {
+                TypeId = TaskType.Indexing,
+                TargetTypeId = targetType,
+                Target = target.ToString(),
+                Data = null,
+                Date = DateTime.UtcNow
+            };
+
+            return task;
         }
     }
 }

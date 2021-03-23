@@ -1,6 +1,4 @@
 ﻿using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Services;
 
@@ -10,9 +8,9 @@ namespace Unite.Donors.DataFeed.Web.Services.Repositories
     {
         private readonly PrimarySiteRepository _primariSiteRepository;
 
-        public DonorRepository(UniteDbContext database, ILogger logger) : base(database, logger)
+        public DonorRepository(UniteDbContext database) : base(database)
         {
-            _primariSiteRepository = new PrimarySiteRepository(database, logger);
+            _primariSiteRepository = new PrimarySiteRepository(database);
         }
 
         protected override void Map(in Donor source, ref Donor target)
@@ -25,14 +23,6 @@ namespace Unite.Donors.DataFeed.Web.Services.Repositories
             target.DiagnosisDate = source.DiagnosisDate;
         }
 
-        protected override IQueryable<Donor> Include(IQueryable<Donor> query)
-        {
-            var includeQuery = query
-                .Include(donor => donor.PrimarySite);
-
-            return includeQuery;
-        }
-
         private PrimarySite GetOrCreatePrimarySite(string value)
         {
             if(string.IsNullOrWhiteSpace(value))
@@ -40,7 +30,7 @@ namespace Unite.Donors.DataFeed.Web.Services.Repositories
                 return null;
             }
 
-            var entity = _primariSiteRepository.Find(primarySite =>
+            var entity = _primariSiteRepository.Entities.FirstOrDefault(primarySite =>
                 primarySite.Value == value
             );
 

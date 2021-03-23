@@ -64,8 +64,11 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices
                 .Distinct()
                 .Count();
 
-            // TODO: Calculate number of genes affected by mutation via transcripts
-            index.NumberOfGenes = 0;
+            index.NumberOfGenes = index.Mutations
+                .SelectMany(mutation => mutation.AffectedTranscripts)
+                .Select(affectedTranscript => affectedTranscript.Gene.Id)
+                .Distinct()
+                .Count();
 
             return index;
         }
@@ -75,10 +78,30 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices
         {
             var mutations = _database.MutationOccurrences
                 .Include(mutationOccurrence => mutationOccurrence.Mutation)
+                    .ThenInclude(mutation => mutation.AffectedTranscripts)
+                        .ThenInclude(affectedTranscript => affectedTranscript.Transcript)
+                            .ThenInclude(transcript => transcript.Info)
                 .Include(mutationOccurrence => mutationOccurrence.Mutation)
+                    .ThenInclude(mutation => mutation.AffectedTranscripts)
+                        .ThenInclude(affectedTranscript => affectedTranscript.Transcript)
+                            .ThenInclude(transcript => transcript.Biotype)
+                .Include(mutationOccurrence => mutationOccurrence.Mutation)
+                    .ThenInclude(mutation => mutation.AffectedTranscripts)
+                        .ThenInclude(affectedTranscript => affectedTranscript.Gene)
+                            .ThenInclude(gene => gene.Info)
+                .Include(mutationOccurrence => mutationOccurrence.Mutation)
+                    .ThenInclude(mutation => mutation.AffectedTranscripts)
+                        .ThenInclude(affectedTranscript => affectedTranscript.Gene)
+                            .ThenInclude(gene => gene.Biotype)
+                .Include(mutationOccurrence => mutationOccurrence.Mutation)
+                    .ThenInclude(mutation => mutation.AffectedTranscripts)
+                        .ThenInclude(affectedTranscript => affectedTranscript.Consequences)
+                            .ThenInclude(affectedTranscriptConsequence => affectedTranscriptConsequence.Consequence)
                 .Where(mutationOccurrence => mutationOccurrence.AnalysedSample.Sample.DonorId == donorId)
                 .Select(mutationOccurrence => mutationOccurrence.Mutation)
-                .Distinct() // TODO: Insure Distinc works as expected
+                .ToArray()
+                .GroupBy(mutation => mutation.Id)
+                .Select(group => group.First())
                 .ToArray();
 
             return mutations;

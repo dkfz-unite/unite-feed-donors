@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 
 namespace Unite.Donors.DataFeed.Web.Services.Audit
 {
@@ -17,6 +18,13 @@ namespace Unite.Donors.DataFeed.Web.Services.Audit
 		public int WorkPackagesAssociated;
 		public int StudiesCreated;
 		public int StudiesAssociated;
+
+		public HashSet<string> Donors;
+
+		public UploadAudit()
+        {
+			Donors = new HashSet<string>();
+        }
 
 		public override string ToString()
 		{
