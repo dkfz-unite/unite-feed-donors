@@ -129,7 +129,8 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices.Extensions
         {
             if (start != null && end != null && !string.IsNullOrWhiteSpace(change))
             {
-                var position = start == end ? $"{start}" : $"{start}-{end}";
+                //var position = start == end ? $"{start}" : $"{start}-{end}";
+                var position = start;
                 var referenceBase = ParseChange(change).ReferenceBase;
                 var alternateBase = ParseChange(change).AlternateBase;
 
@@ -145,11 +146,12 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices.Extensions
         {
             if (start != null && end != null && !string.IsNullOrWhiteSpace(change))
             {
-                var position = start == end ? $"{start}" : $"{start}-{end}";
-                var referenceBase = ParseChange(change).ReferenceBase?.First(allele => char.IsUpper(allele));
-                var alternateBase = ParseChange(change).AlternateBase?.First(allele => char.IsUpper(allele));
+                //var position = start == end ? $"{start}" : $"{start}-{end}";
+                var position = start;
+                var referenceBase = GetChangedAlleles(ParseChange(change).ReferenceBase) ?? "-";
+                var alternateBase = GetChangedAlleles(ParseChange(change).AlternateBase) ?? "-";
 
-                return $"{referenceBase}{position}{alternateBase}";
+                return $"{position}{referenceBase}>{alternateBase}";
             }
             else
             {
@@ -165,6 +167,20 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices.Extensions
             var alternateBase = blocks.Length > 1 ? blocks[1] : null;
 
             return (referenceBase, alternateBase);
+        }
+
+        private static string GetChangedAlleles(string sequence)
+        {
+            if (sequence != null)
+            {
+                var alleles = sequence.Where(allele => char.IsUpper(allele)).ToArray();
+
+                return alleles.Any() ? new string(alleles) : null;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
