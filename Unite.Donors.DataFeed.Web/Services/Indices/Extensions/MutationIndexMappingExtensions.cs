@@ -129,7 +129,6 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices.Extensions
         {
             if (start != null && end != null && !string.IsNullOrWhiteSpace(change))
             {
-                //var position = start == end ? $"{start}" : $"{start}-{end}";
                 var position = start;
                 var referenceBase = ParseChange(change).ReferenceBase;
                 var alternateBase = ParseChange(change).AlternateBase;
@@ -146,7 +145,6 @@ namespace Unite.Donors.DataFeed.Web.Services.Indices.Extensions
         {
             if (start != null && end != null && !string.IsNullOrWhiteSpace(change))
             {
-                //var position = start == end ? $"{start}" : $"{start}-{end}";
                 var position = start;
                 var referenceBase = GetChangedAlleles(ParseChange(change).ReferenceBase) ?? "-";
                 var alternateBase = GetChangedAlleles(ParseChange(change).AlternateBase) ?? "-";
