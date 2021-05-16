@@ -1,0 +1,29 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unite.Donors.Feed", "Unite.Donors.Feed\Unite.Donors.Feed.csproj", "{F4B6C1A6-B5C3-4B33-B32A-3A2C7B4B098C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unite.Donors.Indices", "Unite.Donors.Indices\Unite.Donors.Indices.csproj", "{7CC9F0D0-4AE3-4CDE-BE00-91C6E87CB1A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unite.Donors.Feed.Web", "Unite.Donors.Feed.Web\Unite.Donors.Feed.Web.csproj", "{86C7DB4C-EADA-42D5-A1D0-2E72C0A7505D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F4B6C1A6-B5C3-4B33-B32A-3A2C7B4B098C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4B6C1A6-B5C3-4B33-B32A-3A2C7B4B098C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4B6C1A6-B5C3-4B33-B32A-3A2C7B4B098C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4B6C1A6-B5C3-4B33-B32A-3A2C7B4B098C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CC9F0D0-4AE3-4CDE-BE00-91C6E87CB1A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CC9F0D0-4AE3-4CDE-BE00-91C6E87CB1A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CC9F0D0-4AE3-4CDE-BE00-91C6E87CB1A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CC9F0D0-4AE3-4CDE-BE00-91C6E87CB1A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86C7DB4C-EADA-42D5-A1D0-2E72C0A7505D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86C7DB4C-EADA-42D5-A1D0-2E72C0A7505D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86C7DB4C-EADA-42D5-A1D0-2E72C0A7505D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86C7DB4C-EADA-42D5-A1D0-2E72C0A7505D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

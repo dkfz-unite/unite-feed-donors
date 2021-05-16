@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Unite.Data" Version="1.5.8" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Donors\" />
+    <Folder Include="Donors\Data\" />
+    <Folder Include="Donors\Data\Models\" />
+    <Folder Include="Donors\Data\Repositories\" />
+    <Folder Include="Donors\Data\Models\Audit\" />
+  </ItemGroup>
+</Project>
