@@ -58,6 +58,17 @@ namespace Unite.Donors.Indices.Services
 
             index.Mutations = CreateMutationIndices(donor.Id);
 
+            index.NumberOfMutations = index.Mutations
+                .Select(mutation => mutation.Id)
+                .Distinct()
+                .Count();
+
+            index.NumberOfGenes = index.Mutations
+                .SelectMany(mutation => mutation.AffectedTranscripts)
+                .Select(affectedTranscript => affectedTranscript.Gene.Id)
+                .Distinct()
+                .Count();
+
             return index;
         }
 
