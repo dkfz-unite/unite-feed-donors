@@ -1,7 +1,7 @@
 ﻿using System;
 using Unite.Data.Entities.Clinical.Enums;
 
-namespace Unite.Donors.Feed.Donors.Data.Models
+namespace Unite.Donors.Feed.Data.Donors.Models
 {
     public class ClinicalDataModel
     {

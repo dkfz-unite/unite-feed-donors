@@ -8,7 +8,7 @@ using Unite.Donors.DataFeed.Web.HostedServices;
 using Unite.Donors.DataFeed.Web.Models.Donors;
 using Unite.Donors.DataFeed.Web.Models.Donors.Validators;
 using Unite.Donors.DataFeed.Web.Models.Validation;
-using Unite.Donors.Feed.Donors.Data;
+using Unite.Donors.Feed.Data.Donors;
 using Unite.Donors.Feed.Web.Handlers;
 using Unite.Donors.Feed.Web.Services;
 using Unite.Donors.Indices.Services;
@@ -51,9 +51,9 @@ namespace Unite.Donors.DataFeed.Web.Configuration.Extensions
         private static void AddServices(IServiceCollection services)
         {
             services.AddTransient<DonorDataWriter>();
-            services.AddTransient<DonorIndexingTaskService>();
-
+            
             services.AddTransient<TaskProcessingService>();
+            services.AddTransient<IndexingTaskService>();
             services.AddTransient<IIndexCreationService<DonorIndex>, DonorIndexCreationService>();
             services.AddTransient<IIndexingService<DonorIndex>, DonorIndexingService>();
         }

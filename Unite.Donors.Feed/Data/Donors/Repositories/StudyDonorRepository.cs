@@ -3,18 +3,16 @@ using System.Linq;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Services;
 
-namespace Unite.Donors.Feed.Donors.Data.Repositories
+namespace Unite.Donors.Feed.Data.Donors.Repositories
 {
     internal class StudyDonorRepository
     {
         private readonly UniteDbContext _dbContext;
-        private readonly StudyRepository _studyRepository;
 
 
         public StudyDonorRepository(UniteDbContext dbContext)
         {
             _dbContext = dbContext;
-            _studyRepository = new StudyRepository(dbContext);
         }
 
         public StudyDonor FindOrCreate(int donorId, string studyName)
@@ -37,7 +35,7 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
             var studyDonor = new StudyDonor
             {
                 DonorId = donorId,
-                Study = _studyRepository.FindOrCreate(studyName)
+                Study = GetStudy(studyName)
             };
 
             _dbContext.StudyDonors.Add(studyDonor);
@@ -59,7 +57,7 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
                     studyDonor = new StudyDonor
                     {
                         DonorId = donorId,
-                        Study = _studyRepository.FindOrCreate(studyName)
+                        Study = GetStudy(studyName)
                     };
 
                     studyDonorsToAdd.Add(studyDonor);
@@ -73,6 +71,29 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
             }
 
             return studyDonorsToAdd;
+        }
+
+
+        private Study GetStudy(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return null;
+            }
+
+            var study = _dbContext.Studies.FirstOrDefault(study =>
+                study.Name == name
+            );
+
+            if (study == null)
+            {
+                study = new Study { Name = name };
+
+                _dbContext.Studies.Add(study);
+                _dbContext.SaveChanges();
+            }
+
+            return study;
         }
     }
 }

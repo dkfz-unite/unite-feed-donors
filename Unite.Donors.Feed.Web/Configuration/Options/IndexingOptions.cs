@@ -1,4 +1,6 @@
-﻿namespace Unite.Donors.DataFeed.Web.Configuration.Options
+﻿using System;
+
+namespace Unite.Donors.DataFeed.Web.Configuration.Options
 {
     public class IndexingOptions
     {
@@ -9,7 +11,7 @@
         {
             get
             {
-                var option = EnvironmentConfig.IndexingInterval;
+                var option = Environment.GetEnvironmentVariable("UNITE_INDEXING_INTERVAL");
                 var seconds = int.Parse(option);
 
                 return seconds * 1000;
@@ -23,7 +25,7 @@
         {
             get
             {
-                var option = EnvironmentConfig.IndexingBucketSize;
+                var option = Environment.GetEnvironmentVariable("UNITE_INDEXING_BUCKET_SIZE");
                 var size = int.Parse(option);
 
                 return size;

@@ -5,13 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Unite.Data" Version="1.5.8" />
+    <PackageReference Include="Unite.Data" Version="1.5.13" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Donors\" />
-    <Folder Include="Donors\Data\" />
-    <Folder Include="Donors\Data\Models\" />
-    <Folder Include="Donors\Data\Repositories\" />
-    <Folder Include="Donors\Data\Models\Audit\" />
+    <Folder Include="Data\" />
+    <Folder Include="Data\Donors\" />
+    <Folder Include="Data\Donors\Models\" />
+    <Folder Include="Data\Donors\Repositories\" />
+    <Folder Include="Data\Donors\Models\Audit\" />
   </ItemGroup>
 </Project>

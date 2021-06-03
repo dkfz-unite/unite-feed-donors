@@ -7,7 +7,7 @@ using Unite.Donors.DataFeed.Web.Models.Donors;
 using Unite.Donors.DataFeed.Web.Models.Donors.Converters;
 using Unite.Donors.DataFeed.Web.Models.Extensions;
 using Unite.Donors.DataFeed.Web.Models.Validation;
-using Unite.Donors.Feed.Donors.Data;
+using Unite.Donors.Feed.Data.Donors;
 using Unite.Donors.Feed.Web.Services;
 
 namespace Unite.Donors.DataFeed.Web.Controllers
@@ -18,7 +18,7 @@ namespace Unite.Donors.DataFeed.Web.Controllers
         private readonly IValidationService _validationService;
         private readonly IValidator<IEnumerable<DonorModel>> _validator;
         private readonly DonorDataWriter _dataWriter;
-        private readonly DonorIndexingTaskService _indexingTaskService;
+        private readonly IndexingTaskService _indexingTaskService;
         private readonly ILogger _logger;
 
         private readonly DonorModelConverter _converter;
@@ -28,7 +28,7 @@ namespace Unite.Donors.DataFeed.Web.Controllers
             IValidationService validationService,
             IValidator<IEnumerable<DonorModel>> validator,
             DonorDataWriter dataWriter,
-            DonorIndexingTaskService indexingTaskService,
+            IndexingTaskService indexingTaskService,
             ILogger<DonorsController> logger)
         {
             _validationService = validationService;

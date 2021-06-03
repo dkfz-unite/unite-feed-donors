@@ -2,15 +2,14 @@
 using Unite.Data.Entities.Clinical;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Services;
-using Unite.Donors.Feed.Donors.Data.Models;
-using Unite.Donors.Feed.Donors.Data.Models.Audit;
-using Unite.Donors.Feed.Donors.Data.Repositories;
+using Unite.Donors.Feed.Data.Donors.Models;
+using Unite.Donors.Feed.Data.Donors.Models.Audit;
+using Unite.Donors.Feed.Data.Donors.Repositories;
 
-namespace Unite.Donors.Feed.Donors.Data
+namespace Unite.Donors.Feed.Data.Donors
 {
-    public class DonorDataWriter
+    public class DonorDataWriter : DataWriter<DonorModel, DonorsUploadAudit>
     {
-        private readonly UniteDbContext _dbContext;
         private readonly DonorRepository _donorRepository;
         private readonly ClinicalDataRepository _clinicalDataRepository;
         private readonly TreatmentRepository _treatmentRepository;
@@ -18,9 +17,8 @@ namespace Unite.Donors.Feed.Donors.Data
         private readonly StudyDonorRepository _studyDonorRepository;
 
 
-        public DonorDataWriter(UniteDbContext dbContext)
+        public DonorDataWriter(UniteDbContext dbContext) : base(dbContext)
         {
-            _dbContext = dbContext;
             _donorRepository = new DonorRepository(dbContext);
             _clinicalDataRepository = new ClinicalDataRepository(dbContext);
             _treatmentRepository = new TreatmentRepository(dbContext);
@@ -29,81 +27,34 @@ namespace Unite.Donors.Feed.Donors.Data
         }
 
 
-        public void SaveData(DonorModel model, out DonorsUploadAudit audit)
-        {
-            using var transaction = _dbContext.Database.BeginTransaction();
-
-            try
-            {
-                audit = new DonorsUploadAudit();
-
-                ProcessModel(model, ref audit);
-
-                transaction.Commit();
-            }
-            catch
-            {
-                audit = null;
-
-                transaction.Rollback();
-
-                throw;
-            }
-        }
-
-        public void SaveData(IEnumerable<DonorModel> models, out DonorsUploadAudit audit)
-        {
-            using var transaction = _dbContext.Database.BeginTransaction();
-
-            try
-            {
-                audit = new DonorsUploadAudit();
-
-                foreach(var model in models)
-                {
-                    ProcessModel(model, ref audit);
-                }
-
-                transaction.Commit();
-            }
-            catch
-            {
-                audit = null;
-
-                transaction.Rollback();
-
-                throw;
-            }
-        }
-
-
-        private void ProcessModel(DonorModel donorModel, ref DonorsUploadAudit audit)
+        protected override void ProcessModel(DonorModel donorModel, ref DonorsUploadAudit audit)
         {
             var donor = CreateorUpdateDonor(donorModel, ref audit);
 
-            if(donorModel.ClinicalData != null)
+            if (donorModel.ClinicalData != null)
             {
                 CreateOrUpdateClinicalData(donor.Id, donorModel.ClinicalData, ref audit);
             }
 
-            if(donorModel.Treatments != null)
+            if (donorModel.Treatments != null)
             {
-                foreach(var treatmentModel in donorModel.Treatments)
+                foreach (var treatmentModel in donorModel.Treatments)
                 {
                     CreateOrUpdateTreatment(donor.Id, treatmentModel, ref audit);
                 }
             }
 
-            if(donorModel.WorkPackages != null)
+            if (donorModel.WorkPackages != null)
             {
                 CreateMissingWorkpackages(donor.Id, donorModel.WorkPackages, ref audit);
             }
 
-            if(donorModel.Studies != null)
+            if (donorModel.Studies != null)
             {
                 CreateMissingStudies(donor.Id, donorModel.Studies, ref audit);
             }
         }
+
 
         private Donor CreateorUpdateDonor(DonorModel donorModel, ref DonorsUploadAudit audit)
         {

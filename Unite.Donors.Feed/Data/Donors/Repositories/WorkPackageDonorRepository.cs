@@ -3,18 +3,16 @@ using System.Linq;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Services;
 
-namespace Unite.Donors.Feed.Donors.Data.Repositories
+namespace Unite.Donors.Feed.Data.Donors.Repositories
 {
     internal class WorkPackageDonorRepository
     {
         private readonly UniteDbContext _dbContext;
-        private readonly WorkPackageRepository _workPackageRepository;
 
 
         public WorkPackageDonorRepository(UniteDbContext dbContext)
         {
             _dbContext = dbContext;
-            _workPackageRepository = new WorkPackageRepository(dbContext);
         }
 
         public WorkPackageDonor FindOrCreate(int donorId, string workPackageName)
@@ -37,7 +35,7 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
             var workPackageDonor = new WorkPackageDonor
             {
                 DonorId = donorId,
-                WorkPackage = _workPackageRepository.FindOrCreate(workPackageName)
+                WorkPackage = GetWorkPackage(workPackageName)
             };
 
             _dbContext.WorkPackageDonors.Add(workPackageDonor);
@@ -50,16 +48,16 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
         {
             var workPackageDonorsToAdd = new List<WorkPackageDonor>();
 
-            foreach(var workPackageName in workPackageNames)
+            foreach (var workPackageName in workPackageNames)
             {
                 var workPackageDonor = Find(donorId, workPackageName);
 
-                if(workPackageDonor == null)
+                if (workPackageDonor == null)
                 {
                     workPackageDonor = new WorkPackageDonor
                     {
                         DonorId = donorId,
-                        WorkPackage = _workPackageRepository.FindOrCreate(workPackageName)
+                        WorkPackage = GetWorkPackage(workPackageName)
                     };
 
                     workPackageDonorsToAdd.Add(workPackageDonor);
@@ -73,6 +71,24 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
             }
 
             return workPackageDonorsToAdd;
+        }
+
+
+        private WorkPackage GetWorkPackage(string name)
+        {
+            var workPackage = _dbContext.WorkPackages.FirstOrDefault(workPackage =>
+                workPackage.Name == name
+            );
+
+            if (workPackage == null)
+            {
+                workPackage = new WorkPackage { Name = name };
+
+                _dbContext.WorkPackages.Add(workPackage);
+                _dbContext.SaveChanges();
+            }
+
+            return workPackage;
         }
     }
 }

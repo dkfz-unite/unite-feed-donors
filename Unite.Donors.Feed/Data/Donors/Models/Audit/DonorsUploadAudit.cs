@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace Unite.Donors.Feed.Donors.Data.Models.Audit
+namespace Unite.Donors.Feed.Data.Donors.Models.Audit
 {
     public class DonorsUploadAudit
     {

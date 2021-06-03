@@ -10,19 +10,18 @@ namespace Unite.Donors.Indices.Services.Mappers
 {
     public class SpecimenIndexMapper
     {
-        public void Map(in Specimen sample, SpecimenIndex index)
+        public void Map(in Specimen specimen, SpecimenIndex index)
         {
-            if (sample == null)
+            if (specimen == null)
             {
                 return;
             }
 
-            index.Id = sample.Id;
-            index.ReferenceId = sample.ReferenceId;
+            index.Id = specimen.Id;
 
-            index.Tissue = CreateFrom(sample.Tissue);
-            index.CellLine = CreateFrom(sample.CellLine);
-            index.MolecularData = CreateFrom(sample.MolecularData);
+            index.Tissue = CreateFrom(specimen.Tissue);
+            index.CellLine = CreateFrom(specimen.CellLine);
+            index.MolecularData = CreateFrom(specimen.MolecularData);
         }
 
 
@@ -34,6 +33,8 @@ namespace Unite.Donors.Indices.Services.Mappers
             }
 
             var index = new TissueIndex();
+
+            index.ReferenceId = tissue.ReferenceId;
 
             index.Type = tissue.TypeId?.ToDefinitionString();
             index.TumourType = tissue.TumourTypeId?.ToDefinitionString();
@@ -52,16 +53,19 @@ namespace Unite.Donors.Indices.Services.Mappers
 
             var index = new CellLineIndex();
 
-            index.Name = cellLine.Name;
+            index.ReferenceId = cellLine.ReferenceId;
+
             index.Type = cellLine.TypeId?.ToDefinitionString();
             index.Species = cellLine.SpeciesId?.ToDefinitionString();
 
-            index.DepositorName = cellLine?.Info.DepositorName;
-            index.DepositorEstablishment = cellLine?.Info.DepositorEstablishment;
-            index.EstablishmentDate = cellLine?.Info.EstablishmentDate;
-            index.PublicationId = cellLine?.Info.PublicationId;
-            index.AtccId = cellLine?.Info.AtccId;
-            index.ExPasyId = cellLine?.Info.ExPasyId;
+            index.Name = cellLine.Info?.Name;
+            index.DepositorName = cellLine.Info?.DepositorName;
+            index.DepositorEstablishment = cellLine.Info?.DepositorEstablishment;
+            index.EstablishmentDate = cellLine.Info?.EstablishmentDate;
+
+            index.PubMedLink = cellLine.Info?.PubMedLink;
+            index.AtccLink = cellLine.Info?.AtccLink;
+            index.ExPasyLink = cellLine.Info?.ExPasyLink;
 
             return index;
         }
@@ -79,7 +83,7 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.IdhStatus = molecularData.IdhStatusId?.ToDefinitionString();
             index.IdhMutation = molecularData.IdhMutationId?.ToDefinitionString();
             index.MethylationStatus = molecularData.MethylationStatusId?.ToDefinitionString();
-            index.MethylationSubtype = molecularData.MethylationSubtypeId?.ToDefinitionString();
+            index.MethylationType = molecularData.MethylationTypeId?.ToDefinitionString();
             index.GcimpMethylation = molecularData.GcimpMethylation;
 
             return index;

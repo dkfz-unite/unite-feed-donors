@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Services;
-using Unite.Donors.Feed.Donors.Data.Models;
+using Unite.Donors.Feed.Data.Donors.Models;
 
-namespace Unite.Donors.Feed.Donors.Data.Repositories
+namespace Unite.Donors.Feed.Data.Donors.Repositories
 {
     internal class DonorRepository
     {
@@ -18,14 +18,19 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
 
         public Donor Find(DonorModel donorModel)
         {
-            return Find(donorModel.ReferenceId);
+            var donor = _dbContext.Donors.FirstOrDefault(donor =>
+                donor.ReferenceId == donorModel.ReferenceId
+            );
+
+            return donor;
         }
 
         public Donor Create(DonorModel donorModel)
         {
-            var donor = new Donor();
-
-            donor.ReferenceId = donorModel.ReferenceId;
+            var donor = new Donor
+            {
+                ReferenceId = donorModel.ReferenceId
+            };
 
             Map(donorModel, donor);
 
@@ -41,16 +46,6 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
 
             _dbContext.Donors.Update(donor);
             _dbContext.SaveChanges();
-        }
-
-
-        private Donor Find(string referenceId)
-        {
-            var donor = _dbContext.Donors.FirstOrDefault(donor =>
-                donor.ReferenceId == referenceId
-            );
-
-            return donor;
         }
 
 

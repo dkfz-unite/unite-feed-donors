@@ -9,14 +9,14 @@ using Unite.Data.Services;
 
 namespace Unite.Donors.Feed.Web.Services
 {
-    public class DonorIndexingTaskService
+    public class IndexingTaskService
     {
         private const int BUCKET_SIZE = 1000;
 
         private readonly UniteDbContext _dbContext;
 
 
-        public DonorIndexingTaskService(UniteDbContext dbContext)
+        public IndexingTaskService(UniteDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -54,11 +54,11 @@ namespace Unite.Donors.Feed.Web.Services
             {
                 CreateDonorIndexingTasks(donors);
                 CreateMutationIndexingTasks(donors);
-                //CreateSpecimenIndexingTasks(donors);
+                CreateSpecimenIndexingTasks(donors);
             });
         }
 
-        
+
         private void CreateDonorIndexingTasks(IEnumerable<int> donorIds)
         {
             var tasks = donorIds
@@ -78,10 +78,7 @@ namespace Unite.Donors.Feed.Web.Services
         private void CreateMutationIndexingTasks(IEnumerable<int> donorIds)
         {
             var mutationIds = _dbContext.MutationOccurrences
-                .Where(mutationOccurrence =>
-                    mutationOccurrence.AnalysedSample.Sample.Specimen.DonorId != null &&
-                    donorIds.Contains(mutationOccurrence.AnalysedSample.Sample.Specimen.DonorId.Value)
-                )
+                .Where(mutationOccurrence => donorIds.Contains(mutationOccurrence.AnalysedSample.Sample.Specimen.DonorId))
                 .Select(mutationOccurrence => mutationOccurrence.MutationId)
                 .Distinct()
                 .ToArray();
@@ -102,12 +99,9 @@ namespace Unite.Donors.Feed.Web.Services
 
         private void CreateSpecimenIndexingTasks(IEnumerable<int> donorIds)
         {
-            var specimenIds = _dbContext.MutationOccurrences
-                .Where(mutationOccurrence =>
-                    mutationOccurrence.AnalysedSample.Sample.Specimen.DonorId != null &&
-                    donorIds.Contains(mutationOccurrence.AnalysedSample.Sample.Specimen.DonorId.Value)
-                )
-                .Select(mutationOccurrence => mutationOccurrence.AnalysedSample.Sample.SpecimenId)
+            var specimenIds = _dbContext.Specimens
+                .Where(specimen => donorIds.Contains(specimen.DonorId))
+                .Select(specimen => specimen.Id)
                 .Distinct()
                 .ToArray();
 

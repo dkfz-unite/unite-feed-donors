@@ -2,22 +2,18 @@
 using Microsoft.EntityFrameworkCore;
 using Unite.Data.Entities.Clinical;
 using Unite.Data.Services;
-using Unite.Donors.Feed.Donors.Data.Models;
+using Unite.Donors.Feed.Data.Donors.Models;
 
-namespace Unite.Donors.Feed.Donors.Data.Repositories
+namespace Unite.Donors.Feed.Data.Donors.Repositories
 {
     internal class ClinicalDataRepository
     {
         private readonly UniteDbContext _dbContext;
-        private readonly TumourPrimarySiteRepository _primarySiteRepository;
-        private readonly TumourLocalizationRepository _localizationRepository;
 
 
         public ClinicalDataRepository(UniteDbContext dbContext)
         {
             _dbContext = dbContext;
-            _primarySiteRepository = new TumourPrimarySiteRepository(dbContext);
-            _localizationRepository = new TumourLocalizationRepository(dbContext);
         }
 
 
@@ -35,9 +31,10 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
 
         public ClinicalData Create(int donorId, ClinicalDataModel clinicalDataModel)
         {
-            var clinicalData = new ClinicalData();
-
-            clinicalData.DonorId = donorId;
+            var clinicalData = new ClinicalData
+            {
+                DonorId = donorId
+            };
 
             Map(clinicalDataModel, clinicalData);
 
@@ -77,7 +74,19 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
                 return null;
             }
 
-            return _primarySiteRepository.FindOrCreate(value);
+            var primarySite = _dbContext.TumourPrimarySites.FirstOrDefault(primarySite =>
+                primarySite.Value == value
+            );
+
+            if(primarySite == null)
+            {
+                primarySite = new TumourPrimarySite { Value = value };
+
+                _dbContext.TumourPrimarySites.Add(primarySite);
+                _dbContext.SaveChanges();
+            }
+
+            return primarySite;
         }
 
         private TumourLocalization GetLocalization(string value)
@@ -87,7 +96,19 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
                 return null;
             }
 
-            return _localizationRepository.FindOrCreate(value);
+            var localization = _dbContext.TumourLocalizations.FirstOrDefault(localization =>
+                localization.Value == value
+            );
+
+            if(localization == null)
+            {
+                localization = new TumourLocalization { Value = value };
+
+                _dbContext.TumourLocalizations.Add(localization);
+                _dbContext.SaveChanges();
+            }
+
+            return localization;
         }
     }
 }

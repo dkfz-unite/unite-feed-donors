@@ -2,19 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Unite.Data.Entities.Clinical;
 using Unite.Data.Services;
-using Unite.Donors.Feed.Donors.Data.Models;
+using Unite.Donors.Feed.Data.Donors.Models;
 
-namespace Unite.Donors.Feed.Donors.Data.Repositories
+namespace Unite.Donors.Feed.Data.Donors.Repositories
 {
     internal class TreatmentRepository
     {
         private readonly UniteDbContext _dbContext;
-        private readonly TherapyRepository _therapyRepository;
 
         public TreatmentRepository(UniteDbContext dbContext)
         {
             _dbContext = dbContext;
-            _therapyRepository = new TherapyRepository(dbContext);
         }
 
 
@@ -33,9 +31,10 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
 
         public Treatment Create(int donorId, TreatmentModel treatmentModel)
         {
-            var treatment = new Treatment();
-
-            treatment.DonorId = donorId;
+            var treatment = new Treatment
+            {
+                DonorId = donorId
+            };
 
             Map(treatmentModel, treatment);
 
@@ -72,7 +71,19 @@ namespace Unite.Donors.Feed.Donors.Data.Repositories
                 return null;
             }
 
-            return _therapyRepository.FindOrCreate(name);
+            var therapy = _dbContext.Therapies.FirstOrDefault(therapy =>
+                therapy.Name == name
+            );
+
+            if (therapy == null)
+            {
+                therapy = new Therapy { Name = name };
+
+                _dbContext.Therapies.Add(therapy);
+                _dbContext.SaveChanges();
+            }
+
+            return therapy;
         }
     }
 }
