@@ -37,7 +37,7 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.ReferenceId = tissue.ReferenceId;
 
             index.Type = tissue.TypeId?.ToDefinitionString();
-            index.TumourType = tissue.TumourTypeId?.ToDefinitionString();
+            index.TumorType = tissue.TumorTypeId?.ToDefinitionString();
             index.Source = tissue.Source?.Value;
             index.ExtractionDate = tissue.ExtractionDate;
 
@@ -55,8 +55,10 @@ namespace Unite.Donors.Indices.Services.Mappers
 
             index.ReferenceId = cellLine.ReferenceId;
 
-            index.Type = cellLine.TypeId?.ToDefinitionString();
             index.Species = cellLine.SpeciesId?.ToDefinitionString();
+            index.Type = cellLine.TypeId?.ToDefinitionString();
+            index.CultureType = cellLine.CultureTypeId?.ToDefinitionString();
+            index.PassageNumber = cellLine.PassageNumber;
 
             index.Name = cellLine.Info?.Name;
             index.DepositorName = cellLine.Info?.DepositorName;

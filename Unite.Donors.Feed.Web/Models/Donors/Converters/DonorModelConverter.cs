@@ -65,6 +65,7 @@ namespace Unite.Donors.DataFeed.Web.Models.Donors.Converters
             target.EndDate = source.EndDate;
             target.ProgressionStatus = source.ProgressionStatus;
             target.ProgressionStatusChangeDate = source.ProgressionStatusChangeDate;
+            target.Results = source.Results;
         }
     }
 }
