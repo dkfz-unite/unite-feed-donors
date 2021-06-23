@@ -67,44 +67,44 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
             clinicalData.SteroidsBaseline = clinicalDataModel.SteroidsBaseline;
         }
 
-        private TumourPrimarySite GetPrimarySite(string value)
+        private TumorPrimarySite GetPrimarySite(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
                 return null;
             }
 
-            var primarySite = _dbContext.TumourPrimarySites.FirstOrDefault(primarySite =>
+            var primarySite = _dbContext.TumorPrimarySites.FirstOrDefault(primarySite =>
                 primarySite.Value == value
             );
 
-            if(primarySite == null)
+            if (primarySite == null)
             {
-                primarySite = new TumourPrimarySite { Value = value };
+                primarySite = new TumorPrimarySite { Value = value };
 
-                _dbContext.TumourPrimarySites.Add(primarySite);
+                _dbContext.TumorPrimarySites.Add(primarySite);
                 _dbContext.SaveChanges();
             }
 
             return primarySite;
         }
 
-        private TumourLocalization GetLocalization(string value)
+        private TumorLocalization GetLocalization(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
                 return null;
             }
 
-            var localization = _dbContext.TumourLocalizations.FirstOrDefault(localization =>
+            var localization = _dbContext.TumorLocalizations.FirstOrDefault(localization =>
                 localization.Value == value
             );
 
-            if(localization == null)
+            if (localization == null)
             {
-                localization = new TumourLocalization { Value = value };
+                localization = new TumorLocalization { Value = value };
 
-                _dbContext.TumourLocalizations.Add(localization);
+                _dbContext.TumorLocalizations.Add(localization);
                 _dbContext.SaveChanges();
             }
 

@@ -27,7 +27,7 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.Studies = CreateFrom(donor.DonorStudies);
         }
 
-        private ClinicalDataIndex CreateFrom(in ClinicalData clinicalData)
+        private static ClinicalDataIndex CreateFrom(in ClinicalData clinicalData)
         {
             if (clinicalData == null)
             {
@@ -50,9 +50,9 @@ namespace Unite.Donors.Indices.Services.Mappers
             return index;
         }
 
-        private TreatmentIndex[] CreateFrom(in IEnumerable<Treatment> treatments)
+        private static TreatmentIndex[] CreateFrom(in IEnumerable<Treatment> treatments)
         {
-            if (treatments == null)
+            if (treatments == null || !treatments.Any())
             {
                 return null;
             }
@@ -78,7 +78,7 @@ namespace Unite.Donors.Indices.Services.Mappers
 
         private static WorkPackageIndex[] CreateFrom(in IEnumerable<WorkPackageDonor> workPackageDonors)
         {
-            if (workPackageDonors == null)
+            if (workPackageDonors == null || !workPackageDonors.Any())
             {
                 return null;
             }
@@ -99,7 +99,7 @@ namespace Unite.Donors.Indices.Services.Mappers
 
         private static StudyIndex[] CreateFrom(in IEnumerable<StudyDonor> studyDonors)
         {
-            if (studyDonors == null)
+            if (studyDonors == null || !studyDonors.Any())
             {
                 return null;
             }

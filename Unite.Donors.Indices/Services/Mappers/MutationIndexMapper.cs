@@ -32,7 +32,7 @@ namespace Unite.Donors.Indices.Services.Mappers
 
         private static AffectedTranscriptIndex[] CreateFrom(in IEnumerable<AffectedTranscript> affectedTranscripts)
         {
-            if (affectedTranscripts == null)
+            if (affectedTranscripts == null || !affectedTranscripts.Any())
             {
                 return null;
             }
@@ -106,7 +106,7 @@ namespace Unite.Donors.Indices.Services.Mappers
 
         private static ConsequenceIndex[] CreateFrom(in IEnumerable<AffectedTranscriptConsequence> consequences)
         {
-            if (consequences == null)
+            if (consequences == null || !consequences.Any())
             {
                 return null;
             }

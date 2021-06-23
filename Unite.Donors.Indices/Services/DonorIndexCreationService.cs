@@ -47,7 +47,7 @@ namespace Unite.Donors.Indices.Services
 
         private DonorIndex CreateDonorIndex(Donor donor)
         {
-            if(donor == null)
+            if (donor == null)
             {
                 return null;
             }
@@ -70,6 +70,7 @@ namespace Unite.Donors.Indices.Services
                 .Count();
 
             index.NumberOfGenes = index.Mutations
+                .Where(mutation => mutation.AffectedTranscripts != null)
                 .SelectMany(mutation => mutation.AffectedTranscripts)
                 .Select(affectedTranscript => affectedTranscript.Gene.Id)
                 .Distinct()
@@ -101,25 +102,25 @@ namespace Unite.Donors.Indices.Services
         {
             var mutations = LoadMutations(donorId);
 
-            if(mutations == null)
+            if (mutations == null)
             {
                 return null;
             }
 
             var indices = mutations
-                .Select(CreateMutationIndex)
+                .Select(mutation => CreateMutationIndex(donorId, mutation))
                 .ToArray();
 
             return indices;
         }
 
-        private MutationIndex CreateMutationIndex(Mutation mutation)
+        private MutationIndex CreateMutationIndex(int donorId, Mutation mutation)
         {
             var index = new MutationIndex();
 
             _mutationIndexMapper.Map(mutation, index);
 
-            index.Specimens = CreateSpecimenIndices(mutation);
+            index.Specimens = CreateSpecimenIndices(donorId, mutation.Id);
 
             return index;
         }
@@ -148,10 +149,6 @@ namespace Unite.Donors.Indices.Services
                 .Include(mutation => mutation.AffectedTranscripts)
                     .ThenInclude(affectedTranscript => affectedTranscript.Consequences)
                         .ThenInclude(affectedTranscriptConsequence => affectedTranscriptConsequence.Consequence)
-                .Include(mutation => mutation.MutationOccurrences.Where(mutationOccurrence => mutationOccurrence.AnalysedSample.Sample.Specimen.DonorId == donorId))
-                    .ThenInclude(mutationOccurrence => mutationOccurrence.AnalysedSample)
-                        .ThenInclude(analysedSample => analysedSample.Sample)
-                            .ThenInclude(sample => sample.Specimen)
                 .Where(mutation => mutationIds.Contains(mutation.Id))
                 .ToArray();
 
@@ -159,13 +156,11 @@ namespace Unite.Donors.Indices.Services
         }
 
 
-        private SpecimenIndex[] CreateSpecimenIndices(Mutation mutation)
+        private SpecimenIndex[] CreateSpecimenIndices(int donorId, long mutationId)
         {
-            var specimens = mutation.MutationOccurrences
-                 .Select(mutationOccurrence => mutationOccurrence.AnalysedSample.Sample.Specimen)
-                 .ToArray();
+            var specimens = LoadSpecimens(donorId, mutationId);
 
-            if(specimens == null)
+            if (specimens == null)
             {
                 return null;
             }
@@ -184,6 +179,33 @@ namespace Unite.Donors.Indices.Services
             _specimenIndexMapper.Map(specimen, index);
 
             return index;
+        }
+
+        private Specimen[] LoadSpecimens(int donorId, long mutationId)
+        {
+            var specimenIds = _dbContext.MutationOccurrences
+                .Where(mutationOccurrence =>
+                    mutationOccurrence.AnalysedSample.Sample.Specimen.DonorId == donorId &&
+                    mutationOccurrence.MutationId == mutationId)
+                .Select(mutationOccurrence => mutationOccurrence.AnalysedSample.Sample.SpecimenId)
+                .ToArray();
+
+            var specimens = _dbContext.Specimens
+                .Include(specimen => specimen.Tissue)
+                    .ThenInclude(tissue => tissue.Source)
+                .Include(specimen => specimen.CellLine)
+                    .ThenInclude(cellLine => cellLine.Info)
+                .Include(specimen => specimen.Organoid)
+                    .ThenInclude(organoid => organoid.Interventions)
+                        .ThenInclude(intervention => intervention.Type)
+                .Include(specimen => specimen.Xenograft)
+                    .ThenInclude(xenograft => xenograft.Interventions)
+                        .ThenInclude(intervention => intervention.Type)
+                .Include(specimen => specimen.MolecularData)
+                .Where(specimen => specimenIds.Contains(specimen.Id))
+                .ToArray();
+
+            return specimens;
         }
     }
 }
