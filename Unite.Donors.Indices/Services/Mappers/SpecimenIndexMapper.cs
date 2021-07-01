@@ -7,7 +7,6 @@ using Unite.Data.Entities.Specimens.Organoids;
 using Unite.Data.Entities.Specimens.Tissues;
 using Unite.Data.Entities.Specimens.Xenografts;
 using Unite.Data.Extensions;
-using Unite.Indices.Entities.Basic.Molecular;
 using Unite.Indices.Entities.Basic.Specimens;
 
 namespace Unite.Donors.Indices.Services.Mappers
@@ -23,15 +22,14 @@ namespace Unite.Donors.Indices.Services.Mappers
 
             index.Id = specimen.Id;
 
-            index.Tissue = CreateFrom(specimen.Tissue);
-            index.CellLine = CreateFrom(specimen.CellLine);
-            index.Organoid = CreateFrom(specimen.Organoid);
-            index.Xenograft = CreateFrom(specimen.Xenograft);
-            index.MolecularData = CreateFrom(specimen.MolecularData);
+            index.Tissue = CreateFrom(specimen.Tissue, specimen.MolecularData);
+            index.CellLine = CreateFrom(specimen.CellLine, specimen.MolecularData);
+            index.Organoid = CreateFrom(specimen.Organoid, specimen.MolecularData);
+            index.Xenograft = CreateFrom(specimen.Xenograft, specimen.MolecularData);
         }
 
 
-        private static TissueIndex CreateFrom(in Tissue tissue)
+        private static TissueIndex CreateFrom(in Tissue tissue, in MolecularData molecularData)
         {
             if (tissue == null)
             {
@@ -47,10 +45,12 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.Source = tissue.Source?.Value;
             index.ExtractionDate = tissue.ExtractionDate;
 
+            index.MolecularData = CreateFrom(molecularData);
+
             return index;
         }
 
-        private static CellLineIndex CreateFrom(in CellLine cellLine)
+        private static CellLineIndex CreateFrom(in CellLine cellLine, in MolecularData molecularData)
         {
             if (cellLine == null)
             {
@@ -74,10 +74,12 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.AtccLink = cellLine.Info?.AtccLink;
             index.ExPasyLink = cellLine.Info?.ExPasyLink;
 
+            index.MolecularData = CreateFrom(molecularData);
+
             return index;
         }
 
-        private static OrganoidIndex CreateFrom(in Organoid organoid)
+        private static OrganoidIndex CreateFrom(in Organoid organoid, in MolecularData molecularData)
         {
             if (organoid == null)
             {
@@ -90,6 +92,8 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.ImplantedCellsNumber = organoid.ImplantedCellsNumber;
             index.Tumorigenicity = organoid.Tumorigenicity;
             index.Medium = organoid.Medium;
+
+            index.MolecularData = CreateFrom(molecularData);
 
             index.Interventions = CreateFrom(organoid.Interventions);
 
@@ -120,7 +124,7 @@ namespace Unite.Donors.Indices.Services.Mappers
             return indices;
         }
 
-        private static XenograftIndex CreateFrom(in Xenograft xenograft)
+        private static XenograftIndex CreateFrom(in Xenograft xenograft, in MolecularData molecularData)
         {
             if (xenograft == null)
             {
@@ -140,6 +144,8 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.TumorGrowthForm = xenograft.TumorGrowthFormId?.ToDefinitionString();
             index.SurvivalDaysFrom = xenograft.SurvivalDaysFrom;
             index.SurvivalDaysTo = xenograft.SurvivalDaysTo;
+
+            index.MolecularData = CreateFrom(molecularData);
 
             index.Interventions = CreateFrom(xenograft.Interventions);
 
