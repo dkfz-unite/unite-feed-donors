@@ -58,11 +58,10 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
             clinicalData.GenderId = clinicalDataModel.Gender;
             clinicalData.Age = clinicalDataModel.Age;
             clinicalData.Diagnosis = clinicalDataModel.Diagnosis;
-            clinicalData.DiagnosisDate = clinicalDataModel.DiagnosisDate;
             clinicalData.PrimarySite = GetPrimarySite(clinicalDataModel.PrimarySite);
             clinicalData.Localization = GetLocalization(clinicalDataModel.Localization);
             clinicalData.VitalStatus = clinicalDataModel.VitalStatus;
-            clinicalData.VitalStatusChangeDate = clinicalDataModel.VitalStatusChangeDate;
+            clinicalData.VitalStatusChangeDay = clinicalDataModel.VitalStatusChangeDay;
             clinicalData.KpsBaseline = clinicalDataModel.KpsBaseline;
             clinicalData.SteroidsBaseline = clinicalDataModel.SteroidsBaseline;
         }

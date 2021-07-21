@@ -43,7 +43,7 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.Type = tissue.TypeId?.ToDefinitionString();
             index.TumorType = tissue.TumorTypeId?.ToDefinitionString();
             index.Source = tissue.Source?.Value;
-            index.ExtractionDate = tissue.ExtractionDate;
+            index.ExtractionDay = tissue.ExtractionDay;
 
             index.MolecularData = CreateFrom(molecularData);
 

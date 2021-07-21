@@ -48,11 +48,10 @@ namespace Unite.Donors.DataFeed.Web.Models.Donors.Converters
             target.Gender = source.Gender;
             target.Age = source.Age;
             target.Diagnosis = source.Diagnosis;
-            target.DiagnosisDate = source.DiagnosisDate;
             target.PrimarySite = source.PrimarySite;
             target.Localization = source.Localization;
             target.VitalStatus = source.VitalStatus;
-            target.VitalStatusChangeDate = source.VitalStatusChangeDate;
+            target.VitalStatusChangeDay = source.VitalStatusChangeDay;
             target.KpsBaseline = source.KpsBaseline;
             target.SteroidsBaseline = source.SteroidsBaseline;
         }
@@ -61,10 +60,10 @@ namespace Unite.Donors.DataFeed.Web.Models.Donors.Converters
         {
             target.Therapy = source.Therapy;
             target.Details = source.Details;
-            target.StartDate = source.StartDate;
-            target.EndDate = source.EndDate;
+            target.StartDay = source.StartDay;
+            target.DurationDays = source.DurationDays;
             target.ProgressionStatus = source.ProgressionStatus;
-            target.ProgressionStatusChangeDate = source.ProgressionStatusChangeDate;
+            target.ProgressionStatusChangeDay = source.ProgressionStatusChangeDay;
             target.Results = source.Results;
         }
     }

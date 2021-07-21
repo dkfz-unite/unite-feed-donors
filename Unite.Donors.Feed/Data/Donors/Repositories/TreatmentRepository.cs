@@ -23,7 +23,8 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
                 .FirstOrDefault(treatment =>
                     treatment.DonorId == donorId &&
                     treatment.Therapy.Name == treatmentModel.Therapy &&
-                    treatment.StartDate == treatmentModel.StartDate
+                    treatment.StartDay == treatmentModel.StartDay &&
+                    treatment.DurationDays == treatmentModel.DurationDays
                 );
 
             return treatment;
@@ -57,10 +58,10 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
         {
             treatment.Therapy = GetTherapy(treatmentModel.Therapy);
             treatment.Details = treatmentModel.Details;
-            treatment.StartDate = treatmentModel.StartDate;
-            treatment.EndDate = treatmentModel.EndDate;
+            treatment.StartDay = treatmentModel.StartDay;
+            treatment.DurationDays = treatmentModel.DurationDays;
             treatment.ProgressionStatus = treatmentModel.ProgressionStatus;
-            treatment.ProgressionStatusChangeDate = treatmentModel.ProgressionStatusChangeDate;
+            treatment.ProgressionStatusChangeDay = treatmentModel.ProgressionStatusChangeDay;
             treatment.Results = treatmentModel.Results;
         }
 

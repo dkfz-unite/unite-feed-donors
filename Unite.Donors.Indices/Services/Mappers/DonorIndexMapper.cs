@@ -39,11 +39,10 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.Gender = clinicalData.GenderId?.ToDefinitionString();
             index.Age = clinicalData.Age;
             index.Diagnosis = clinicalData.Diagnosis;
-            index.DiagnosisDate = clinicalData.DiagnosisDate;
             index.PrimarySite = clinicalData.PrimarySite?.Value;
             index.Localization = clinicalData.Localization?.Value;
             index.VitalStatus = clinicalData.VitalStatus;
-            index.VitalStatusChangeDate = clinicalData.VitalStatusChangeDate;
+            index.VitalStatusChangeDay = clinicalData.VitalStatusChangeDay;
             index.KpsBaseline = clinicalData.KpsBaseline;
             index.SteroidsBaseline = clinicalData.SteroidsBaseline;
 
@@ -63,10 +62,10 @@ namespace Unite.Donors.Indices.Services.Mappers
 
                 index.Therapy = treatment.Therapy.Name;
                 index.Details = treatment.Details;
-                index.StartDate = treatment.StartDate;
-                index.EndDate = treatment.EndDate;
+                index.StartDay = treatment.StartDay;
+                index.DurationDays = treatment.DurationDays;
                 index.ProgressionStatus = treatment.ProgressionStatus;
-                index.ProgressionStatusChangeDate = treatment.ProgressionStatusChangeDate;
+                index.ProgressionStatusChangeDay = treatment.ProgressionStatusChangeDay;
                 index.Results = treatment.Results;
 
                 return index;

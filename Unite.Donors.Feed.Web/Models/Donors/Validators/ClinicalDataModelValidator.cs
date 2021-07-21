@@ -37,11 +37,10 @@ namespace Unite.Donors.DataFeed.Web.Models.Donors.Validators
             return model.Gender != null
                 || model.Age != null
                 || !string.IsNullOrWhiteSpace(model.Diagnosis)
-                || model.DiagnosisDate != null
                 || !string.IsNullOrWhiteSpace(model.PrimarySite)
                 || !string.IsNullOrWhiteSpace(model.Localization)
                 || model.VitalStatus != null
-                || model.VitalStatusChangeDate != null
+                || model.VitalStatusChangeDay != null
                 || model.KpsBaseline != null
                 || model.SteroidsBaseline != null;
         }
