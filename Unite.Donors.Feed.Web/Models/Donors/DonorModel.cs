@@ -1,6 +1,6 @@
-﻿using Unite.Donors.DataFeed.Web.Models.Extensions;
+﻿using Unite.Data.Extensions;
 
-namespace Unite.Donors.DataFeed.Web.Models.Donors
+namespace Unite.Donors.Feed.Web.Services.Donors
 {
     public class DonorModel
     {

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
-using Unite.Donors.DataFeed.Web.Configuration.Extensions;
+using Unite.Donors.Feed.Web.Configuration.Extensions;
 
-namespace Unite.Donors.DataFeed.Web.Configuration.Filters
+namespace Unite.Donors.Feed.Web.Configuration.Filters
 {
     public class DefaultActionFilter: IActionFilter
     {

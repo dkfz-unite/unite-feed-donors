@@ -3,14 +3,14 @@ using System.Linq;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Unite.Donors.DataFeed.Web.Models.Donors;
-using Unite.Donors.DataFeed.Web.Models.Donors.Converters;
-using Unite.Donors.DataFeed.Web.Models.Extensions;
-using Unite.Donors.DataFeed.Web.Models.Validation;
+using Unite.Data.Extensions;
+using Unite.Donors.Feed.Web.Services.Donors;
+using Unite.Donors.Feed.Web.Services.Donors.Converters;
+using Unite.Donors.Feed.Web.Services.Validation;
 using Unite.Donors.Feed.Data.Donors;
 using Unite.Donors.Feed.Web.Services;
 
-namespace Unite.Donors.DataFeed.Web.Controllers
+namespace Unite.Donors.Feed.Web.Controllers
 {
     [Route("api/[controller]")]
     public class DonorsController : Controller
@@ -18,7 +18,7 @@ namespace Unite.Donors.DataFeed.Web.Controllers
         private readonly IValidationService _validationService;
         private readonly IValidator<IEnumerable<DonorModel>> _validator;
         private readonly DonorDataWriter _dataWriter;
-        private readonly IndexingTaskService _indexingTaskService;
+        private readonly DonorIndexingTasksService _indexingTaskService;
         private readonly ILogger _logger;
 
         private readonly DonorModelConverter _converter;
@@ -28,7 +28,7 @@ namespace Unite.Donors.DataFeed.Web.Controllers
             IValidationService validationService,
             IValidator<IEnumerable<DonorModel>> validator,
             DonorDataWriter dataWriter,
-            IndexingTaskService indexingTaskService,
+            DonorIndexingTasksService indexingTaskService,
             ILogger<DonorsController> logger)
         {
             _validationService = validationService;

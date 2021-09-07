@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Unite.Donors.DataFeed.Web.Configuration.Extensions
+namespace Unite.Donors.Feed.Web.Configuration.Extensions
 {
     public static class JsonOptionsExtensions
     {

@@ -17,7 +17,7 @@ namespace Unite.Donors.Feed.Data.Donors
         private readonly StudyDonorRepository _studyDonorRepository;
 
 
-        public DonorDataWriter(UniteDbContext dbContext) : base(dbContext)
+        public DonorDataWriter(DomainDbContext dbContext) : base(dbContext)
         {
             _donorRepository = new DonorRepository(dbContext);
             _clinicalDataRepository = new ClinicalDataRepository(dbContext);

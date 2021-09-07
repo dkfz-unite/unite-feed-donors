@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Unite.Donors.DataFeed.Web.Models.Validation
+namespace Unite.Donors.Feed.Web.Services.Validation
 {
     public interface IValidationService
     {

@@ -7,19 +7,19 @@ using Unite.Indices.Services;
 
 namespace Unite.Donors.Feed.Web.Handlers
 {
-    public class IndexingHandler
+    public class DonorsIndexingHandler
     {
-        private readonly TaskProcessingService _taskProcessingService;
+        private readonly TasksProcessingService _taskProcessingService;
         private readonly IIndexCreationService<DonorIndex> _indexCreationService;
         private readonly IIndexingService<DonorIndex> _indexingService;
         private readonly ILogger _logger;
 
 
-        public IndexingHandler(
-            TaskProcessingService taskProcessingService,
+        public DonorsIndexingHandler(
+            TasksProcessingService taskProcessingService,
             IIndexCreationService<DonorIndex> indexCreationService,
             IIndexingService<DonorIndex> indexingService,
-            ILogger<IndexingHandler> logger)
+            ILogger<DonorsIndexingHandler> logger)
         {
             _taskProcessingService = taskProcessingService;
             _indexCreationService = indexCreationService;

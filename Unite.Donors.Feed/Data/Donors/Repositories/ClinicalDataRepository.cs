@@ -8,10 +8,10 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
 {
     internal class ClinicalDataRepository
     {
-        private readonly UniteDbContext _dbContext;
+        private readonly DomainDbContext _dbContext;
 
 
-        public ClinicalDataRepository(UniteDbContext dbContext)
+        public ClinicalDataRepository(DomainDbContext dbContext)
         {
             _dbContext = dbContext;
         }

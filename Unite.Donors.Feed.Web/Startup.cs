@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Unite.Donors.DataFeed.Web.Configuration.Extensions;
+using Unite.Donors.Feed.Web.Configuration.Extensions;
 
-namespace Unite.Donors.DataFeed.Web
+namespace Unite.Donors.Feed.Web
 {
     public class Startup
     {

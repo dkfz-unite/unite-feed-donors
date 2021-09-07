@@ -11,9 +11,9 @@ using Unite.Indices.Entities.Basic.Specimens;
 
 namespace Unite.Donors.Indices.Services.Mappers
 {
-    public class SpecimenIndexMapper
+    internal class SpecimenIndexMapper
     {
-        public void Map(in Specimen specimen, SpecimenIndex index)
+        internal void Map(in Specimen specimen, SpecimenIndex index)
         {
             if (specimen == null)
             {

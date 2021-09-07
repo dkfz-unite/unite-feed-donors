@@ -3,11 +3,11 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Unite.Data.Services;
 using Unite.Data.Services.Configuration.Options;
-using Unite.Donors.DataFeed.Web.Configuration.Options;
-using Unite.Donors.DataFeed.Web.HostedServices;
-using Unite.Donors.DataFeed.Web.Models.Donors;
-using Unite.Donors.DataFeed.Web.Models.Donors.Validators;
-using Unite.Donors.DataFeed.Web.Models.Validation;
+using Unite.Donors.Feed.Web.Configuration.Options;
+using Unite.Donors.Feed.Web.HostedServices;
+using Unite.Donors.Feed.Web.Services.Donors;
+using Unite.Donors.Feed.Web.Services.Donors.Validators;
+using Unite.Donors.Feed.Web.Services.Validation;
 using Unite.Donors.Feed.Data.Donors;
 using Unite.Donors.Feed.Web.Handlers;
 using Unite.Donors.Feed.Web.Services;
@@ -16,7 +16,7 @@ using Unite.Indices.Entities.Donors;
 using Unite.Indices.Services;
 using Unite.Indices.Services.Configuration.Options;
 
-namespace Unite.Donors.DataFeed.Web.Configuration.Extensions
+namespace Unite.Donors.Feed.Web.Configuration.Extensions
 {
     public static class ConfigurationExtensions
     {
@@ -38,7 +38,7 @@ namespace Unite.Donors.DataFeed.Web.Configuration.Extensions
 
         private static void AddDatabases(IServiceCollection services)
         {
-            services.AddTransient<UniteDbContext>();
+            services.AddTransient<DomainDbContext>();
         }
 
         private static void AddValidation(IServiceCollection services)
@@ -52,17 +52,17 @@ namespace Unite.Donors.DataFeed.Web.Configuration.Extensions
         {
             services.AddTransient<DonorDataWriter>();
             
-            services.AddTransient<TaskProcessingService>();
-            services.AddTransient<IndexingTaskService>();
+            services.AddTransient<TasksProcessingService>();
+            services.AddTransient<DonorIndexingTasksService>();
             services.AddTransient<IIndexCreationService<DonorIndex>, DonorIndexCreationService>();
-            services.AddTransient<IIndexingService<DonorIndex>, DonorIndexingService>();
+            services.AddTransient<IIndexingService<DonorIndex>, DonorsIndexingService>();
         }
 
         private static void AddHostedServices(IServiceCollection services)
         {
-            services.AddHostedService<IndexingHostedService>();
+            services.AddHostedService<DonorsIndexingHostedService>();
 
-            services.AddTransient<IndexingHandler>();
+            services.AddTransient<DonorsIndexingHandler>();
         }
     }
 }

@@ -7,10 +7,10 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
 {
     internal class StudyDonorRepository
     {
-        private readonly UniteDbContext _dbContext;
+        private readonly DomainDbContext _dbContext;
 
 
-        public StudyDonorRepository(UniteDbContext dbContext)
+        public StudyDonorRepository(DomainDbContext dbContext)
         {
             _dbContext = dbContext;
         }

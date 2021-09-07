@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Unite.Donors.DataFeed.Web.Configuration.Filters;
+using Unite.Donors.Feed.Web.Configuration.Filters;
 
-namespace Unite.Donors.DataFeed.Web.Configuration.Extensions
+namespace Unite.Donors.Feed.Web.Configuration.Extensions
 {
     public static class MvcOptionsExtensions
     {

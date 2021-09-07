@@ -8,9 +8,9 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
 {
     internal class TreatmentRepository
     {
-        private readonly UniteDbContext _dbContext;
+        private readonly DomainDbContext _dbContext;
 
-        public TreatmentRepository(UniteDbContext dbContext)
+        public TreatmentRepository(DomainDbContext dbContext)
         {
             _dbContext = dbContext;
         }

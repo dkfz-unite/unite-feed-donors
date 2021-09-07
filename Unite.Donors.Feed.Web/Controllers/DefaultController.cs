@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Unite.Donors.DataFeed.Web.Controllers
+namespace Unite.Donors.Feed.Web.Controllers
 {
     [Route("api/")]
     public class DefaultController : Controller

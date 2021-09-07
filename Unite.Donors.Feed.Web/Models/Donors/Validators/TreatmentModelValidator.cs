@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Unite.Donors.DataFeed.Web.Models.Donors.Validators
+namespace Unite.Donors.Feed.Web.Services.Donors.Validators
 {
     public class TreatmentModelValidator : AbstractValidator<TreatmentModel>
     {

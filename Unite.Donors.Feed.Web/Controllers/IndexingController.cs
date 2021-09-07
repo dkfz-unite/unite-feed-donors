@@ -6,10 +6,10 @@ namespace Unite.Donors.Feed.Web.Controllers
     [Route("api/[controller]/[action]")]
     public class IndexingController : Controller
     {
-        private readonly IndexingTaskService _indexingTaskService;
+        private readonly DonorIndexingTasksService _indexingTaskService;
 
 
-        public IndexingController(IndexingTaskService indexingTaskService)
+        public IndexingController(DonorIndexingTasksService indexingTaskService)
         {
             _indexingTaskService = indexingTaskService;
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unite.Donors.DataFeed.Web.Configuration.Options
+namespace Unite.Donors.Feed.Web.Configuration.Options
 {
     public class IndexingOptions
     {

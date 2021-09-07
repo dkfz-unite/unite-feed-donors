@@ -1,7 +1,7 @@
 ﻿using System;
 using Unite.Indices.Services.Configuration.Options;
 
-namespace Unite.Donors.DataFeed.Web.Configuration.Options
+namespace Unite.Donors.Feed.Web.Configuration.Options
 {
     public class ElasticOptions : IElasticOptions
     {

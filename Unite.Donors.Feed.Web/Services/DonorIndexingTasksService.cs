@@ -9,14 +9,14 @@ using Unite.Data.Services;
 
 namespace Unite.Donors.Feed.Web.Services
 {
-    public class IndexingTaskService
+    public class DonorIndexingTasksService
     {
         private const int BUCKET_SIZE = 1000;
 
-        private readonly UniteDbContext _dbContext;
+        private readonly DomainDbContext _dbContext;
 
 
-        public IndexingTaskService(UniteDbContext dbContext)
+        public DonorIndexingTasksService(DomainDbContext dbContext)
         {
             _dbContext = dbContext;
         }

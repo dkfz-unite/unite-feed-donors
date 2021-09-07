@@ -8,9 +8,9 @@ using Unite.Indices.Entities.Basic.Donors;
 
 namespace Unite.Donors.Indices.Services.Mappers
 {
-    public class DonorIndexMapper
+    internal class DonorIndexMapper
     {
-        public void Map(in Donor donor, DonorIndex index)
+        internal void Map(in Donor donor, DonorIndex index)
         {
             if (donor == null)
             {

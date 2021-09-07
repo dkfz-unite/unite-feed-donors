@@ -3,21 +3,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Unite.Donors.DataFeed.Web.Configuration.Options;
+using Unite.Donors.Feed.Web.Configuration.Options;
 using Unite.Donors.Feed.Web.Handlers;
 
-namespace Unite.Donors.DataFeed.Web.HostedServices
+namespace Unite.Donors.Feed.Web.HostedServices
 {
-    public class IndexingHostedService : BackgroundService
+    public class DonorsIndexingHostedService : BackgroundService
     {
         private readonly IndexingOptions _options;
-        private readonly IndexingHandler _handler;
+        private readonly DonorsIndexingHandler _handler;
         private readonly ILogger _logger;
 
-        public IndexingHostedService(
+        public DonorsIndexingHostedService(
             IndexingOptions options,
-            IndexingHandler handler,
-            ILogger<IndexingHostedService> logger)
+            DonorsIndexingHandler handler,
+            ILogger<DonorsIndexingHostedService> logger)
         {
             _options = options;
             _handler = handler;

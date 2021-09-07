@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 
-namespace Unite.Donors.DataFeed.Web.Configuration.Filters
+namespace Unite.Donors.Feed.Web.Configuration.Filters
 {
     public class DefaultExceptionFilter: IExceptionFilter
     {

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace Unite.Donors.DataFeed.Web.Configuration.Extensions
+namespace Unite.Donors.Feed.Web.Configuration.Extensions
 {
     public static class ModelStateExtensions
     {

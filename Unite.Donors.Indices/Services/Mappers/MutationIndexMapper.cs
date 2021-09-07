@@ -7,9 +7,9 @@ using Unite.Indices.Entities.Basic.Mutations;
 
 namespace Unite.Donors.Indices.Services.Mappers
 {
-    public class MutationIndexMapper
+    internal class MutationIndexMapper
     {
-        public void Map(in Mutation mutation, MutationIndex index)
+        internal void Map(in Mutation mutation, MutationIndex index)
         {
             if (mutation == null)
             {
@@ -55,34 +55,15 @@ namespace Unite.Donors.Indices.Services.Mappers
                     affectedTranscript.CodonChange
                 );
 
-                index.Gene = CreateFrom(affectedTranscript.Gene);
-                index.Transcript = CreateFrom(affectedTranscript.Transcript);
                 index.Consequences = CreateFrom(affectedTranscript.Consequences);
+
+                index.Transcript = CreateFrom(affectedTranscript.Transcript);
 
                 return index;
 
             }).ToArray();
 
             return indices;
-        }
-
-        private static GeneIndex CreateFrom(in Gene gene)
-        {
-            if (gene == null)
-            {
-                return null;
-            }
-
-            var index = new GeneIndex();
-
-            index.Id = gene.Id;
-            index.Symbol = gene.Symbol;
-            index.Strand = gene.Strand;
-            index.Biotype = gene.Biotype?.Value;
-
-            index.EnsemblId = gene.Info?.EnsemblId;
-
-            return index;
         }
 
         private static TranscriptIndex CreateFrom(in Transcript transcript)
@@ -96,10 +77,58 @@ namespace Unite.Donors.Indices.Services.Mappers
 
             index.Id = transcript.Id;
             index.Symbol = transcript.Symbol;
-            index.Strand = transcript.Strand;
             index.Biotype = transcript.Biotype?.Value;
+            index.Chromosome = transcript.ChromosomeId.ToDefinitionString();
+            index.Start = transcript.Start;
+            index.End = transcript.End;
+            index.Strand = transcript.Strand;
 
             index.EnsemblId = transcript.Info?.EnsemblId;
+
+            index.Gene = CreateFrom(transcript.Gene);
+            index.Protein = CreateFrom(transcript.Protein);
+
+            return index;
+        }
+
+        private static GeneIndex CreateFrom(in Gene gene)
+        {
+            if (gene == null)
+            {
+                return null;
+            }
+
+            var index = new GeneIndex();
+
+            index.Id = gene.Id;
+            index.Symbol = gene.Symbol;
+            index.Biotype = gene.Biotype?.Value;
+            index.Chromosome = gene.ChromosomeId.ToDefinitionString();
+            index.Start = gene.Start;
+            index.End = gene.End;
+            index.Strand = gene.Strand;
+
+            index.EnsemblId = gene.Info?.EnsemblId;
+
+            return index;
+        }
+
+        private static ProteinIndex CreateFrom(in Protein protein)
+        {
+            if (protein == null)
+            {
+                return null;
+            }
+
+            var index = new ProteinIndex();
+
+            index.Id = protein.Id;
+            index.Symbol = protein.Symbol;
+            index.Start = protein.Start;
+            index.End = protein.End;
+            index.Length = protein.Length;
+
+            index.EnsemblId = protein.Info?.EnsemblId;
 
             return index;
         }

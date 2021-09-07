@@ -6,7 +6,7 @@ using Unite.Indices.Services.Configuration.Options;
 
 namespace Unite.Donors.Indices.Services
 {
-    public class DonorIndexingService : IndexingService<DonorIndex>
+    public class DonorsIndexingService : IndexingService<DonorIndex>
 	{
 		protected override string DefaultIndex
 		{
@@ -18,7 +18,7 @@ namespace Unite.Donors.Indices.Services
 			get { return (donor) => donor.Id; }
 		}
 
-		public DonorIndexingService(IElasticOptions options) : base(options)
+		public DonorsIndexingService(IElasticOptions options) : base(options)
 		{
 		}
 	}

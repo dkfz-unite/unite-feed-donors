@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Unite.Donors.DataFeed.Web
+namespace Unite.Donors.Feed.Web
 {
     public class Program
     {
