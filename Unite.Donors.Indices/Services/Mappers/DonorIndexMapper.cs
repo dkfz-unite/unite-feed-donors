@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Unite.Data.Entities.Clinical;
 using Unite.Data.Entities.Donors;
+using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Extensions;
-using Unite.Indices.Entities.Basic.Clinical;
 using Unite.Indices.Entities.Basic.Donors;
+using Unite.Indices.Entities.Basic.Donors.Clinical;
 
 namespace Unite.Donors.Indices.Services.Mappers
 {
@@ -22,7 +23,7 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.MtaProtected = donor.MtaProtected;
 
             index.ClinicalData = CreateFrom(donor.ClinicalData);
-            index.Treatments = CreateFrom(donor.Treatments);
+            index.Treatments = CreateFrom(donor.Treatments, donor.ClinicalData?.DiagnosisDate);
             index.WorkPackages = CreateFrom(donor.DonorWorkPackages);
             index.Studies = CreateFrom(donor.DonorStudies);
         }
@@ -49,7 +50,7 @@ namespace Unite.Donors.Indices.Services.Mappers
             return index;
         }
 
-        private static TreatmentIndex[] CreateFrom(in IEnumerable<Treatment> treatments)
+        private static TreatmentIndex[] CreateFrom(in IEnumerable<Treatment> treatments, DateTime? diagnosisDate)
         {
             if (treatments == null || !treatments.Any())
             {
@@ -62,10 +63,10 @@ namespace Unite.Donors.Indices.Services.Mappers
 
                 index.Therapy = treatment.Therapy.Name;
                 index.Details = treatment.Details;
-                index.StartDay = treatment.StartDay;
-                index.DurationDays = treatment.DurationDays;
+                index.StartDay = treatment.StartDate.RelativeFrom(diagnosisDate) ?? treatment.StartDay;
+                index.DurationDays = treatment.EndDate.RelativeFrom(treatment.StartDate) ?? treatment.DurationDays;
                 index.ProgressionStatus = treatment.ProgressionStatus;
-                index.ProgressionStatusChangeDay = treatment.ProgressionStatusChangeDay;
+                index.ProgressionStatusChangeDay = treatment.ProgressionStatusChangeDate.RelativeFrom(treatment.StartDate);
                 index.Results = treatment.Results;
 
                 return index;

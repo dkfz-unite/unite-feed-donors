@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Unite.Data.Entities.Clinical;
+using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Services;
 using Unite.Donors.Feed.Data.Donors.Models;
 
@@ -19,51 +19,53 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
 
         public ClinicalData Find(int donorId)
         {
-            var clinicalData = _dbContext.ClinicalData
-                .Include(clinicalData => clinicalData.PrimarySite)
-                .Include(clinicalData => clinicalData.Localization)
-                .FirstOrDefault(clinicalData =>
-                    clinicalData.DonorId == donorId
+            var entity = _dbContext.Set<ClinicalData>()
+                .Include(entity => entity.PrimarySite)
+                .Include(entity => entity.Localization)
+                .FirstOrDefault(entity =>
+                    entity.DonorId == donorId
                 );
 
-            return clinicalData;
+            return entity;
         }
 
-        public ClinicalData Create(int donorId, ClinicalDataModel clinicalDataModel)
+        public ClinicalData Create(int donorId, ClinicalDataModel model)
         {
-            var clinicalData = new ClinicalData
+            var entity = new ClinicalData
             {
                 DonorId = donorId
             };
 
-            Map(clinicalDataModel, clinicalData);
+            Map(model, ref entity);
 
-            _dbContext.ClinicalData.Add(clinicalData);
+            _dbContext.Add(entity);
             _dbContext.SaveChanges();
 
-            return clinicalData;
+            return entity;
         }
 
-        public void Update(ClinicalData clinicalData, ClinicalDataModel clinicalDataModel)
+        public void Update(ClinicalData entity, ClinicalDataModel model)
         {
-            Map(clinicalDataModel, clinicalData);
+            Map(model, ref entity);
 
-            _dbContext.ClinicalData.Update(clinicalData);
+            _dbContext.Update(entity);
             _dbContext.SaveChanges();
         }
 
 
-        private void Map(ClinicalDataModel clinicalDataModel, ClinicalData clinicalData)
+        private void Map(in ClinicalDataModel model, ref ClinicalData entity)
         {
-            clinicalData.GenderId = clinicalDataModel.Gender;
-            clinicalData.Age = clinicalDataModel.Age;
-            clinicalData.Diagnosis = clinicalDataModel.Diagnosis;
-            clinicalData.PrimarySite = GetPrimarySite(clinicalDataModel.PrimarySite);
-            clinicalData.Localization = GetLocalization(clinicalDataModel.Localization);
-            clinicalData.VitalStatus = clinicalDataModel.VitalStatus;
-            clinicalData.VitalStatusChangeDay = clinicalDataModel.VitalStatusChangeDay;
-            clinicalData.KpsBaseline = clinicalDataModel.KpsBaseline;
-            clinicalData.SteroidsBaseline = clinicalDataModel.SteroidsBaseline;
+            entity.GenderId = model.Gender;
+            entity.Age = model.Age;
+            entity.Diagnosis = model.Diagnosis;
+            entity.DiagnosisDate = model.DiagnosisDate;
+            entity.PrimarySite = GetPrimarySite(model.PrimarySite);
+            entity.Localization = GetLocalization(model.Localization);
+            entity.VitalStatus = model.VitalStatus;
+            entity.VitalStatusChangeDate = model.VitalStatusChangeDate;
+            entity.VitalStatusChangeDay = model.VitalStatusChangeDay;
+            entity.KpsBaseline = model.KpsBaseline;
+            entity.SteroidsBaseline = model.SteroidsBaseline;
         }
 
         private TumorPrimarySite GetPrimarySite(string value)
@@ -73,19 +75,20 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
                 return null;
             }
 
-            var primarySite = _dbContext.TumorPrimarySites.FirstOrDefault(primarySite =>
-                primarySite.Value == value
-            );
+            var entity = _dbContext.Set<TumorPrimarySite>()
+                .FirstOrDefault(entity =>
+                    entity.Value == value
+                );
 
-            if (primarySite == null)
+            if (entity == null)
             {
-                primarySite = new TumorPrimarySite { Value = value };
+                entity = new TumorPrimarySite { Value = value };
 
-                _dbContext.TumorPrimarySites.Add(primarySite);
+                _dbContext.Add(entity);
                 _dbContext.SaveChanges();
             }
 
-            return primarySite;
+            return entity;
         }
 
         private TumorLocalization GetLocalization(string value)
@@ -95,19 +98,20 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
                 return null;
             }
 
-            var localization = _dbContext.TumorLocalizations.FirstOrDefault(localization =>
-                localization.Value == value
-            );
+            var entity = _dbContext.Set<TumorLocalization>()
+                .FirstOrDefault(entity =>
+                    entity.Value == value
+                );
 
-            if (localization == null)
+            if (entity == null)
             {
-                localization = new TumorLocalization { Value = value };
+                entity = new TumorLocalization { Value = value };
 
-                _dbContext.TumorLocalizations.Add(localization);
+                _dbContext.Add(entity);
                 _dbContext.SaveChanges();
             }
 
-            return localization;
+            return entity;
         }
     }
 }

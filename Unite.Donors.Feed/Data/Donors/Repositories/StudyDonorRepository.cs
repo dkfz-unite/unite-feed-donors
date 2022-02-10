@@ -22,55 +22,78 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
 
         public StudyDonor Find(int donorId, string studyName)
         {
-            var studyDonor = _dbContext.StudyDonors.FirstOrDefault(studyDonor =>
-                studyDonor.DonorId == donorId &&
-                studyDonor.Study.Name == studyName
-            );
+            var entity = _dbContext.Set<StudyDonor>()
+                .FirstOrDefault(entity =>
+                    entity.DonorId == donorId &&
+                    entity.Study.Name == studyName
+                );
 
-            return studyDonor;
+            return entity;
         }
 
         public StudyDonor Create(int donorId, string studyName)
         {
-            var studyDonor = new StudyDonor
+            var entity = new StudyDonor
             {
                 DonorId = donorId,
                 Study = GetStudy(studyName)
             };
 
-            _dbContext.StudyDonors.Add(studyDonor);
+            _dbContext.Add(entity);
             _dbContext.SaveChanges();
 
-            return studyDonor;
+            return entity;
+        }
+
+        public IEnumerable<StudyDonor> CreateOrUpdate(int donorId, IEnumerable<string> studyNames)
+        {
+            RemoveRedundant(donorId, studyNames);
+
+            var created = CreateMissing(donorId, studyNames);
+
+            return created;
         }
 
         public IEnumerable<StudyDonor> CreateMissing(int donorId, IEnumerable<string> studyNames)
         {
-            var studyDonorsToAdd = new List<StudyDonor>();
+            var entitiesToAdd = new List<StudyDonor>();
 
             foreach (var studyName in studyNames)
             {
-                var studyDonor = Find(donorId, studyName);
+                var entity = Find(donorId, studyName);
 
-                if (studyDonor == null)
+                if (entity == null)
                 {
-                    studyDonor = new StudyDonor
+                    entity = new StudyDonor
                     {
                         DonorId = donorId,
                         Study = GetStudy(studyName)
                     };
 
-                    studyDonorsToAdd.Add(studyDonor);
+                    entitiesToAdd.Add(entity);
                 }
             }
 
-            if (studyDonorsToAdd.Any())
+            if (entitiesToAdd.Any())
             {
-                _dbContext.StudyDonors.AddRange(studyDonorsToAdd);
+                _dbContext.AddRange(entitiesToAdd);
                 _dbContext.SaveChanges();
             }
 
-            return studyDonorsToAdd;
+            return entitiesToAdd;
+        }
+
+        public void RemoveRedundant(int donorId, IEnumerable<string> studyNames)
+        {
+            var entitiesToRemove = _dbContext.Set<StudyDonor>()
+                .Where(entity => entity.DonorId == donorId && !studyNames.Contains(entity.Study.Name))
+                .ToArray();
+
+            if (entitiesToRemove.Any())
+            {
+                _dbContext.RemoveRange(entitiesToRemove);
+                _dbContext.SaveChanges();
+            }
         }
 
 
@@ -81,19 +104,20 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
                 return null;
             }
 
-            var study = _dbContext.Studies.FirstOrDefault(study =>
-                study.Name == name
-            );
+            var entity = _dbContext.Set<Study>()
+                .FirstOrDefault(study =>
+                    study.Name == name
+                );
 
-            if (study == null)
+            if (entity == null)
             {
-                study = new Study { Name = name };
+                entity = new Study { Name = name };
 
-                _dbContext.Studies.Add(study);
+                _dbContext.Add(entity);
                 _dbContext.SaveChanges();
             }
 
-            return study;
+            return entity;
         }
     }
 }

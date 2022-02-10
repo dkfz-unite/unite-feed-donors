@@ -1,145 +1,107 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using Unite.Data.Entities.Donors;
-using Unite.Data.Entities.Tasks;
-using Unite.Data.Entities.Tasks.Enums;
+using Unite.Data.Entities.Genome.Mutations;
+using Unite.Data.Entities.Images;
+using Unite.Data.Entities.Specimens;
 using Unite.Data.Services;
 
 namespace Unite.Donors.Feed.Web.Services
 {
-    public class DonorIndexingTasksService
+    public class DonorIndexingTasksService : IndexingTaskService<Donor, int>
     {
-        private const int BUCKET_SIZE = 1000;
-
-        private readonly DomainDbContext _dbContext;
+        protected override int BucketSize => 1000;
 
 
-        public DonorIndexingTasksService(DomainDbContext dbContext)
+        public DonorIndexingTasksService(DomainDbContext dbContext) : base(dbContext)
         {
-            _dbContext = dbContext;
         }
 
-        /// <summary>
-        /// Creates only donor indexing tasks for all existing donors
-        /// </summary>
-        public void CreateTasks()
+
+        public override void CreateTasks()
         {
-            IterateDonors(donor => true, donors =>
+            IterateEntities<Donor, int>(donor => true, donor => donor.Id, donors =>
             {
                 CreateDonorIndexingTasks(donors);
             });
         }
 
-        /// <summary>
-        /// Creates only donor indexing tasks for all donors with given identifiers
-        /// </summary>
-        /// <param name="donorIds">Identifiers of donors</param>
-        public void CreateTasks(IEnumerable<int> donorIds)
+        public override void CreateTasks(IEnumerable<int> keys)
         {
-            IterateDonors(donor => donorIds.Contains(donor.Id), donors =>
+            IterateEntities<Donor, int>(donor => keys.Contains(donor.Id), donor => donor.Id, donors =>
             {
                 CreateDonorIndexingTasks(donors);
             });
         }
 
-        /// <summary>
-        /// Populates all types of indexing tasks for for donors with given identifiers
-        /// </summary>
-        /// <param name="donorIds">Identifiers of donors</param>
-        public void PopulateTasks(IEnumerable<int> donorIds)
+        public override void PopulateTasks(IEnumerable<int> keys)
         {
-            IterateDonors(donor => true, donors =>
+            IterateEntities<Donor, int>(donor => keys.Contains(donor.Id), donor => donor.Id, donors =>
             {
                 CreateDonorIndexingTasks(donors);
-                CreateMutationIndexingTasks(donors);
+                CreateImageIndexingTasks(donors);
                 CreateSpecimenIndexingTasks(donors);
+                CreateMutationIndexingTasks(donors);
+                CreateGeneIndexingTasks(donors);
             });
         }
 
 
-        private void CreateDonorIndexingTasks(IEnumerable<int> donorIds)
+        protected override IEnumerable<int> LoadRelatedDonors(IEnumerable<int> keys)
         {
-            var tasks = donorIds
-                .Select(donorId => new Task
-                {
-                    TypeId = TaskType.Indexing,
-                    TargetTypeId = TaskTargetType.Donor,
-                    Target = donorId.ToString(),
-                    Date = DateTime.UtcNow
-                })
-                .ToArray();
-
-            _dbContext.Tasks.AddRange(tasks);
-            _dbContext.SaveChanges();
+            return keys;
         }
 
-        private void CreateMutationIndexingTasks(IEnumerable<int> donorIds)
+        protected override IEnumerable<int> LoadRelatedImages(IEnumerable<int> keys)
         {
-            var mutationIds = _dbContext.MutationOccurrences
-                .Where(mutationOccurrence => donorIds.Contains(mutationOccurrence.AnalysedSample.Sample.Specimen.DonorId))
-                .Select(mutationOccurrence => mutationOccurrence.MutationId)
+            var imageIds = _dbContext.Set<Image>()
+                .Where(image => keys.Contains(image.DonorId))
+                .Select(image => image.Id)
                 .Distinct()
                 .ToArray();
 
-            var tasks = mutationIds
-                .Select(mutationId => new Task
-                {
-                    TypeId = TaskType.Indexing,
-                    TargetTypeId = TaskTargetType.Mutation,
-                    Target = mutationId.ToString(),
-                    Date = DateTime.UtcNow
-                })
-                .ToArray();
-
-            _dbContext.Tasks.AddRange(tasks);
-            _dbContext.SaveChanges();
+            return imageIds;
         }
 
-        private void CreateSpecimenIndexingTasks(IEnumerable<int> donorIds)
+        protected override IEnumerable<int> LoadRelatedSpecimens(IEnumerable<int> keys)
         {
-            var specimenIds = _dbContext.Specimens
-                .Where(specimen => donorIds.Contains(specimen.DonorId))
+            var specimenIds = _dbContext.Set<Specimen>()
+                .Where(specimen => keys.Contains(specimen.DonorId))
                 .Select(specimen => specimen.Id)
                 .Distinct()
                 .ToArray();
 
-            var tasks = specimenIds
-                .Select(specimenId => new Task
-                {
-                    TypeId = TaskType.Indexing,
-                    TargetTypeId = TaskTargetType.Specimen,
-                    Target = specimenId.ToString(),
-                    Date = DateTime.UtcNow
-                })
-                .ToArray();
-
-            _dbContext.Tasks.AddRange(tasks);
-            _dbContext.SaveChanges();
+            return specimenIds;
         }
 
-        private void IterateDonors(Expression<Func<Donor, bool>> condition, Action<IEnumerable<int>> handler)
+        protected override IEnumerable<int> LoadRelatedGenes(IEnumerable<int> keys)
         {
-            var position = 0;
+            var mutationIds = _dbContext.Set<MutationOccurrence>()
+                .Where(mutationOccurrence => keys.Contains(mutationOccurrence.AnalysedSample.Sample.Specimen.DonorId))
+                .Select(mutationOccurrence => mutationOccurrence.MutationId)
+                .Distinct()
+                .ToArray();
 
-            var donors = Enumerable.Empty<int>();
+            var geneIds = _dbContext.Set<AffectedTranscript>()
+                .Where(affectedTranscript => mutationIds.Contains(affectedTranscript.Id))
+                .Where(affectedTranscript => affectedTranscript.Transcript.GeneId != null)
+                .Select(affectedTranscript => affectedTranscript.Transcript.GeneId.Value)
+                .Distinct()
+                .ToArray();
 
-            do
-            {
-                donors = _dbContext.Donors
-                    .Where(condition)
-                    .Skip(position)
-                    .Take(BUCKET_SIZE)
-                    .Select(donor => donor.Id)
-                    .ToArray();
+            return geneIds;
+        }
 
-                handler.Invoke(donors);
+        protected override IEnumerable<long> LoadRelatedMutations(IEnumerable<int> keys)
+        {
+            var mutationIds = _dbContext.Set<MutationOccurrence>()
+                .Where(mutationOccurrence => keys.Contains(mutationOccurrence.AnalysedSample.Sample.Specimen.DonorId))
+                .Select(mutationOccurrence => mutationOccurrence.MutationId)
+                .Distinct()
+                .ToArray();
 
-                position += donors.Count();
-
-            }
-            while (donors.Count() == BUCKET_SIZE);
+            return mutationIds;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using Unite.Data.Entities.Clinical;
 using Unite.Data.Entities.Donors;
+using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Services;
 using Unite.Donors.Feed.Data.Donors.Models;
 using Unite.Donors.Feed.Data.Donors.Models.Audit;
@@ -27,109 +27,109 @@ namespace Unite.Donors.Feed.Data.Donors
         }
 
 
-        protected override void ProcessModel(DonorModel donorModel, ref DonorsUploadAudit audit)
+        protected override void ProcessModel(DonorModel model, ref DonorsUploadAudit audit)
         {
-            var donor = CreateorUpdateDonor(donorModel, ref audit);
+            var donor = CreateorUpdateDonor(model, ref audit);
 
-            if (donorModel.ClinicalData != null)
+            if (model.ClinicalData != null)
             {
-                CreateOrUpdateClinicalData(donor.Id, donorModel.ClinicalData, ref audit);
+                CreateOrUpdateClinicalData(donor.Id, model.ClinicalData, ref audit);
             }
 
-            if (donorModel.Treatments != null)
+            if (model.Treatments != null)
             {
-                foreach (var treatmentModel in donorModel.Treatments)
+                foreach (var treatmentModel in model.Treatments)
                 {
                     CreateOrUpdateTreatment(donor.Id, treatmentModel, ref audit);
                 }
             }
 
-            if (donorModel.WorkPackages != null)
+            if (model.WorkPackages != null)
             {
-                CreateMissingWorkpackages(donor.Id, donorModel.WorkPackages, ref audit);
+                CreateOrUpdateWorkpackages(donor.Id, model.WorkPackages, ref audit);
             }
 
-            if (donorModel.Studies != null)
+            if (model.Studies != null)
             {
-                CreateMissingStudies(donor.Id, donorModel.Studies, ref audit);
+                CreateOrUpdateStudies(donor.Id, model.Studies, ref audit);
             }
         }
 
 
-        private Donor CreateorUpdateDonor(DonorModel donorModel, ref DonorsUploadAudit audit)
+        private Donor CreateorUpdateDonor(DonorModel model, ref DonorsUploadAudit audit)
         {
-            var donor = _donorRepository.Find(donorModel);
+            var entity = _donorRepository.Find(model);
 
-            if (donor == null)
+            if (entity == null)
             {
-                donor = _donorRepository.Create(donorModel);
+                entity = _donorRepository.Create(model);
 
                 audit.DonorsCreated++;
-                audit.Donors.Add(donor.Id);
+                audit.Donors.Add(entity.Id);
             }
             else
             {
-                _donorRepository.Update(donor, donorModel);
+                _donorRepository.Update(entity, model);
 
                 audit.DonorsUpdated++;
-                audit.Donors.Add(donor.Id);
+                audit.Donors.Add(entity.Id);
             }
 
-            return donor;
+            return entity;
         }
 
-        private ClinicalData CreateOrUpdateClinicalData(int donorId, ClinicalDataModel clinicalDataModel, ref DonorsUploadAudit audit)
+        private ClinicalData CreateOrUpdateClinicalData(int donorId, ClinicalDataModel model, ref DonorsUploadAudit audit)
         {
-            var clinicalData = _clinicalDataRepository.Find(donorId);
+            var entity = _clinicalDataRepository.Find(donorId);
 
-            if (clinicalData == null)
+            if (entity == null)
             {
-                _clinicalDataRepository.Create(donorId, clinicalDataModel);
+                _clinicalDataRepository.Create(donorId, model);
                 audit.ClinicalDataEntriesCreated++;
             }
             else
             {
-                _clinicalDataRepository.Update(clinicalData, clinicalDataModel);
+                _clinicalDataRepository.Update(entity, model);
                 audit.ClinicalDataEntriesUpdated++;
             }
 
-            return clinicalData;
+            return entity;
         }
 
-        private Treatment CreateOrUpdateTreatment(int donorId, TreatmentModel treatmentModel, ref DonorsUploadAudit audit)
+        private Treatment CreateOrUpdateTreatment(int donorId, TreatmentModel model, ref DonorsUploadAudit audit)
         {
-            var treatment = _treatmentRepository.Find(donorId, treatmentModel);
+            var entity = _treatmentRepository.Find(donorId, model);
 
-            if (treatment == null)
+            if (entity == null)
             {
-                _treatmentRepository.Create(donorId, treatmentModel);
+                _treatmentRepository.Create(donorId, model);
                 audit.TreatmentsCreated++;
             }
             else
             {
-                _treatmentRepository.Update(treatment, treatmentModel);
+                _treatmentRepository.Update(entity, model);
                 audit.TreatmentsUpdated++;
             }
 
-            return treatment;
+            return entity;
         }
 
-        private IEnumerable<WorkPackageDonor> CreateMissingWorkpackages(int donorId, IEnumerable<string> workPackageNames, ref DonorsUploadAudit audit)
+        private IEnumerable<WorkPackageDonor> CreateOrUpdateWorkpackages(int donorId, IEnumerable<string> workPackageNames, ref DonorsUploadAudit audit)
         {
-            var workPackageDonors = _workPackageDonorRepository.CreateMissing(donorId, workPackageNames);
+            var entities = _workPackageDonorRepository.CreateOrUpdate(donorId, workPackageNames);
 
             audit.WorkPackagesAssociated++;
 
-            return workPackageDonors;
+            return entities;
         }
 
-        private IEnumerable<StudyDonor> CreateMissingStudies(int donorId, IEnumerable<string> studyNames, ref DonorsUploadAudit audit)
+        private IEnumerable<StudyDonor> CreateOrUpdateStudies(int donorId, IEnumerable<string> studyNames, ref DonorsUploadAudit audit)
         {
-            var studyDonors = _studyDonorRepository.CreateMissing(donorId, studyNames);
+            var entities = _studyDonorRepository.CreateOrUpdate(donorId, studyNames);
 
             audit.StudiesAssociated++;
 
-            return studyDonors;
+            return entities;
         }
     }
 }

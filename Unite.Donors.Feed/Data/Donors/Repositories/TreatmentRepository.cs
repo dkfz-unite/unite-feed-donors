@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Unite.Data.Entities.Clinical;
+using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Services;
 using Unite.Donors.Feed.Data.Donors.Models;
 
@@ -16,53 +16,56 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
         }
 
 
-        public Treatment Find(int donorId, TreatmentModel treatmentModel)
+        public Treatment Find(int donorId, TreatmentModel model)
         {
-            var treatment = _dbContext.Treatments
-                .Include(treatment => treatment.Therapy)
-                .FirstOrDefault(treatment =>
-                    treatment.DonorId == donorId &&
-                    treatment.Therapy.Name == treatmentModel.Therapy &&
-                    treatment.StartDay == treatmentModel.StartDay &&
-                    treatment.DurationDays == treatmentModel.DurationDays
+            var entity = _dbContext.Set<Treatment>()
+                .Include(entity => entity.Therapy)
+                .FirstOrDefault(entity =>
+                    entity.DonorId == donorId &&
+                    entity.Therapy.Name == model.Therapy &&
+                    entity.StartDate == model.StartDate &&
+                    entity.StartDay == model.StartDay
                 );
 
-            return treatment;
+            return entity;
         }
 
-        public Treatment Create(int donorId, TreatmentModel treatmentModel)
+        public Treatment Create(int donorId, TreatmentModel model)
         {
-            var treatment = new Treatment
+            var entity = new Treatment
             {
                 DonorId = donorId
             };
 
-            Map(treatmentModel, treatment);
+            Map(model, ref entity);
 
-            _dbContext.Add(treatment);
+            _dbContext.Add(entity);
             _dbContext.SaveChanges();
 
-            return treatment;
+            return entity;
         }
 
-        public void Update(Treatment treatment, TreatmentModel treatmentModel)
+        public void Update(Treatment entity, TreatmentModel model)
         {
-            Map(treatmentModel, treatment);
+            Map(model, ref entity);
 
-            _dbContext.Update(treatment);
+            _dbContext.Update(entity);
             _dbContext.SaveChanges();
         }
 
 
-        private void Map(TreatmentModel treatmentModel, Treatment treatment)
+        private void Map(in TreatmentModel model, ref Treatment entity)
         {
-            treatment.Therapy = GetTherapy(treatmentModel.Therapy);
-            treatment.Details = treatmentModel.Details;
-            treatment.StartDay = treatmentModel.StartDay;
-            treatment.DurationDays = treatmentModel.DurationDays;
-            treatment.ProgressionStatus = treatmentModel.ProgressionStatus;
-            treatment.ProgressionStatusChangeDay = treatmentModel.ProgressionStatusChangeDay;
-            treatment.Results = treatmentModel.Results;
+            entity.Therapy = GetTherapy(model.Therapy);
+            entity.Details = model.Details;
+            entity.StartDate = model.StartDate;
+            entity.StartDay = model.StartDay;
+            entity.EndDate = model.EndDate;
+            entity.DurationDays = model.DurationDays;
+            entity.ProgressionStatus = model.ProgressionStatus;
+            entity.ProgressionStatusChangeDate = model.ProgressionStatusChangeDate;
+            entity.ProgressionStatusChangeDay = model.ProgressionStatusChangeDay;
+            entity.Results = model.Results;
         }
 
         private Therapy GetTherapy(string name)
@@ -72,19 +75,20 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
                 return null;
             }
 
-            var therapy = _dbContext.Therapies.FirstOrDefault(therapy =>
-                therapy.Name == name
-            );
+            var entity = _dbContext.Set<Therapy>()
+                .FirstOrDefault(entity =>
+                    entity.Name == name
+                );
 
-            if (therapy == null)
+            if (entity == null)
             {
-                therapy = new Therapy { Name = name };
+                entity = new Therapy { Name = name };
 
-                _dbContext.Therapies.Add(therapy);
+                _dbContext.Add(entity);
                 _dbContext.SaveChanges();
             }
 
-            return therapy;
+            return entity;
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Unite.Data.Entities.Molecular;
 using Unite.Data.Entities.Specimens;
 using Unite.Data.Entities.Specimens.Cells;
 using Unite.Data.Entities.Specimens.Organoids;
@@ -9,11 +9,14 @@ using Unite.Data.Entities.Specimens.Xenografts;
 using Unite.Data.Extensions;
 using Unite.Indices.Entities.Basic.Specimens;
 
+using OrganoidIntervention = Unite.Data.Entities.Specimens.Organoids.Intervention;
+using XenograftIntervention = Unite.Data.Entities.Specimens.Xenografts.Intervention;
+
 namespace Unite.Donors.Indices.Services.Mappers
 {
     internal class SpecimenIndexMapper
     {
-        internal void Map(in Specimen specimen, SpecimenIndex index)
+        internal void Map(in Specimen specimen, SpecimenIndex index, DateTime? diagnosisDate)
         {
             if (specimen == null)
             {
@@ -21,11 +24,12 @@ namespace Unite.Donors.Indices.Services.Mappers
             }
 
             index.Id = specimen.Id;
+            index.CreationDay = specimen.CreationDate.RelativeFrom(diagnosisDate) ?? specimen.CreationDay;
 
             index.Tissue = CreateFrom(specimen.Tissue, specimen.MolecularData);
             index.CellLine = CreateFrom(specimen.CellLine, specimen.MolecularData);
-            index.Organoid = CreateFrom(specimen.Organoid, specimen.MolecularData);
-            index.Xenograft = CreateFrom(specimen.Xenograft, specimen.MolecularData);
+            index.Organoid = CreateFrom(specimen.Organoid, specimen.MolecularData, specimen.CreationDate);
+            index.Xenograft = CreateFrom(specimen.Xenograft, specimen.MolecularData, specimen.CreationDate);
         }
 
 
@@ -43,7 +47,6 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.Type = tissue.TypeId?.ToDefinitionString();
             index.TumorType = tissue.TumorTypeId?.ToDefinitionString();
             index.Source = tissue.Source?.Value;
-            index.ExtractionDay = tissue.ExtractionDay;
 
             index.MolecularData = CreateFrom(molecularData);
 
@@ -79,7 +82,7 @@ namespace Unite.Donors.Indices.Services.Mappers
             return index;
         }
 
-        private static OrganoidIndex CreateFrom(in Organoid organoid, in MolecularData molecularData)
+        private static OrganoidIndex CreateFrom(in Organoid organoid, in MolecularData molecularData, DateTime? specimenCreationDate)
         {
             if (organoid == null)
             {
@@ -95,12 +98,12 @@ namespace Unite.Donors.Indices.Services.Mappers
 
             index.MolecularData = CreateFrom(molecularData);
 
-            index.Interventions = CreateFrom(organoid.Interventions);
+            index.Interventions = CreateFrom(organoid.Interventions, specimenCreationDate);
 
             return index;
         }
 
-        private static OrganoidInterventionIndex[] CreateFrom(in IEnumerable<OrganoidIntervention> interventions)
+        private static OrganoidInterventionIndex[] CreateFrom(in IEnumerable<OrganoidIntervention> interventions, DateTime? specimenCreationDate)
         {
             if (interventions == null || !interventions.Any())
             {
@@ -113,8 +116,8 @@ namespace Unite.Donors.Indices.Services.Mappers
 
                 index.Type = intervention.Type.Name;
                 index.Details = intervention.Details;
-                index.StartDay = intervention.StartDay;
-                index.DurationDays = intervention.DurationDays;
+                index.StartDay = intervention.StartDate.RelativeFrom(specimenCreationDate) ?? intervention.StartDay;
+                index.DurationDays = intervention.EndDate.RelativeFrom(intervention.StartDate) ?? intervention.DurationDays;
                 index.Results = intervention.Results;
 
                 return index;
@@ -124,7 +127,7 @@ namespace Unite.Donors.Indices.Services.Mappers
             return indices;
         }
 
-        private static XenograftIndex CreateFrom(in Xenograft xenograft, in MolecularData molecularData)
+        private static XenograftIndex CreateFrom(in Xenograft xenograft, in MolecularData molecularData, DateTime? specimenCreationDate)
         {
             if (xenograft == null)
             {
@@ -147,12 +150,12 @@ namespace Unite.Donors.Indices.Services.Mappers
 
             index.MolecularData = CreateFrom(molecularData);
 
-            index.Interventions = CreateFrom(xenograft.Interventions);
+            index.Interventions = CreateFrom(xenograft.Interventions, specimenCreationDate);
 
             return index;
         }
 
-        private static XenograftInterventionIndex[] CreateFrom(in IEnumerable<XenograftIntervention> interventions)
+        private static XenograftInterventionIndex[] CreateFrom(in IEnumerable<XenograftIntervention> interventions, DateTime? specimenCreationDate)
         {
             if (interventions == null || !interventions.Any())
             {
@@ -165,8 +168,8 @@ namespace Unite.Donors.Indices.Services.Mappers
 
                 index.Type = intervention.Type.Name;
                 index.Details = intervention.Details;
-                index.StartDay = intervention.StartDay;
-                index.DurationDays = intervention.DurationDays;
+                index.StartDay = intervention.StartDate.RelativeFrom(specimenCreationDate) ?? intervention.StartDay;
+                index.DurationDays = intervention.EndDate.RelativeFrom(intervention.StartDate) ?? intervention.DurationDays;
                 index.Results = intervention.Results;
 
                 return index;

@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Unite.Data.Entities.Mutations;
+using Unite.Data.Entities.Genome;
+using Unite.Data.Entities.Genome.Mutations;
 using Unite.Data.Extensions;
 using Unite.Data.Utilities.Mutations;
-using Unite.Indices.Entities.Basic.Mutations;
+using Unite.Indices.Entities.Basic.Genome;
+using Unite.Indices.Entities.Basic.Genome.Mutations;
 
 namespace Unite.Donors.Indices.Services.Mappers
 {
@@ -19,7 +21,6 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.Id = mutation.Id;
             index.Code = mutation.Code;
             index.Chromosome = mutation.ChromosomeId.ToDefinitionString();
-            index.SequenceType = mutation.SequenceTypeId.ToDefinitionString();
             index.Start = mutation.Start;
             index.End = mutation.End;
             index.Type = mutation.TypeId.ToDefinitionString();

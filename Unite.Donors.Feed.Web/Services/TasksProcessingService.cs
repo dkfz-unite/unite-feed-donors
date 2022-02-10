@@ -21,7 +21,7 @@ namespace Unite.Donors.Feed.Web.Services
         {
             while (true)
             {
-                var tasks = _dbContext.Tasks
+                var tasks = _dbContext.Set<Task>()
                     .Where(task => task.TypeId == type && task.TargetTypeId == targetType)
                     .OrderByDescending(task => task.Date)
                     .Take(bucketSize)
@@ -31,7 +31,7 @@ namespace Unite.Donors.Feed.Web.Services
                 {
                     handler.Invoke(tasks);
 
-                    _dbContext.Tasks.RemoveRange(tasks);
+                    _dbContext.RemoveRange(tasks);
                     _dbContext.SaveChanges();
                 }
                 else

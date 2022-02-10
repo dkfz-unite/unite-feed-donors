@@ -16,35 +16,36 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
         }
 
 
-        public Donor Find(DonorModel donorModel)
+        public Donor Find(DonorModel model)
         {
-            var donor = _dbContext.Donors.FirstOrDefault(donor =>
-                donor.ReferenceId == donorModel.ReferenceId
-            );
+            var entity = _dbContext.Set<Donor>()
+                .FirstOrDefault(entity =>
+                    entity.ReferenceId == model.ReferenceId
+                );
 
-            return donor;
+            return entity;
         }
 
-        public Donor Create(DonorModel donorModel)
+        public Donor Create(DonorModel model)
         {
-            var donor = new Donor
+            var entity = new Donor
             {
-                ReferenceId = donorModel.ReferenceId
+                ReferenceId = model.ReferenceId
             };
 
-            Map(donorModel, donor);
+            Map(model, entity);
 
-            _dbContext.Donors.Add(donor);
+            _dbContext.Add(entity);
             _dbContext.SaveChanges();
 
-            return donor;
+            return entity;
         }
 
-        public void Update(Donor donor, DonorModel donorModel)
+        public void Update(Donor entity, DonorModel model)
         {
-            Map(donorModel, donor);
+            Map(model, entity);
 
-            _dbContext.Donors.Update(donor);
+            _dbContext.Update(entity);
             _dbContext.SaveChanges();
         }
 

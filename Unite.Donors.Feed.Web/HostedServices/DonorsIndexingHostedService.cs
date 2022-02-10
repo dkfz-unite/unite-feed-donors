@@ -10,12 +10,12 @@ namespace Unite.Donors.Feed.Web.HostedServices
 {
     public class DonorsIndexingHostedService : BackgroundService
     {
-        private readonly IndexingOptions _options;
+        private readonly DonorsIndexingOptions _options;
         private readonly DonorsIndexingHandler _handler;
         private readonly ILogger _logger;
 
         public DonorsIndexingHostedService(
-            IndexingOptions options,
+            DonorsIndexingOptions options,
             DonorsIndexingHandler handler,
             ILogger<DonorsIndexingHostedService> logger)
         {

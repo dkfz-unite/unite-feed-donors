@@ -22,55 +22,78 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
 
         public WorkPackageDonor Find(int donorId, string workPackageName)
         {
-            var workPackageDonor = _dbContext.WorkPackageDonors.FirstOrDefault(workPackageDonor =>
-                workPackageDonor.DonorId == donorId &&
-                workPackageDonor.WorkPackage.Name == workPackageName
-            );
+            var entity = _dbContext.Set<WorkPackageDonor>()
+                .FirstOrDefault(entity =>
+                    entity.DonorId == donorId &&
+                    entity.WorkPackage.Name == workPackageName
+                );
 
-            return workPackageDonor;
+            return entity;
         }
 
         public WorkPackageDonor Create(int donorId, string workPackageName)
         {
-            var workPackageDonor = new WorkPackageDonor
+            var entity = new WorkPackageDonor
             {
                 DonorId = donorId,
                 WorkPackage = GetWorkPackage(workPackageName)
             };
 
-            _dbContext.WorkPackageDonors.Add(workPackageDonor);
+            _dbContext.Add(entity);
             _dbContext.SaveChanges();
 
-            return workPackageDonor;
+            return entity;
+        }
+
+        public IEnumerable<WorkPackageDonor> CreateOrUpdate(int donorId, IEnumerable<string> workPackageNames)
+        {
+            RemoveRedundant(donorId, workPackageNames);
+
+            var created = CreateMissing(donorId, workPackageNames);
+
+            return created;
         }
 
         public IEnumerable<WorkPackageDonor> CreateMissing(int donorId, IEnumerable<string> workPackageNames)
         {
-            var workPackageDonorsToAdd = new List<WorkPackageDonor>();
+            var entitiesToAdd = new List<WorkPackageDonor>();
 
             foreach (var workPackageName in workPackageNames)
             {
-                var workPackageDonor = Find(donorId, workPackageName);
+                var entity = Find(donorId, workPackageName);
 
-                if (workPackageDonor == null)
+                if (entity == null)
                 {
-                    workPackageDonor = new WorkPackageDonor
+                    entity = new WorkPackageDonor
                     {
                         DonorId = donorId,
                         WorkPackage = GetWorkPackage(workPackageName)
                     };
 
-                    workPackageDonorsToAdd.Add(workPackageDonor);
+                    entitiesToAdd.Add(entity);
                 }
             }
 
-            if (workPackageDonorsToAdd.Any())
+            if (entitiesToAdd.Any())
             {
-                _dbContext.WorkPackageDonors.AddRange(workPackageDonorsToAdd);
+                _dbContext.AddRange(entitiesToAdd);
                 _dbContext.SaveChanges();
             }
 
-            return workPackageDonorsToAdd;
+            return entitiesToAdd;
+        }
+
+        public void RemoveRedundant(int donorId, IEnumerable<string> workPackageNames)
+        {
+            var entitiesToRemove = _dbContext.Set<WorkPackageDonor>()
+                .Where(entity => entity.DonorId == donorId && !workPackageNames.Contains(entity.WorkPackage.Name))
+                .ToArray();
+
+            if (entitiesToRemove.Any())
+            {
+                _dbContext.RemoveRange(entitiesToRemove);
+                _dbContext.SaveChanges();
+            }
         }
 
 
@@ -84,7 +107,7 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
             {
                 workPackage = new WorkPackage { Name = name };
 
-                _dbContext.WorkPackages.Add(workPackage);
+                _dbContext.Add(workPackage);
                 _dbContext.SaveChanges();
             }
 

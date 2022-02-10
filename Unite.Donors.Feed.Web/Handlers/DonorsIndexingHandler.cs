@@ -38,8 +38,6 @@ namespace Unite.Donors.Feed.Web.Handlers
         {
             _taskProcessingService.Process(TaskType.Indexing, TaskTargetType.Donor, bucketSize, (tasks) =>
             {
-                _logger.LogInformation($"Indexing {tasks.Length} donors");
-
                 var indices = tasks.Select(task =>
                 {
                     var id = int.Parse(task.Target);
@@ -52,7 +50,7 @@ namespace Unite.Donors.Feed.Web.Handlers
 
                 _indexingService.IndexMany(indices);
 
-                _logger.LogInformation($"Indexing of {tasks.Length} donors completed");
+                _logger.LogInformation($"Finished indexing of {tasks.Length} donors");
             });
         }
     }

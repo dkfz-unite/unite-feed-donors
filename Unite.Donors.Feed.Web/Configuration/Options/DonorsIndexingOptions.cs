@@ -2,7 +2,7 @@
 
 namespace Unite.Donors.Feed.Web.Configuration.Options
 {
-    public class IndexingOptions
+    public class DonorsIndexingOptions
     {
         /// <summary>
         /// Indexing interval in milliseconds
