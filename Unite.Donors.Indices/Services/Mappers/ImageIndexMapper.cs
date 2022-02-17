@@ -33,8 +33,8 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.ReferenceId = mriImage.ReferenceId;
 
             index.WholeTumor = mriImage.WholeTumor;
-            index.ContrastEnhancing = mriImage.WholeTumor;
-            index.NonContrastEnhancing = mriImage.WholeTumor;
+            index.ContrastEnhancing = mriImage.ContrastEnhancing;
+            index.NonContrastEnhancing = mriImage.NonContrastEnhancing;
 
             index.MedianAdcTumor = mriImage.MedianAdcTumor;
             index.MedianAdcCe = mriImage.MedianAdcCe;
