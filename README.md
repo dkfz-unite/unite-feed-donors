@@ -5,7 +5,7 @@ Donors data feed service provides the following functionality:
 - Donors data feed web API - REST API for uploading clinical and treatment data to the portal (including input data validation).
 - Donors data indexing service - background service responsible for donor-centric data index creation.
 
-Composer web api is written in ASP.NET (.NET 5)
+Donors data feed service is written in ASP.NET (.NET 5)
 
 ## Dependencies
 - [SQL](https://github.com/dkfz-unite/unite-environment/tree/main/programs/postgresql) - SQL server with domain data and user identity data.
