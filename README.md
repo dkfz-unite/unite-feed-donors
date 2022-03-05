@@ -40,7 +40,7 @@ The easies way to install the application is to use docker-compose:
 - Donors data feed service configuration and installation scripts: https://github.com/dkfz-unite/unite-environment/tree/main/applications/unite-donors-feed
 
 ### Docker
-[Dockerfile](https://github.com/dkfz-unite/unite-donors/blob/main/Dockerfile) is used to build an image of the application.
+[Dockerfile](https://github.com/dkfz-unite/unite-donors-feed/blob/main/Dockerfile) is used to build an image of the application.
 To build an image run the following command:
 ```
 docker build -t unite.donors.feed:latest .
