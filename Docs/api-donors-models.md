@@ -12,6 +12,27 @@ Includes general data about the patient
 - Type: _Boolean_
 - Example: `true`
 
+**`WorkPackages`** - Work packages list, which own donor data.
+- Type: _Array_
+- Elemet type: _String_
+- Element limitations: Maximum length 100
+- Example: `["WP1", "WP2"]`
+
+**`Studies`** - Studies list, which include donor data.
+- Type: _Array_
+- Elemet type: _String_
+- Element limitations: Maximum length 100
+- Example: `["ST1", "ST2"]`
+
+**`ClinicalData`** - Donor clinical data.
+- Type: _Object([ClinicalData](https://github.com/dkfz-unite/unite-donors-feed/new/main/Docs#clinical-data))_
+- Limitations - If set, at least any field has to be set
+- Example: `{...}`
+
+**`Treatments`** - Donor treatments data.
+- Type: _Array_
+- Element type: _Object([Treatment](https://github.com/dkfz-unite/unite-donors-feed/new/main/Docs#clinical-data))_
+- Example: `[{...}, {...}]`
 
 |Field|Required|Type|Limitations|Example|Description|
 |:---|:---|:---|:---|:---|:---|
