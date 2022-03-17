@@ -60,7 +60,7 @@ Request implements **UPSERT** logic:
     }
 ]
 ```
-Fields description can be found [here](https://github.com/dkfz-unite/unite-donors-feed/blob/main/Docs/api-donors-models.md#treatment).
+Fields description can be found [here](https://github.com/dkfz-unite/unite-donors-feed/blob/main/Docs/api-donors-models.md).
 
 **Response**
 - `200` - request was processed successfully
