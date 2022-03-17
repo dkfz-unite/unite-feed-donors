@@ -3,6 +3,11 @@
 ## Donor
 Includes general data about the patient
 
+**`Id`** - Donor pseudonymized identifier.
+- Type - _String_
+- Limitations - Maximum length 255
+- Example - `"DO1"`
+
 
 |Field|Required|Type|Limitations|Example|Description|
 |:---|:---|:---|:---|:---|:---|
