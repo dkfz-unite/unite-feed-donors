@@ -77,10 +77,10 @@ Includes patient clinical data.
 - Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
 - Type: _String_
 - Format: "YYYY-MM-DDTHH-MM-SS"
-- Limitations: Only either `VitalStatusChangeDate` or `VitalStatusChangeDay` can be set at once, not both
+- Limitations: Only either 'VitalStatusChangeDate' or 'VitalStatusChangeDay' can be set at once, not both
 - Example: `"2021-01-01T00:00:00"`
 
 **`VitalStatusChangeDay`** - Relative number of days since diagnosis statement, when vital status was last revised.
 - Type: _Number_
-- Limitations: Integer, greater or equal to `0`, only either `VitalStatusChangeDate` or `VitalStatusChangeDay` can be set at once, not both
+- Limitations: Integer, greater or equal to `0`, only either 'VitalStatusChangeDate' or 'VitalStatusChangeDay' can be set at once, not both
 - Example: `365`
