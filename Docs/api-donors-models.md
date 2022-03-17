@@ -25,13 +25,13 @@ Includes general data about the patient
 - Example: `["ST1", "ST2"]`
 
 **`ClinicalData`** - Donor clinical data.
-- Type: _Object([ClinicalData](https://github.com/dkfz-unite/unite-donors-feed/new/main/Docs#clinical-data))_
+- Type: _Object([ClinicalData](https://github.com/dkfz-unite/unite-donors-feed/blob/main/Docs/api-donors-models.md#clinical-data))_
 - Limitations - If set, at least any field has to be set
 - Example: `{...}`
 
 **`Treatments`** - Donor treatments data.
 - Type: _Array_
-- Element type: _Object([Treatment](https://github.com/dkfz-unite/unite-donors-feed/new/main/Docs#clinical-data))_
+- Element type: _Object([Treatment](https://github.com/dkfz-unite/unite-donors-feed/blob/main/Docs/api-donors-models.md#treatments))_
 - Example: `[{...}, {...}]`
 
 |Field|Required|Type|Limitations|Example|Description|
