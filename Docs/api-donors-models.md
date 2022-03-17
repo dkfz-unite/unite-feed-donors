@@ -3,12 +3,12 @@
 ## Donor
 Includes general data about the patient
 
-**`Id`*** - Donor pseudonymized identifier.  
+**`Id`*** - Donor pseudonymized identifier.
 - Type: _String_
 - Limitations: Maximum length 255
 - Example: `"DO1"`
 
-**`MtaProtected`** - Indicates whether donor data is MTA protected.  
+**`MtaProtected`** - Indicates whether donor data is MTA protected.
 - Type: _Boolean_
 - Example: `true`
 
