@@ -35,7 +35,7 @@ UNITE_INDEXING_BUCKET_SIZE|Indexing bucket size|10|
 ## Installation
 
 ### Docker Compose
-The easies way to install the application is to use docker-compose:
+The easiest way to install the application is to use docker-compose:
 - Environment configuration and installation scripts: https://github.com/dkfz-unite/unite-environment
 - Donors data feed service configuration and installation scripts: https://github.com/dkfz-unite/unite-environment/tree/main/applications/unite-donors-feed
 
