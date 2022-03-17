@@ -31,7 +31,7 @@ Includes general data about the patient
 
 **`Treatments`** - Donor treatments data.
 - Type: _Array_
-- Element type: _Object([Treatment](https://github.com/dkfz-unite/unite-donors-feed/blob/main/Docs/api-donors-models.md#treatments))_
+- Element type: _Object([Treatment](https://github.com/dkfz-unite/unite-donors-feed/blob/main/Docs/api-donors-models.md#treatment))_
 - Example: `[{...}, {...}]`
 
 
