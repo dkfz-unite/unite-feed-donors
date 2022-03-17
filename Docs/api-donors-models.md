@@ -82,5 +82,5 @@ Includes patient clinical data.
 
 **`VitalStatusChangeDay`** - Relative number of days since diagnosis statement, when vital status was last revised.
 - Type: _Number_
-- Limitations: Integer, greater or equal to `0`
+- Limitations: Integer, greater or equal to `0`, only either `VitalStatusChangeDate` or `VitalStatusChangeDay` can be set at once, not both
 - Example: `365`
