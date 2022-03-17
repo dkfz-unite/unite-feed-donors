@@ -93,7 +93,7 @@ Includes patient treatment data.
 - Limitations: Maximum length 100
 - Example: `"Radiotherapy"`
 
-**`Details`*** - Patient specific therapy details.
+**`Details`** - Patient specific therapy details.
 - Type: _String_
 - Example: `"Patient specific therapy details."`
 
@@ -140,3 +140,6 @@ Includes patient treatment data.
 **`Results`*** - Patient specific therapy results.
 - Type: _String_
 - Example: `"Patient specific therapy results."`
+
+##
+**`*`** - Required fields
