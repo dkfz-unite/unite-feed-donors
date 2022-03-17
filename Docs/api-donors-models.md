@@ -137,7 +137,7 @@ Includes patient treatment data.
 - Limitations: Integer, greater or equal to 0, only either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set at once, not both
 - Example: `37`
 
-**`Results`*** - Patient specific therapy results.
+**`Results`** - Patient specific therapy results.
 - Type: _String_
 - Example: `"Patient specific therapy results."`
 
