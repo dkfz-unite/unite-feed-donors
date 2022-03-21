@@ -56,7 +56,7 @@ Includes patient clinical data.
 **`DiagnosisDate`** - Date, when diagnosis was stated.
 - Note: Serves as anchor date for calculation of all other relative dates. It's hidden and protected. Without this date, no other relative dates will be calculated and shown.
 - Type: _String_
-- Format: "YYYY-MM-DDTHH-MM-SS"
+- Format: "YYYY-MM-DDTHH:MM:SS"
 - Example: `"2020-01-01T00:00:00"`
 
 **`PrimarySite`** - Primary site of disease.
@@ -76,7 +76,7 @@ Includes patient clinical data.
 **`VitalStatusChangeDate`** - Date, when vital status was last revised.
 - Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
 - Type: _String_
-- Format: "YYYY-MM-DDTHH-MM-SS"
+- Format: "YYYY-MM-DDTHH:MM:SS"
 - Limitations: Only either 'VitalStatusChangeDate' or 'VitalStatusChangeDay' can be set at once, not both
 - Example: `"2021-01-01T00:00:00"`
 
@@ -100,7 +100,7 @@ Includes patient treatment data.
 **`StartDate`** - Date, when treatment has started.
 - Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
 - Type: _String_
-- Format: "YYYY-MM-DDTHH-MM-SS"
+- Format: "YYYY-MM-DDTHH:MM:SS"
 - Limitations: Only either 'StartDateDate' or 'StartDay' can be set at once, not both
 - Example: `"2020-01-07T00:00:00"`
 
@@ -112,7 +112,7 @@ Includes patient treatment data.
 **`EndDate`** - Date, when treatment has ended.
 - Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
 - Type: _String_
-- Format: "YYYY-MM-DDTHH-MM-SS"
+- Format: "YYYY-MM-DDTHH:MM:SS"
 - Limitations: Only either 'EndDateDate' or 'DurationDays' can be set at once, not both
 - Example: `"2020-01-27T00:00:00"`
 
@@ -128,7 +128,7 @@ Includes patient treatment data.
 **`ProgressionStatusChangeDate`** - Date, when progression status was last revised.
 - Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
 - Type: _String_
-- Format: "YYYY-MM-DDTHH-MM-SS"
+- Format: "YYYY-MM-DDTHH:MM:SS"
 - Limitations: Only either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set at once, not both
 - Example: `"2020-02-12T00:00:00"`
 
