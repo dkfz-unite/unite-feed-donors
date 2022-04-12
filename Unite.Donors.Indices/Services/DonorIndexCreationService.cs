@@ -59,7 +59,7 @@ namespace Unite.Donors.Indices.Services
 
             var index = new DonorIndex();
 
-            var diagnosisDate = donor.ClinicalData.DiagnosisDate;
+            var diagnosisDate = donor.ClinicalData?.DiagnosisDate;
 
             _donorIndexMapper.Map(donor, index);
 
