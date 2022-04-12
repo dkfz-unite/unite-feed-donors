@@ -30,6 +30,9 @@ namespace Unite.Donors.Feed.Web.HostedServices
 
             cancellationToken.Register(() => _logger.LogInformation("Indexing service stopped"));
 
+            // Delay 5 seconds to let the web api start working
+            await Task.Delay(5000, cancellationToken);
+
 			while (!cancellationToken.IsCancellationRequested)
 			{
                 try
