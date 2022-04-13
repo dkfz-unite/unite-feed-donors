@@ -92,7 +92,7 @@ Includes patient clinical data.
 
 **`SteroidsBaseline`** - Steroids baseline.
 - Type: _Boolean_
-- Example: `true`
+- Example: `false`
 
 ## Treatment
 Includes patient treatment data.
