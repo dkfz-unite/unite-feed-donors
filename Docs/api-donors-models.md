@@ -87,7 +87,7 @@ Includes patient clinical data.
 
 **`KpsBaseline`** - KPS baseline.
 - Type: _Number_
-- Limitations: Integer, greater or equal to 0, less than 100
+- Limitations: Integer, greater or equal to 0, less or equal to 100
 - Example: `90`
 
 **`SteroidsBaseline`** - Steroids baseline.
