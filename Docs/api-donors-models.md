@@ -62,7 +62,7 @@ Includes patient clinical data.
 **`PrimarySite`** - Primary site of disease.
 - Type: _String_
 - Limitations: Maximum length 100
-- Example: `"Head"`
+- Example: `"Brain"`
 
 **`Localization`** - Tumor localization relative to primary site.
 - Type: _String_
@@ -83,7 +83,16 @@ Includes patient clinical data.
 **`VitalStatusChangeDay`** - Relative number of days since diagnosis statement, when vital status was last revised.
 - Type: _Number_
 - Limitations: Integer, greater or equal to 0, only either 'VitalStatusChangeDate' or 'VitalStatusChangeDay' can be set at once, not both
-- Example: `365`
+- Example: `367`
+
+**`KpsBaseline`** - KPS baseline.
+- Type: _Number_
+- Limitations: Integer, greater or equal to 0, less or equal to 100
+- Example: `90`
+
+**`SteroidsBaseline`** - Steroids baseline.
+- Type: _Boolean_
+- Example: `false`
 
 ## Treatment
 Includes patient treatment data.
