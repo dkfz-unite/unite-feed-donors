@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Unite.Data.Services;
 using Unite.Data.Services.Configuration.Options;
@@ -10,7 +9,6 @@ using Unite.Donors.Feed.Web.HostedServices;
 using Unite.Donors.Feed.Web.Services;
 using Unite.Donors.Feed.Web.Services.Donors;
 using Unite.Donors.Feed.Web.Services.Donors.Validators;
-using Unite.Donors.Feed.Web.Services.Validation;
 using Unite.Donors.Indices.Services;
 using Unite.Indices.Entities.Donors;
 using Unite.Indices.Services;
@@ -25,8 +23,7 @@ namespace Unite.Donors.Feed.Web.Configuration.Extensions
             services.AddTransient<ISqlOptions, SqlOptions>();
             services.AddTransient<IElasticOptions, ElasticOptions>();
 
-            services.AddTransient<IValidationService, ValidationService>();
-            services.AddTransient<IValidator<IEnumerable<DonorModel>>, DonorModelsValidator>();
+            services.AddTransient<IValidator<DonorModel[]>, DonorModelsValidator>();
 
             services.AddTransient<DomainDbContext>();
             services.AddTransient<DonorDataWriter>();

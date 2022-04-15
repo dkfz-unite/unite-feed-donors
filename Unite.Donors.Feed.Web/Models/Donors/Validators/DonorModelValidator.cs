@@ -48,7 +48,7 @@ namespace Unite.Donors.Feed.Web.Services.Donors.Validators
     }
 
 
-    public class DonorModelsValidator : AbstractValidator<IEnumerable<DonorModel>>
+    public class DonorModelsValidator : AbstractValidator<DonorModel[]>
     {
         private readonly IValidator<DonorModel> _donorModelValidator;
 
