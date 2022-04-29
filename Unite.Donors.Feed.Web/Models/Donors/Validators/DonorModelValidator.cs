@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace Unite.Donors.Feed.Web.Services.Donors.Validators
 {

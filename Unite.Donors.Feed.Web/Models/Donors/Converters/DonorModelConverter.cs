@@ -54,6 +54,9 @@ namespace Unite.Donors.Feed.Web.Services.Donors.Converters
             target.VitalStatus = source.VitalStatus;
             target.VitalStatusChangeDate = source.VitalStatusChangeDate;
             target.VitalStatusChangeDay = source.VitalStatusChangeDay;
+            target.ProgressionStatus = source.ProgressionStatus;
+            target.ProgressionStatusChangeDate = source.ProgressionStatusChangeDate;
+            target.ProgressionStatusChangeDay = source.ProgressionStatusChangeDay;
             target.KpsBaseline = source.KpsBaseline;
             target.SteroidsBaseline = source.SteroidsBaseline;
         }
@@ -66,9 +69,6 @@ namespace Unite.Donors.Feed.Web.Services.Donors.Converters
             target.StartDay = source.StartDay;
             target.EndDate = source.EndDate;
             target.DurationDays = source.DurationDays;
-            target.ProgressionStatus = source.ProgressionStatus;
-            target.ProgressionStatusChangeDate = source.ProgressionStatusChangeDate;
-            target.ProgressionStatusChangeDay = source.ProgressionStatusChangeDay;
             target.Results = source.Results;
         }
     }

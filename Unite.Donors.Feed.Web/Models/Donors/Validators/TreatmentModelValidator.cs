@@ -55,27 +55,6 @@ namespace Unite.Donors.Feed.Web.Services.Donors.Validators
             RuleFor(model => model.DurationDays)
                 .GreaterThanOrEqualTo(0)
                 .WithMessage("Should be greater than or equal to 0");
-
-
-            RuleFor(model => model.ProgressionStatusChangeDate)
-                .Empty()
-                .When(model => model.ProgressionStatusChangeDay.HasValue)
-                .WithMessage("Either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set, not both");
-
-            RuleFor(model => model.ProgressionStatusChangeDate)
-                .GreaterThanOrEqualTo(model => model.StartDate)
-                .When(model => model.StartDate.HasValue)
-                .WithMessage("Should be greater than or equal to 'StartDate'");
-
-
-            RuleFor(model => model.ProgressionStatusChangeDay)
-                .Empty()
-                .When(model => model.ProgressionStatusChangeDate.HasValue)
-                .WithMessage("Either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set, not both");
-
-            RuleFor(model => model.DurationDays)
-                .GreaterThanOrEqualTo(0)
-                .WithMessage("Should be greater than or equal to 0");
         }
     }
 }

@@ -43,7 +43,9 @@ namespace Unite.Donors.Indices.Services.Mappers
             index.PrimarySite = clinicalData.PrimarySite?.Value;
             index.Localization = clinicalData.Localization?.Value;
             index.VitalStatus = clinicalData.VitalStatus;
-            index.VitalStatusChangeDay = clinicalData.VitalStatusChangeDay;
+            index.VitalStatusChangeDay = clinicalData.VitalStatusChangeDate.RelativeFrom(clinicalData.DiagnosisDate) ?? clinicalData.VitalStatusChangeDay;
+            index.ProgressionStatus = clinicalData.ProgressionStatus;
+            index.ProgressionStatusChangeDay = clinicalData.ProgressionStatusChangeDate.RelativeFrom(clinicalData.DiagnosisDate) ?? clinicalData.ProgressionStatusChangeDay;
             index.KpsBaseline = clinicalData.KpsBaseline;
             index.SteroidsBaseline = clinicalData.SteroidsBaseline;
 
@@ -65,8 +67,6 @@ namespace Unite.Donors.Indices.Services.Mappers
                 index.Details = treatment.Details;
                 index.StartDay = treatment.StartDate.RelativeFrom(diagnosisDate) ?? treatment.StartDay;
                 index.DurationDays = treatment.EndDate.RelativeFrom(treatment.StartDate) ?? treatment.DurationDays;
-                index.ProgressionStatus = treatment.ProgressionStatus;
-                index.ProgressionStatusChangeDay = treatment.ProgressionStatusChangeDate.RelativeFrom(treatment.StartDate);
                 index.Results = treatment.Results;
 
                 return index;

@@ -64,6 +64,9 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
             entity.VitalStatus = model.VitalStatus;
             entity.VitalStatusChangeDate = model.VitalStatusChangeDate;
             entity.VitalStatusChangeDay = model.VitalStatusChangeDay;
+            entity.ProgressionStatus = model.ProgressionStatus;
+            entity.ProgressionStatusChangeDate = model.ProgressionStatusChangeDate;
+            entity.ProgressionStatusChangeDay = model.ProgressionStatusChangeDay;
             entity.KpsBaseline = model.KpsBaseline;
             entity.SteroidsBaseline = model.SteroidsBaseline;
         }

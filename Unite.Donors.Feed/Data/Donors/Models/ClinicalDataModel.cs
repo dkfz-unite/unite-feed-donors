@@ -14,6 +14,9 @@ namespace Unite.Donors.Feed.Data.Donors.Models
         public bool? VitalStatus { get; set; }
         public DateTime? VitalStatusChangeDate { get; set; }
         public int? VitalStatusChangeDay { get; set; }
+        public bool? ProgressionStatus { get; set; }
+        public DateTime? ProgressionStatusChangeDate { get; set; }
+        public int? ProgressionStatusChangeDay { get; set; }
         public int? KpsBaseline { get; set; }
         public bool? SteroidsBaseline { get; set; }
     }

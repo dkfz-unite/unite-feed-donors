@@ -36,6 +36,16 @@ namespace Unite.Donors.Feed.Web.Services.Donors.Validators
                .When(model => model.VitalStatusChangeDate.HasValue)
                .WithMessage("Either 'VitalStatusChangeDate' or 'VitalStatusChangeDay' can be set, not both");
 
+            RuleFor(model => model.ProgressionStatusChangeDate)
+                .Empty()
+                .When(model => model.ProgressionStatusChangeDay.HasValue)
+                .WithMessage("Either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set, not both");
+
+            RuleFor(model => model.ProgressionStatusChangeDay)
+                .Empty()
+                .When(model => model.ProgressionStatusChangeDate.HasValue)
+                .WithMessage("Either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set, not both");
+
             RuleFor(model => model.KpsBaseline)
                 .InclusiveBetween(0, 100)
                 .WithMessage("Should be in range [0, 100]");
@@ -53,6 +63,9 @@ namespace Unite.Donors.Feed.Web.Services.Donors.Validators
                 || model.VitalStatus != null
                 || model.VitalStatusChangeDate != null
                 || model.VitalStatusChangeDay != null
+                || model.ProgressionStatus != null
+                || model.ProgressionStatusChangeDate != null
+                || model.ProgressionStatusChangeDay != null
                 || model.KpsBaseline != null
                 || model.SteroidsBaseline != null;
         }

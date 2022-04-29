@@ -62,9 +62,6 @@ namespace Unite.Donors.Feed.Data.Donors.Repositories
             entity.StartDay = model.StartDay;
             entity.EndDate = model.EndDate;
             entity.DurationDays = model.DurationDays;
-            entity.ProgressionStatus = model.ProgressionStatus;
-            entity.ProgressionStatusChangeDate = model.ProgressionStatusChangeDate;
-            entity.ProgressionStatusChangeDay = model.ProgressionStatusChangeDay;
             entity.Results = model.Results;
         }
 

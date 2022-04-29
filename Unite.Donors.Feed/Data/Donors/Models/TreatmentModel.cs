@@ -10,9 +10,6 @@ namespace Unite.Donors.Feed.Data.Donors.Models
         public int? StartDay { get; set; }
         public DateTime? EndDate { get; set; }
         public int? DurationDays { get; set; }
-        public bool? ProgressionStatus { get; set; }
-        public DateTime? ProgressionStatusChangeDate { get; set; }
-        public int? ProgressionStatusChangeDay { get; set; }
         public string Results { get; set; }
     }
 }
