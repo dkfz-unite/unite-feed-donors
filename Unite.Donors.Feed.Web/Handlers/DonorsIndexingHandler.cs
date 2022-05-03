@@ -28,6 +28,11 @@ namespace Unite.Donors.Feed.Web.Handlers
         }
 
 
+        public void Prepare()
+        {
+            _indexingService.UpdateMapping().RunSynchronously();
+        }
+
         public void Handle(int bucketSize)
         {
             ProcessDonorIndexingTasks(bucketSize);
