@@ -40,6 +40,9 @@ Request implements **UPSERT** logic:
             "VitalStatus": true,
             "VitalStatusChangeDate": "2021-01-01T00:00:00",
             "VitalStatusChangeDay": 365,
+            "ProgressionStatus": false,
+            "ProgressionStatusChangeDate": "2020-02-12T00:00:00",
+            "ProgressionStatusChangeDay": 37,
             "KpsBaseline": 90,
             "SteroidsBaseline": false
         },
@@ -51,9 +54,6 @@ Request implements **UPSERT** logic:
                 "StartDay": 7,
                 "EndDate": "2020-01-27T00:00:00",
                 "DurationDays": 20,
-                "ProgressionStatus": false,
-                "ProgressionStatusChangeDate": "2020-02-12T00:00:00",
-                "ProgressionStatusChangeDay": 37,
                 "Results": "Patient specific therapy results."
             }
         ]
