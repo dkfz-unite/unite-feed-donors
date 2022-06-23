@@ -1,17 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Unite.Data" Version="2.1.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\" />
-    <Folder Include="Data\Donors\" />
-    <Folder Include="Data\Donors\Models\" />
-    <Folder Include="Data\Donors\Repositories\" />
-    <Folder Include="Data\Donors\Models\Audit\" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Unite.Data" Version="2.1.2" />
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="Data\" />
+		<Folder Include="Data\Donors\" />
+		<Folder Include="Data\Donors\Models\" />
+		<Folder Include="Data\Donors\Repositories\" />
+		<Folder Include="Data\Donors\Models\Audit\" />
+	</ItemGroup>
 </Project>

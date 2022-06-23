@@ -1,63 +1,64 @@
 ﻿using FluentValidation;
+using Unite.Donors.Feed.Web.Services.Donors;
+using Unite.Donors.Feed.Web.Services.Donors.Validators;
 
-namespace Unite.Donors.Feed.Web.Services.Donors.Validators
+namespace Unite.Donors.Feed.Web.Services.Donors.Validators;
+
+public class DonorModelValidator : AbstractValidator<DonorModel>
 {
-    public class DonorModelValidator : AbstractValidator<DonorModel>
+    private readonly IValidator<ClinicalDataModel> _clinicalDataValidator;
+    private readonly IValidator<TreatmentModel> _treatmentModelValidator;
+
+    public DonorModelValidator()
     {
-        private readonly IValidator<ClinicalDataModel> _clinicalDataValidator;
-        private readonly IValidator<TreatmentModel> _treatmentModelValidator;
-
-        public DonorModelValidator()
-        {
-            _clinicalDataValidator = new ClinicalDataModelValidator();
-            _treatmentModelValidator = new TreatmentModelValidator();
+        _clinicalDataValidator = new ClinicalDataModelValidator();
+        _treatmentModelValidator = new TreatmentModelValidator();
 
 
-            RuleFor(model => model.Id)
-                .NotEmpty()
-                .WithMessage("Should not be empty");
+        RuleFor(model => model.Id)
+            .NotEmpty()
+            .WithMessage("Should not be empty");
 
-            RuleFor(model => model.Id)
-                .MaximumLength(255)
-                .WithMessage("Maximum length is 255");
+        RuleFor(model => model.Id)
+            .MaximumLength(255)
+            .WithMessage("Maximum length is 255");
 
-            RuleForEach(model => model.WorkPackages)
-                .NotEmpty()
-                .WithMessage("Should not be empty");
+        RuleForEach(model => model.WorkPackages)
+            .NotEmpty()
+            .WithMessage("Should not be empty");
 
-            RuleForEach(model => model.WorkPackages)
-                .MaximumLength(100)
-                .WithMessage("Maximum length is 100");
+        RuleForEach(model => model.WorkPackages)
+            .MaximumLength(100)
+            .WithMessage("Maximum length is 100");
 
-            RuleForEach(model => model.Studies)
-                .NotEmpty()
-                .WithMessage("Should not be empty");
+        RuleForEach(model => model.Studies)
+            .NotEmpty()
+            .WithMessage("Should not be empty");
 
-            RuleForEach(model => model.Studies)
-                .MaximumLength(100)
-                .WithMessage("Maximum length is 100");
+        RuleForEach(model => model.Studies)
+            .MaximumLength(100)
+            .WithMessage("Maximum length is 100");
 
 
-            RuleFor(model => model.ClinicalData)
-                .SetValidator(_clinicalDataValidator);
+        RuleFor(model => model.ClinicalData)
+            .SetValidator(_clinicalDataValidator);
 
-            RuleForEach(model => model.Treatments)
-                .SetValidator(_treatmentModelValidator);
-        }
+        RuleForEach(model => model.Treatments)
+            .SetValidator(_treatmentModelValidator);
     }
+}
 
 
-    public class DonorModelsValidator : AbstractValidator<DonorModel[]>
+public class DonorModelsValidator : AbstractValidator<DonorModel[]>
+{
+    private readonly IValidator<DonorModel> _donorModelValidator;
+
+    public DonorModelsValidator()
     {
-        private readonly IValidator<DonorModel> _donorModelValidator;
-
-        public DonorModelsValidator()
-        {
-            _donorModelValidator = new DonorModelValidator();
+        _donorModelValidator = new DonorModelValidator();
 
 
-            RuleForEach(model => model)
-                .SetValidator(_donorModelValidator);
-        }
+        RuleForEach(model => model)
+            .SetValidator(_donorModelValidator);
     }
 }

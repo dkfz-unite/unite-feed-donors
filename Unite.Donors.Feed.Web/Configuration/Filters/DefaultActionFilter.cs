@@ -1,21 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Unite.Donors.Feed.Web.Configuration.Filters
+namespace Unite.Donors.Feed.Web.Configuration.Filters;
+
+public class DefaultActionFilter : IActionFilter
 {
-    public class DefaultActionFilter : IActionFilter
+    public void OnActionExecuting(ActionExecutingContext context)
     {
-        public void OnActionExecuting(ActionExecutingContext context)
+        if (!context.ModelState.IsValid)
         {
-            if (!context.ModelState.IsValid)
-            {
-                context.Result = new BadRequestObjectResult(context.ModelState);
-            }
+            context.Result = new BadRequestObjectResult(context.ModelState);
         }
+    }
 
-        public void OnActionExecuted(ActionExecutedContext context)
-        {
+    public void OnActionExecuted(ActionExecutedContext context)
+    {
 
-        }
     }
 }

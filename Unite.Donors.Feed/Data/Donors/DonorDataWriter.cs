@@ -1,135 +1,133 @@
-﻿using System.Collections.Generic;
-using Unite.Data.Entities.Donors;
+﻿using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Services;
 using Unite.Donors.Feed.Data.Donors.Models;
 using Unite.Donors.Feed.Data.Donors.Models.Audit;
 using Unite.Donors.Feed.Data.Donors.Repositories;
 
-namespace Unite.Donors.Feed.Data.Donors
+namespace Unite.Donors.Feed.Data.Donors;
+
+public class DonorDataWriter : DataWriter<DonorModel, DonorsUploadAudit>
 {
-    public class DonorDataWriter : DataWriter<DonorModel, DonorsUploadAudit>
+    private readonly DonorRepository _donorRepository;
+    private readonly ClinicalDataRepository _clinicalDataRepository;
+    private readonly TreatmentRepository _treatmentRepository;
+    private readonly WorkPackageDonorRepository _workPackageDonorRepository;
+    private readonly StudyDonorRepository _studyDonorRepository;
+
+
+    public DonorDataWriter(DomainDbContext dbContext) : base(dbContext)
     {
-        private readonly DonorRepository _donorRepository;
-        private readonly ClinicalDataRepository _clinicalDataRepository;
-        private readonly TreatmentRepository _treatmentRepository;
-        private readonly WorkPackageDonorRepository _workPackageDonorRepository;
-        private readonly StudyDonorRepository _studyDonorRepository;
+        _donorRepository = new DonorRepository(dbContext);
+        _clinicalDataRepository = new ClinicalDataRepository(dbContext);
+        _treatmentRepository = new TreatmentRepository(dbContext);
+        _workPackageDonorRepository = new WorkPackageDonorRepository(dbContext);
+        _studyDonorRepository = new StudyDonorRepository(dbContext);
+    }
 
 
-        public DonorDataWriter(DomainDbContext dbContext) : base(dbContext)
+    protected override void ProcessModel(DonorModel model, ref DonorsUploadAudit audit)
+    {
+        var donor = CreateorUpdateDonor(model, ref audit);
+
+        if (model.ClinicalData != null)
         {
-            _donorRepository = new DonorRepository(dbContext);
-            _clinicalDataRepository = new ClinicalDataRepository(dbContext);
-            _treatmentRepository = new TreatmentRepository(dbContext);
-            _workPackageDonorRepository = new WorkPackageDonorRepository(dbContext);
-            _studyDonorRepository = new StudyDonorRepository(dbContext);
+            CreateOrUpdateClinicalData(donor.Id, model.ClinicalData, ref audit);
         }
 
-
-        protected override void ProcessModel(DonorModel model, ref DonorsUploadAudit audit)
+        if (model.Treatments != null)
         {
-            var donor = CreateorUpdateDonor(model, ref audit);
-
-            if (model.ClinicalData != null)
+            foreach (var treatmentModel in model.Treatments)
             {
-                CreateOrUpdateClinicalData(donor.Id, model.ClinicalData, ref audit);
-            }
-
-            if (model.Treatments != null)
-            {
-                foreach (var treatmentModel in model.Treatments)
-                {
-                    CreateOrUpdateTreatment(donor.Id, treatmentModel, ref audit);
-                }
-            }
-
-            if (model.WorkPackages != null)
-            {
-                CreateOrUpdateWorkpackages(donor.Id, model.WorkPackages, ref audit);
-            }
-
-            if (model.Studies != null)
-            {
-                CreateOrUpdateStudies(donor.Id, model.Studies, ref audit);
+                CreateOrUpdateTreatment(donor.Id, treatmentModel, ref audit);
             }
         }
 
-
-        private Donor CreateorUpdateDonor(DonorModel model, ref DonorsUploadAudit audit)
+        if (model.WorkPackages != null)
         {
-            var entity = _donorRepository.Find(model);
-
-            if (entity == null)
-            {
-                entity = _donorRepository.Create(model);
-
-                audit.DonorsCreated++;
-                audit.Donors.Add(entity.Id);
-            }
-            else
-            {
-                _donorRepository.Update(entity, model);
-
-                audit.DonorsUpdated++;
-                audit.Donors.Add(entity.Id);
-            }
-
-            return entity;
+            CreateOrUpdateWorkpackages(donor.Id, model.WorkPackages, ref audit);
         }
 
-        private ClinicalData CreateOrUpdateClinicalData(int donorId, ClinicalDataModel model, ref DonorsUploadAudit audit)
+        if (model.Studies != null)
         {
-            var entity = _clinicalDataRepository.Find(donorId);
+            CreateOrUpdateStudies(donor.Id, model.Studies, ref audit);
+        }
+    }
 
-            if (entity == null)
-            {
-                _clinicalDataRepository.Create(donorId, model);
-                audit.ClinicalDataEntriesCreated++;
-            }
-            else
-            {
-                _clinicalDataRepository.Update(entity, model);
-                audit.ClinicalDataEntriesUpdated++;
-            }
 
-            return entity;
+    private Donor CreateorUpdateDonor(DonorModel model, ref DonorsUploadAudit audit)
+    {
+        var entity = _donorRepository.Find(model);
+
+        if (entity == null)
+        {
+            entity = _donorRepository.Create(model);
+
+            audit.DonorsCreated++;
+            audit.Donors.Add(entity.Id);
+        }
+        else
+        {
+            _donorRepository.Update(entity, model);
+
+            audit.DonorsUpdated++;
+            audit.Donors.Add(entity.Id);
         }
 
-        private Treatment CreateOrUpdateTreatment(int donorId, TreatmentModel model, ref DonorsUploadAudit audit)
+        return entity;
+    }
+
+    private ClinicalData CreateOrUpdateClinicalData(int donorId, ClinicalDataModel model, ref DonorsUploadAudit audit)
+    {
+        var entity = _clinicalDataRepository.Find(donorId);
+
+        if (entity == null)
         {
-            var entity = _treatmentRepository.Find(donorId, model);
-
-            if (entity == null)
-            {
-                _treatmentRepository.Create(donorId, model);
-                audit.TreatmentsCreated++;
-            }
-            else
-            {
-                _treatmentRepository.Update(entity, model);
-                audit.TreatmentsUpdated++;
-            }
-
-            return entity;
+            _clinicalDataRepository.Create(donorId, model);
+            audit.ClinicalDataEntriesCreated++;
+        }
+        else
+        {
+            _clinicalDataRepository.Update(entity, model);
+            audit.ClinicalDataEntriesUpdated++;
         }
 
-        private IEnumerable<WorkPackageDonor> CreateOrUpdateWorkpackages(int donorId, IEnumerable<string> workPackageNames, ref DonorsUploadAudit audit)
+        return entity;
+    }
+
+    private Treatment CreateOrUpdateTreatment(int donorId, TreatmentModel model, ref DonorsUploadAudit audit)
+    {
+        var entity = _treatmentRepository.Find(donorId, model);
+
+        if (entity == null)
         {
-            var entities = _workPackageDonorRepository.CreateOrUpdate(donorId, workPackageNames);
-
-            audit.WorkPackagesAssociated++;
-
-            return entities;
+            _treatmentRepository.Create(donorId, model);
+            audit.TreatmentsCreated++;
+        }
+        else
+        {
+            _treatmentRepository.Update(entity, model);
+            audit.TreatmentsUpdated++;
         }
 
-        private IEnumerable<StudyDonor> CreateOrUpdateStudies(int donorId, IEnumerable<string> studyNames, ref DonorsUploadAudit audit)
-        {
-            var entities = _studyDonorRepository.CreateOrUpdate(donorId, studyNames);
+        return entity;
+    }
 
-            audit.StudiesAssociated++;
+    private IEnumerable<WorkPackageDonor> CreateOrUpdateWorkpackages(int donorId, IEnumerable<string> workPackageNames, ref DonorsUploadAudit audit)
+    {
+        var entities = _workPackageDonorRepository.CreateOrUpdate(donorId, workPackageNames);
 
-            return entities;
-        }
+        audit.WorkPackagesAssociated++;
+
+        return entities;
+    }
+
+    private IEnumerable<StudyDonor> CreateOrUpdateStudies(int donorId, IEnumerable<string> studyNames, ref DonorsUploadAudit audit)
+    {
+        var entities = _studyDonorRepository.CreateOrUpdate(donorId, studyNames);
+
+        audit.StudiesAssociated++;
+
+        return entities;
     }
 }

@@ -1,15 +1,14 @@
-﻿namespace Unite.Donors.Feed.Data.Donors.Models
+﻿namespace Unite.Donors.Feed.Data.Donors.Models;
+
+public class DonorModel
 {
-    public class DonorModel
-    {
-        public string ReferenceId { get; set; }
+    public string ReferenceId { get; set; }
 
-        public bool? MtaProtected { get; set; }
+    public bool? MtaProtected { get; set; }
 
-        public string[] WorkPackages { get; set; }
-        public string[] Studies { get; set; }
+    public string[] WorkPackages { get; set; }
+    public string[] Studies { get; set; }
 
-        public ClinicalDataModel ClinicalData { get; set; }
-        public TreatmentModel[] Treatments { get; set; }
-    }
+    public ClinicalDataModel ClinicalData { get; set; }
+    public TreatmentModel[] Treatments { get; set; }
 }

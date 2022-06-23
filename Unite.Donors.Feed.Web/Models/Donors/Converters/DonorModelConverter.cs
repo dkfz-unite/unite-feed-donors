@@ -1,75 +1,72 @@
-﻿using System.Linq;
+﻿namespace Unite.Donors.Feed.Web.Services.Donors.Converters;
 
-namespace Unite.Donors.Feed.Web.Services.Donors.Converters
+public class DonorModelConverter
 {
-    public class DonorModelConverter
+    public Data.Donors.Models.DonorModel Convert(DonorModel source)
     {
-        public Data.Donors.Models.DonorModel Convert(DonorModel source)
+        var donorModel = new Data.Donors.Models.DonorModel();
+
+        Map(source, donorModel);
+
+        if (source.ClinicalData != null)
         {
-            var donorModel = new Data.Donors.Models.DonorModel();
+            donorModel.ClinicalData = new Data.Donors.Models.ClinicalDataModel();
 
-            Map(source, donorModel);
+            Map(source.ClinicalData, donorModel.ClinicalData);
+        }
 
-            if(source.ClinicalData != null)
+        if (source.Treatments != null)
+        {
+            donorModel.Treatments = source.Treatments.Select(treatment =>
             {
-                donorModel.ClinicalData = new Data.Donors.Models.ClinicalDataModel();
+                var treatmentModel = new Data.Donors.Models.TreatmentModel();
 
-                Map(source.ClinicalData, donorModel.ClinicalData);
-            }
+                Map(treatment, treatmentModel);
 
-            if(source.Treatments != null)
-            {
-                donorModel.Treatments = source.Treatments.Select(treatment =>
-                {
-                    var treatmentModel = new Data.Donors.Models.TreatmentModel();
+                return treatmentModel;
 
-                    Map(treatment, treatmentModel);
-
-                    return treatmentModel;
-
-                }).ToArray();
-            }
-
-            return donorModel;
+            }).ToArray();
         }
 
+        return donorModel;
+    }
 
-        private static void Map(DonorModel source, Data.Donors.Models.DonorModel target)
-        {
-            target.ReferenceId = source.Id;
-            target.MtaProtected = source.MtaProtected;
 
-            target.WorkPackages = source.WorkPackages;
-            target.Studies = source.Studies;
-        }
+    private static void Map(DonorModel source, Data.Donors.Models.DonorModel target)
+    {
+        target.ReferenceId = source.Id;
+        target.MtaProtected = source.MtaProtected;
 
-        private static void Map(ClinicalDataModel source, Data.Donors.Models.ClinicalDataModel target)
-        {
-            target.Gender = source.Gender;
-            target.Age = source.Age;
-            target.Diagnosis = source.Diagnosis;
-            target.DiagnosisDate = source.DiagnosisDate;
-            target.PrimarySite = source.PrimarySite;
-            target.Localization = source.Localization;
-            target.VitalStatus = source.VitalStatus;
-            target.VitalStatusChangeDate = source.VitalStatusChangeDate;
-            target.VitalStatusChangeDay = source.VitalStatusChangeDay;
-            target.ProgressionStatus = source.ProgressionStatus;
-            target.ProgressionStatusChangeDate = source.ProgressionStatusChangeDate;
-            target.ProgressionStatusChangeDay = source.ProgressionStatusChangeDay;
-            target.KpsBaseline = source.KpsBaseline;
-            target.SteroidsBaseline = source.SteroidsBaseline;
-        }
+        target.WorkPackages = source.WorkPackages;
+        target.Studies = source.Studies;
+    }
 
-        private static void Map(TreatmentModel source, Data.Donors.Models.TreatmentModel target)
-        {
-            target.Therapy = source.Therapy;
-            target.Details = source.Details;
-            target.StartDate = source.StartDate;
-            target.StartDay = source.StartDay;
-            target.EndDate = source.EndDate;
-            target.DurationDays = source.DurationDays;
-            target.Results = source.Results;
-        }
+    private static void Map(ClinicalDataModel source, Data.Donors.Models.ClinicalDataModel target)
+    {
+        target.Gender = source.Gender;
+        target.Age = source.Age;
+        target.Diagnosis = source.Diagnosis;
+        target.DiagnosisDate = source.DiagnosisDate;
+        target.PrimarySite = source.PrimarySite;
+        target.Localization = source.Localization;
+        target.VitalStatus = source.VitalStatus;
+        target.VitalStatusChangeDate = source.VitalStatusChangeDate;
+        target.VitalStatusChangeDay = source.VitalStatusChangeDay;
+        target.ProgressionStatus = source.ProgressionStatus;
+        target.ProgressionStatusChangeDate = source.ProgressionStatusChangeDate;
+        target.ProgressionStatusChangeDay = source.ProgressionStatusChangeDay;
+        target.KpsBaseline = source.KpsBaseline;
+        target.SteroidsBaseline = source.SteroidsBaseline;
+    }
+
+    private static void Map(TreatmentModel source, Data.Donors.Models.TreatmentModel target)
+    {
+        target.Therapy = source.Therapy;
+        target.Details = source.Details;
+        target.StartDate = source.StartDate;
+        target.StartDay = source.StartDay;
+        target.EndDate = source.EndDate;
+        target.DurationDays = source.DurationDays;
+        target.Results = source.Results;
     }
 }
