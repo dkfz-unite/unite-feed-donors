@@ -40,11 +40,13 @@ public class DonorsIndexingHandler
 
     private void ProcessDonorIndexingTasks(int bucketSize)
     {
+        var stopwatch = new Stopwatch();
+
         _taskProcessingService.Process(TaskType.Indexing, TaskTargetType.Donor, bucketSize, (tasks) =>
         {
             _logger.LogInformation($"Indexing {tasks.Length} donors");
 
-            var stopwatch = Stopwatch.StartNew();
+            stopwatch.Restart();
 
             var indices = tasks.Select(task =>
             {
@@ -60,9 +62,7 @@ public class DonorsIndexingHandler
 
             stopwatch.Stop();
 
-            _logger.LogInformation($"Indexing of {tasks.Length} donors completed in {stopwatch.Elapsed.TotalSeconds}s");
-
-            stopwatch.Reset();
+            _logger.LogInformation($"Indexing of {tasks.Length} donors completed in {Math.Round(stopwatch.Elapsed.TotalSeconds, 2)}s");
         });
     }
 }
