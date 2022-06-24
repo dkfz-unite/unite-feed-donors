@@ -60,7 +60,7 @@ public class DonorsIndexingHandler
 
             stopwatch.Stop();
 
-            _logger.LogInformation($"Indexing of {tasks.Length} donors completed in {stopwatch.Elapsed}");
+            _logger.LogInformation($"Indexing of {tasks.Length} donors completed in {stopwatch.Elapsed.TotalSeconds}s");
 
             stopwatch.Reset();
         });
