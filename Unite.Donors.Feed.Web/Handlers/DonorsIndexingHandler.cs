@@ -1,4 +1,5 @@
-﻿using Unite.Data.Entities.Tasks.Enums;
+﻿using System.Diagnostics;
+using Unite.Data.Entities.Tasks.Enums;
 using Unite.Data.Services.Tasks;
 using Unite.Indices.Entities.Donors;
 using Unite.Indices.Services;
@@ -43,6 +44,8 @@ public class DonorsIndexingHandler
         {
             _logger.LogInformation($"Indexing {tasks.Length} donors");
 
+            var stopwatch = Stopwatch.StartNew();
+
             var indices = tasks.Select(task =>
             {
                 var id = int.Parse(task.Target);
@@ -55,7 +58,11 @@ public class DonorsIndexingHandler
 
             _indexingService.IndexMany(indices);
 
-            _logger.LogInformation($"Indexing of {tasks.Length} donors completed");
+            stopwatch.Stop();
+
+            _logger.LogInformation($"Indexing of {tasks.Length} donors completed in {stopwatch.Elapsed}");
+
+            stopwatch.Reset();
         });
     }
 }
