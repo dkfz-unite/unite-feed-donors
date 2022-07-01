@@ -13,7 +13,7 @@ namespace Unite.Donors.Indices.Services.Mappers;
 
 internal class SpecimenIndexMapper
 {
-    internal void Map(in Specimen specimen, SpecimenIndex index, DateTime? diagnosisDate)
+    internal void Map(in Specimen specimen, SpecimenIndex index, DateOnly? diagnosisDate)
     {
         if (specimen == null)
         {
@@ -80,7 +80,7 @@ internal class SpecimenIndexMapper
         return index;
     }
 
-    private static OrganoidIndex CreateFrom(in Organoid organoid, in MolecularData molecularData, DateTime? specimenCreationDate)
+    private static OrganoidIndex CreateFrom(in Organoid organoid, in MolecularData molecularData, DateOnly? specimenCreationDate)
     {
         if (organoid == null)
         {
@@ -101,7 +101,7 @@ internal class SpecimenIndexMapper
         return index;
     }
 
-    private static OrganoidInterventionIndex[] CreateFrom(in IEnumerable<OrganoidIntervention> interventions, DateTime? specimenCreationDate)
+    private static OrganoidInterventionIndex[] CreateFrom(in IEnumerable<OrganoidIntervention> interventions, DateOnly? specimenCreationDate)
     {
         if (interventions == null || !interventions.Any())
         {
@@ -125,7 +125,7 @@ internal class SpecimenIndexMapper
         return indices;
     }
 
-    private static XenograftIndex CreateFrom(in Xenograft xenograft, in MolecularData molecularData, DateTime? specimenCreationDate)
+    private static XenograftIndex CreateFrom(in Xenograft xenograft, in MolecularData molecularData, DateOnly? specimenCreationDate)
     {
         if (xenograft == null)
         {
@@ -153,7 +153,7 @@ internal class SpecimenIndexMapper
         return index;
     }
 
-    private static XenograftInterventionIndex[] CreateFrom(in IEnumerable<XenograftIntervention> interventions, DateTime? specimenCreationDate)
+    private static XenograftInterventionIndex[] CreateFrom(in IEnumerable<XenograftIntervention> interventions, DateOnly? specimenCreationDate)
     {
         if (interventions == null || !interventions.Any())
         {

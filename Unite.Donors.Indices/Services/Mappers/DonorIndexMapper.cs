@@ -49,7 +49,7 @@ internal class DonorIndexMapper
         return index;
     }
 
-    private static TreatmentIndex[] CreateFrom(in IEnumerable<Treatment> treatments, DateTime? diagnosisDate)
+    private static TreatmentIndex[] CreateFrom(in IEnumerable<Treatment> treatments, DateOnly? diagnosisDate)
     {
         if (treatments == null || !treatments.Any())
         {

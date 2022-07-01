@@ -6,7 +6,7 @@ namespace Unite.Donors.Indices.Services.Mappers;
 
 internal class ImageIndexMapper
 {
-    internal void Map(in Image image, ImageIndex index, DateTime? diagnosisDate)
+    internal void Map(in Image image, ImageIndex index, DateOnly? diagnosisDate)
     {
         if (image == null)
         {
