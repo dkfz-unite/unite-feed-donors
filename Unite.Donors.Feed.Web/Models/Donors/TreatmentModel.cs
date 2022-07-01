@@ -4,9 +4,9 @@ public class TreatmentModel
 {
     public string Therapy { get; set; }
     public string Details { get; set; }
-    public DateOnly? StartDate { get; set; }
+    public DateTime? StartDate { get; set; }
     public int? StartDay { get; set; }
-    public DateOnly? EndDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public int? DurationDays { get; set; }
     public string Results { get; set; }
 
