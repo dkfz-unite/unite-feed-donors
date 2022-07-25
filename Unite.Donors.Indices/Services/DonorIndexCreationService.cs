@@ -176,6 +176,7 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
             .IncludeOrganoid()
             .IncludeXenograft()
             .IncludeMolecularData()
+            .IncludeDrugScreeningData()
             .Where(specimen => specimen.DonorId == donorId)
             .ToArray();
 

@@ -24,14 +24,14 @@ internal class SpecimenIndexMapper
         index.ParentId = specimen.ParentId;
         index.CreationDay = specimen.CreationDate.RelativeFrom(diagnosisDate) ?? specimen.CreationDay;
 
-        index.Tissue = CreateFrom(specimen.Tissue, specimen.MolecularData);
-        index.CellLine = CreateFrom(specimen.CellLine, specimen.MolecularData);
-        index.Organoid = CreateFrom(specimen.Organoid, specimen.MolecularData, specimen.CreationDate);
-        index.Xenograft = CreateFrom(specimen.Xenograft, specimen.MolecularData, specimen.CreationDate);
+        index.Tissue = CreateFrom(specimen.Tissue, specimen.MolecularData, specimen.DrugScreenings);
+        index.CellLine = CreateFrom(specimen.CellLine, specimen.MolecularData, specimen.DrugScreenings);
+        index.Organoid = CreateFrom(specimen.Organoid, specimen.MolecularData, specimen.DrugScreenings, specimen.CreationDate);
+        index.Xenograft = CreateFrom(specimen.Xenograft, specimen.MolecularData, specimen.DrugScreenings, specimen.CreationDate);
     }
 
 
-    private static TissueIndex CreateFrom(in Tissue tissue, in MolecularData molecularData)
+    private static TissueIndex CreateFrom(in Tissue tissue, in MolecularData molecularData, in IEnumerable<DrugScreening> drugScreenings)
     {
         if (tissue == null)
         {
@@ -48,10 +48,12 @@ internal class SpecimenIndexMapper
 
         index.MolecularData = CreateFrom(molecularData);
 
+        index.DrugScreenings = CreateFrom(drugScreenings);
+
         return index;
     }
 
-    private static CellLineIndex CreateFrom(in CellLine cellLine, in MolecularData molecularData)
+    private static CellLineIndex CreateFrom(in CellLine cellLine, in MolecularData molecularData, in IEnumerable<DrugScreening> drugScreenings)
     {
         if (cellLine == null)
         {
@@ -77,10 +79,12 @@ internal class SpecimenIndexMapper
 
         index.MolecularData = CreateFrom(molecularData);
 
+        index.DrugScreenings = CreateFrom(drugScreenings);
+
         return index;
     }
 
-    private static OrganoidIndex CreateFrom(in Organoid organoid, in MolecularData molecularData, DateOnly? specimenCreationDate)
+    private static OrganoidIndex CreateFrom(in Organoid organoid, in MolecularData molecularData, in IEnumerable<DrugScreening> drugScreenings, DateOnly? specimenCreationDate)
     {
         if (organoid == null)
         {
@@ -96,6 +100,7 @@ internal class SpecimenIndexMapper
 
         index.MolecularData = CreateFrom(molecularData);
 
+        index.DrugScreenings = CreateFrom(drugScreenings);
         index.Interventions = CreateFrom(organoid.Interventions, specimenCreationDate);
 
         return index;
@@ -125,7 +130,7 @@ internal class SpecimenIndexMapper
         return indices;
     }
 
-    private static XenograftIndex CreateFrom(in Xenograft xenograft, in MolecularData molecularData, DateOnly? specimenCreationDate)
+    private static XenograftIndex CreateFrom(in Xenograft xenograft, in MolecularData molecularData, in IEnumerable<DrugScreening> drugScreenings, DateOnly? specimenCreationDate)
     {
         if (xenograft == null)
         {
@@ -148,6 +153,7 @@ internal class SpecimenIndexMapper
 
         index.MolecularData = CreateFrom(molecularData);
 
+        index.DrugScreenings = CreateFrom(drugScreenings);
         index.Interventions = CreateFrom(xenograft.Interventions, specimenCreationDate);
 
         return index;
@@ -194,5 +200,32 @@ internal class SpecimenIndexMapper
         index.GcimpMethylation = molecularData.GcimpMethylation;
 
         return index;
+    }
+
+    private static DrugScreeningIndex[] CreateFrom(in IEnumerable<DrugScreening> screenings)
+    {
+        if (screenings == null || !screenings.Any())
+        {
+            return null;
+        }
+
+        var indices = screenings.Select(screening =>
+        {
+            var index = new DrugScreeningIndex();
+
+            index.Drug = screening.Drug.Name;
+            index.MinConcentration = screening.MinConcentration;
+            index.MaxConcentration = screening.MaxConcentration;
+            index.Dss = screening.Dss;
+            index.DssSelective = screening.DssSelective;
+            index.AbsIC25 = screening.AbsIC25;
+            index.AbsIC50 = screening.AbsIC50;
+            index.AbsIC75 = screening.AbsIC75;
+
+            return index;
+
+        }).ToArray();
+
+        return indices;
     }
 }
