@@ -213,14 +213,16 @@ internal class SpecimenIndexMapper
         {
             var index = new DrugScreeningIndex();
 
+            index.Dss = screening.Dss;
+            index.DssSelective = screening.DssSelective;
+            index.Gof = screening.Gof;
             index.Drug = screening.Drug.Name;
             index.MinConcentration = screening.MinConcentration;
             index.MaxConcentration = screening.MaxConcentration;
-            index.Dss = screening.Dss;
-            index.DssSelective = screening.DssSelective;
             index.AbsIC25 = screening.AbsIC25;
             index.AbsIC50 = screening.AbsIC50;
             index.AbsIC75 = screening.AbsIC75;
+            index.Inhibition = screening.Inhibition;
 
             return index;
 
