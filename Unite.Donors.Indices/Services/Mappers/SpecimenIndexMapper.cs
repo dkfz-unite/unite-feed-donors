@@ -222,7 +222,6 @@ internal class SpecimenIndexMapper
             index.AbsIC25 = screening.AbsIC25;
             index.AbsIC50 = screening.AbsIC50;
             index.AbsIC75 = screening.AbsIC75;
-            index.Inhibition = screening.Inhibition;
 
             return index;
 
