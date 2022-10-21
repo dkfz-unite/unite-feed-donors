@@ -42,7 +42,7 @@ public class DonorsIndexingHandler
     {
         var stopwatch = new Stopwatch();
 
-        _taskProcessingService.Process(TaskType.Indexing, TaskTargetType.Donor, bucketSize, (tasks) =>
+        _taskProcessingService.Process(IndexingTaskType.Donor, bucketSize, (tasks) =>
         {
             _logger.LogInformation($"Indexing {tasks.Length} donors");
 

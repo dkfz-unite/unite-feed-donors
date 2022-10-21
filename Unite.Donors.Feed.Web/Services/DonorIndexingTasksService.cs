@@ -1,9 +1,12 @@
 ﻿using Unite.Data.Entities.Donors;
-using Unite.Data.Entities.Genome.Mutations;
 using Unite.Data.Entities.Images;
 using Unite.Data.Entities.Specimens;
 using Unite.Data.Services;
 using Unite.Data.Services.Tasks;
+
+using CNV = Unite.Data.Entities.Genome.Variants.CNV;
+using SSM = Unite.Data.Entities.Genome.Variants.SSM;
+using SV = Unite.Data.Entities.Genome.Variants.SV;
 
 namespace Unite.Donors.Feed.Web.Services;
 
@@ -40,7 +43,7 @@ public class DonorIndexingTasksService : IndexingTaskService<Donor, int>
             CreateDonorIndexingTasks(donors);
             CreateImageIndexingTasks(donors);
             CreateSpecimenIndexingTasks(donors);
-            CreateMutationIndexingTasks(donors);
+            CreateVariantIndexingTasks(donors);
             CreateGeneIndexingTasks(donors);
         });
     }
@@ -75,30 +78,65 @@ public class DonorIndexingTasksService : IndexingTaskService<Donor, int>
 
     protected override IEnumerable<int> LoadRelatedGenes(IEnumerable<int> keys)
     {
-        var mutationIds = _dbContext.Set<MutationOccurrence>()
-            .Where(mutationOccurrence => keys.Contains(mutationOccurrence.AnalysedSample.Sample.Specimen.DonorId))
-            .Select(mutationOccurrence => mutationOccurrence.MutationId)
+        var ssmAffectedGeneIds = _dbContext.Set<SSM.AffectedTranscript>()
+            .Where(affectedTranscript => affectedTranscript.Variant.Occurrences.Any(occurrence =>
+                keys.Contains(occurrence.AnalysedSample.Sample.Specimen.DonorId)))
+            .Where(affectedTranscript => affectedTranscript.Feature.GeneId != null)
+            .Select(affectedTranscript => affectedTranscript.Feature.GeneId.Value)
             .Distinct()
             .ToArray();
 
-        var geneIds = _dbContext.Set<AffectedTranscript>()
-            .Where(affectedTranscript => mutationIds.Contains(affectedTranscript.Id))
-            .Where(affectedTranscript => affectedTranscript.Transcript.GeneId != null)
-            .Select(affectedTranscript => affectedTranscript.Transcript.GeneId.Value)
+        var cnvAffectedGeneIds = _dbContext.Set<SSM.AffectedTranscript>()
+            .Where(affectedTranscript => affectedTranscript.Variant.Occurrences.Any(occurrence =>
+                keys.Contains(occurrence.AnalysedSample.Sample.Specimen.DonorId)))
+            .Where(affectedTranscript => affectedTranscript.Feature.GeneId != null)
+            .Select(affectedTranscript => affectedTranscript.Feature.GeneId.Value)
             .Distinct()
             .ToArray();
+
+        var svAffectedGeneIds = _dbContext.Set<SSM.AffectedTranscript>()
+            .Where(affectedTranscript => affectedTranscript.Variant.Occurrences.Any(occurrence =>
+                keys.Contains(occurrence.AnalysedSample.Sample.Specimen.DonorId)))
+            .Where(affectedTranscript => affectedTranscript.Feature.GeneId != null)
+            .Select(affectedTranscript => affectedTranscript.Feature.GeneId.Value)
+            .Distinct()
+            .ToArray();
+
+        var geneIds = ssmAffectedGeneIds.Union(cnvAffectedGeneIds).Union(svAffectedGeneIds).ToArray();
 
         return geneIds;
     }
 
     protected override IEnumerable<long> LoadRelatedMutations(IEnumerable<int> keys)
     {
-        var mutationIds = _dbContext.Set<MutationOccurrence>()
-            .Where(mutationOccurrence => keys.Contains(mutationOccurrence.AnalysedSample.Sample.Specimen.DonorId))
-            .Select(mutationOccurrence => mutationOccurrence.MutationId)
+        var variantIds = _dbContext.Set<SSM.VariantOccurrence>()
+            .Where(occurrence => keys.Contains(occurrence.AnalysedSample.Sample.Specimen.DonorId))
+            .Select(occurrence => occurrence.VariantId)
             .Distinct()
             .ToArray();
 
-        return mutationIds;
+        return variantIds;
+    }
+
+    protected override IEnumerable<long> LoadRelatedCopyNumberVariants(IEnumerable<int> keys)
+    {
+        var variantIds = _dbContext.Set<CNV.VariantOccurrence>()
+           .Where(occurrence => keys.Contains(occurrence.AnalysedSample.Sample.Specimen.DonorId))
+           .Select(occurrence => occurrence.VariantId)
+           .Distinct()
+           .ToArray();
+
+        return variantIds;
+    }
+
+    protected override IEnumerable<long> LoadRelatedStructuralVariants(IEnumerable<int> keys)
+    {
+        var variantIds = _dbContext.Set<SV.VariantOccurrence>()
+           .Where(occurrence => keys.Contains(occurrence.AnalysedSample.Sample.Specimen.DonorId))
+           .Select(occurrence => occurrence.VariantId)
+           .Distinct()
+           .ToArray();
+
+        return variantIds;
     }
 }

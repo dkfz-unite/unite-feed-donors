@@ -10,7 +10,7 @@ public class DonorsUploadAudit
     public int ClinicalDataEntriesUpdated;
     public int TreatmentsCreated;
     public int TreatmentsUpdated;
-    public int WorkPackagesAssociated;
+    public int ProjectsAssociated;
     public int StudiesAssociated;
 
     public HashSet<int> Donors;
@@ -31,7 +31,7 @@ public class DonorsUploadAudit
         message.AppendLine($"{ClinicalDataEntriesUpdated} donor clinical data entries updated");
         message.AppendLine($"{TreatmentsCreated} donor treatments created");
         message.AppendLine($"{TreatmentsUpdated} donor treatments updated");
-        message.AppendLine($"{WorkPackagesAssociated} donor work packages associated");
+        message.AppendLine($"{ProjectsAssociated} donor projects associated");
         message.Append($"{StudiesAssociated} donor studies associated");
 
         return message.ToString();

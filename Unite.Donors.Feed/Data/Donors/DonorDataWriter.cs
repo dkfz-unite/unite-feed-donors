@@ -12,7 +12,7 @@ public class DonorDataWriter : DataWriter<DonorModel, DonorsUploadAudit>
     private readonly DonorRepository _donorRepository;
     private readonly ClinicalDataRepository _clinicalDataRepository;
     private readonly TreatmentRepository _treatmentRepository;
-    private readonly WorkPackageDonorRepository _workPackageDonorRepository;
+    private readonly ProjectDonorRepository _projectDonorRepository;
     private readonly StudyDonorRepository _studyDonorRepository;
 
 
@@ -21,7 +21,7 @@ public class DonorDataWriter : DataWriter<DonorModel, DonorsUploadAudit>
         _donorRepository = new DonorRepository(dbContext);
         _clinicalDataRepository = new ClinicalDataRepository(dbContext);
         _treatmentRepository = new TreatmentRepository(dbContext);
-        _workPackageDonorRepository = new WorkPackageDonorRepository(dbContext);
+        _projectDonorRepository = new ProjectDonorRepository(dbContext);
         _studyDonorRepository = new StudyDonorRepository(dbContext);
     }
 
@@ -45,7 +45,7 @@ public class DonorDataWriter : DataWriter<DonorModel, DonorsUploadAudit>
 
         if (model.WorkPackages != null)
         {
-            CreateOrUpdateWorkpackages(donor.Id, model.WorkPackages, ref audit);
+            CreateOrUpdateProjects(donor.Id, model.WorkPackages, ref audit);
         }
 
         if (model.Studies != null)
@@ -113,11 +113,11 @@ public class DonorDataWriter : DataWriter<DonorModel, DonorsUploadAudit>
         return entity;
     }
 
-    private IEnumerable<WorkPackageDonor> CreateOrUpdateWorkpackages(int donorId, IEnumerable<string> workPackageNames, ref DonorsUploadAudit audit)
+    private IEnumerable<ProjectDonor> CreateOrUpdateProjects(int donorId, IEnumerable<string> projectNames, ref DonorsUploadAudit audit)
     {
-        var entities = _workPackageDonorRepository.CreateOrUpdate(donorId, workPackageNames);
+        var entities = _projectDonorRepository.CreateOrUpdate(donorId, projectNames);
 
-        audit.WorkPackagesAssociated++;
+        audit.ProjectsAssociated++;
 
         return entities;
     }

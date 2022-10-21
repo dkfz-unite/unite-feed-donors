@@ -1,10 +1,8 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
-using Unite.Data.Extensions;
+﻿using Microsoft.AspNetCore.Mvc;
 using Unite.Donors.Feed.Data.Donors;
+using Unite.Donors.Feed.Web.Services;
 using Unite.Donors.Feed.Web.Services.Donors;
 using Unite.Donors.Feed.Web.Services.Donors.Converters;
-using Unite.Donors.Feed.Web.Services;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 
@@ -34,8 +32,6 @@ public class DonorsController : Controller
     [HttpPost]
     public IActionResult Post([FromBody] DonorModel[] models)
     {
-        models.ForEach(model => model.Sanitise());
-
         var dataModels = models.Select(model => _converter.Convert(model)).ToArray();
 
         _dataWriter.SaveData(dataModels, out var audit);

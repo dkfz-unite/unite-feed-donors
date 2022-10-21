@@ -37,7 +37,7 @@ public class DonorModelConverter
         target.ReferenceId = source.Id;
         target.MtaProtected = source.MtaProtected;
 
-        target.WorkPackages = source.WorkPackages;
+        target.WorkPackages = source.Projects;
         target.Studies = source.Studies;
     }
 
