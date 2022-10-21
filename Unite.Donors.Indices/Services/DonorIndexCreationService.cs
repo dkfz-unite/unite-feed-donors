@@ -83,7 +83,8 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
             .SelectMany(specimen => specimen.Variants)
             .Where(variant => variant.AffectedTranscripts != null)
             .SelectMany(variant => variant.AffectedTranscripts)
-            .DistinctBy(affectedTranscript => affectedTranscript.Gene.Id)
+            .Select(affectedTranscript => affectedTranscript.Gene.Id)
+            .Distinct()
             .Count();
 
         index.NumberOfMutations = index.Specimens
