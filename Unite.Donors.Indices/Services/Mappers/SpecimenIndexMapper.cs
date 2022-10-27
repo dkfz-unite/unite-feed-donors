@@ -24,14 +24,17 @@ internal class SpecimenIndexMapper
         index.ParentId = specimen.ParentId;
         index.CreationDay = specimen.CreationDate.RelativeFrom(diagnosisDate) ?? specimen.CreationDay;
 
-        index.Tissue = CreateFrom(specimen.Tissue, specimen.MolecularData, specimen.DrugScreenings);
-        index.CellLine = CreateFrom(specimen.CellLine, specimen.MolecularData, specimen.DrugScreenings);
-        index.Organoid = CreateFrom(specimen.Organoid, specimen.MolecularData, specimen.DrugScreenings, specimen.CreationDate);
-        index.Xenograft = CreateFrom(specimen.Xenograft, specimen.MolecularData, specimen.DrugScreenings, specimen.CreationDate);
+        index.Tissue = CreateFrom(specimen.Tissue);
+        index.CellLine = CreateFrom(specimen.CellLine);
+        index.Organoid = CreateFrom(specimen.Organoid, specimen.CreationDate);
+        index.Xenograft = CreateFrom(specimen.Xenograft, specimen.CreationDate);
+
+        index.MolecularData = CreateFrom(specimen.MolecularData);
+        index.DrugScreenings = CreateFrom(specimen.DrugScreenings);
     }
 
 
-    private static TissueIndex CreateFrom(in Tissue tissue, in MolecularData molecularData, in IEnumerable<DrugScreening> drugScreenings)
+    private static TissueIndex CreateFrom(in Tissue tissue)
     {
         if (tissue == null)
         {
@@ -46,14 +49,10 @@ internal class SpecimenIndexMapper
         index.TumorType = tissue.TumorTypeId?.ToDefinitionString();
         index.Source = tissue.Source?.Value;
 
-        index.MolecularData = CreateFrom(molecularData);
-
-        index.DrugScreenings = CreateFrom(drugScreenings);
-
         return index;
     }
 
-    private static CellLineIndex CreateFrom(in CellLine cellLine, in MolecularData molecularData, in IEnumerable<DrugScreening> drugScreenings)
+    private static CellLineIndex CreateFrom(in CellLine cellLine)
     {
         if (cellLine == null)
         {
@@ -77,14 +76,10 @@ internal class SpecimenIndexMapper
         index.AtccLink = cellLine.Info?.AtccLink;
         index.ExPasyLink = cellLine.Info?.ExPasyLink;
 
-        index.MolecularData = CreateFrom(molecularData);
-
-        index.DrugScreenings = CreateFrom(drugScreenings);
-
         return index;
     }
 
-    private static OrganoidIndex CreateFrom(in Organoid organoid, in MolecularData molecularData, in IEnumerable<DrugScreening> drugScreenings, DateOnly? specimenCreationDate)
+    private static OrganoidIndex CreateFrom(in Organoid organoid, DateOnly? specimenCreationDate)
     {
         if (organoid == null)
         {
@@ -98,9 +93,6 @@ internal class SpecimenIndexMapper
         index.Tumorigenicity = organoid.Tumorigenicity;
         index.Medium = organoid.Medium;
 
-        index.MolecularData = CreateFrom(molecularData);
-
-        index.DrugScreenings = CreateFrom(drugScreenings);
         index.Interventions = CreateFrom(organoid.Interventions, specimenCreationDate);
 
         return index;
@@ -130,7 +122,7 @@ internal class SpecimenIndexMapper
         return indices;
     }
 
-    private static XenograftIndex CreateFrom(in Xenograft xenograft, in MolecularData molecularData, in IEnumerable<DrugScreening> drugScreenings, DateOnly? specimenCreationDate)
+    private static XenograftIndex CreateFrom(in Xenograft xenograft, DateOnly? specimenCreationDate)
     {
         if (xenograft == null)
         {
@@ -151,9 +143,6 @@ internal class SpecimenIndexMapper
         index.SurvivalDaysFrom = xenograft.SurvivalDaysFrom;
         index.SurvivalDaysTo = xenograft.SurvivalDaysTo;
 
-        index.MolecularData = CreateFrom(molecularData);
-
-        index.DrugScreenings = CreateFrom(drugScreenings);
         index.Interventions = CreateFrom(xenograft.Interventions, specimenCreationDate);
 
         return index;

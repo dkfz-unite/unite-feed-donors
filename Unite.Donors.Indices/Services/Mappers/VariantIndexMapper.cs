@@ -42,7 +42,7 @@ internal class VariantIndexMapper
         }
 
         index.Mutation = CreateFrom(entity);
-        index.AffectedTranscripts = CreateFrom(entity.AffectedTranscripts);
+        index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
     }
 
     internal void Map(in CNV.Variant entity, VariantIndex index)
@@ -53,7 +53,7 @@ internal class VariantIndexMapper
         }
 
         index.CopyNumberVariant = CreateFrom(entity);
-        index.AffectedTranscripts = CreateFrom(entity.AffectedTranscripts);
+        index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
     }
 
     internal void Map(in SV.Variant entity, VariantIndex index)
@@ -64,7 +64,7 @@ internal class VariantIndexMapper
         }
 
         index.StructuralVariant = CreateFrom(entity);
-        index.AffectedTranscripts = CreateFrom(entity.AffectedTranscripts);
+        index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
     }
 
 
@@ -139,7 +139,7 @@ internal class VariantIndexMapper
         return index;
     }
 
-    private static AffectedTranscriptIndex[] CreateFrom(in IEnumerable<SSM.AffectedTranscript> entities)
+    private static AffectedFeatureIndex[] CreateFrom(in IEnumerable<SSM.AffectedTranscript> entities)
     {
         if (entities == null || !entities.Any())
         {
@@ -148,23 +148,11 @@ internal class VariantIndexMapper
 
         var indices = entities.Select(entity =>
         {
-            var index = new AffectedTranscriptIndex();
+            var index = new AffectedFeatureIndex();
 
             index.Gene = CreateFrom(entity.Feature.Gene);
-            index.Feature = CreateFrom(entity.Feature);
+            index.Transcript = CreateFrom(entity);
             index.Consequences = CreateFrom(entity.Consequences);
-
-            index.AminoAcidChange = AAChangeCodeGenerator.Generate(
-                entity.ProteinStart,
-                entity.ProteinEnd,
-                entity.AminoAcidChange
-            );
-
-            index.CodonChange = CodonChangeCodeGenerator.Generate(
-                entity.CDSStart,
-                entity.CDSEnd,
-                entity.CodonChange
-            );
 
             return index;
 
@@ -173,7 +161,7 @@ internal class VariantIndexMapper
         return indices;
     }
 
-    private static AffectedTranscriptIndex[] CreateFrom(in IEnumerable<CNV.AffectedTranscript> entities)
+    private static AffectedFeatureIndex[] CreateFrom(in IEnumerable<CNV.AffectedTranscript> entities)
     {
         if (entities == null || !entities.Any())
         {
@@ -182,15 +170,11 @@ internal class VariantIndexMapper
 
         var indices = entities.Select(entity =>
         {
-            var index = new AffectedTranscriptIndex();
+            var index = new AffectedFeatureIndex();
 
             index.Gene = CreateFrom(entity.Feature.Gene);
-            index.Feature = CreateFrom(entity.Feature);
+            index.Transcript = CreateFrom(entity);
             index.Consequences = CreateFrom(entity.Consequences);
-
-            index.OverlapBpNumber = entity.OverlapBpNumber;
-            index.OverlapPercentage = entity.OverlapPercentage;
-            index.Distance = entity.Distance;
 
             return index;
 
@@ -199,7 +183,7 @@ internal class VariantIndexMapper
         return indices;
     }
 
-    private static AffectedTranscriptIndex[] CreateFrom(in IEnumerable<SV.AffectedTranscript> entities)
+    private static AffectedFeatureIndex[] CreateFrom(in IEnumerable<SV.AffectedTranscript> entities)
     {
         if (entities == null || !entities.Any())
         {
@@ -208,21 +192,67 @@ internal class VariantIndexMapper
 
         var indices = entities.Select(entity =>
         {
-            var index = new AffectedTranscriptIndex();
+            var index = new AffectedFeatureIndex();
 
             index.Gene = CreateFrom(entity.Feature.Gene);
-            index.Feature = CreateFrom(entity.Feature);
+            index.Transcript = CreateFrom(entity);
             index.Consequences = CreateFrom(entity.Consequences);
-
-            index.OverlapBpNumber = entity.OverlapBpNumber;
-            index.OverlapPercentage = entity.OverlapPercentage;
-            index.Distance = entity.Distance;
 
             return index;
 
         }).ToArray();
 
         return indices;
+    }
+
+    private static AffectedTranscriptIndex CreateFrom(in SSM.AffectedTranscript entity)
+    {
+        if (entity == null)
+        {
+            return null;
+        }
+
+        var index = new AffectedTranscriptIndex();
+
+        index.Feature = CreateFrom(entity.Feature);
+        index.AminoAcidChange = AAChangeCodeGenerator.Generate(entity.ProteinStart, entity.ProteinEnd, entity.AminoAcidChange);
+        index.CodonChange = CodonChangeCodeGenerator.Generate(entity.CDSStart, entity.CDSEnd, entity.CodonChange);
+
+        return index;
+    }
+
+    private static AffectedTranscriptIndex CreateFrom(in CNV.AffectedTranscript entity)
+    {
+        if (entity == null)
+        {
+            return null;
+        }
+
+        var index = new AffectedTranscriptIndex();
+
+        index.Feature = CreateFrom(entity.Feature);
+        index.OverlapBpNumber = entity.OverlapBpNumber;
+        index.OverlapPercentage = entity.OverlapPercentage;
+        index.Distance = entity.Distance;
+
+        return index;
+    }
+
+    private static AffectedTranscriptIndex CreateFrom(in SV.AffectedTranscript entity)
+    {
+        if (entity == null)
+        {
+            return null;
+        }
+
+        var index = new AffectedTranscriptIndex();
+
+        index.Feature = CreateFrom(entity.Feature);
+        index.OverlapBpNumber = entity.OverlapBpNumber;
+        index.OverlapPercentage = entity.OverlapPercentage;
+        index.Distance = entity.Distance;
+
+        return index;
     }
 
     private static ConsequenceIndex[] CreateFrom(in IEnumerable<Consequence> entities)
