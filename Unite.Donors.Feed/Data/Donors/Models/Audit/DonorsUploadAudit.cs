@@ -23,17 +23,17 @@ public class DonorsUploadAudit
 
     public override string ToString()
     {
-        var message = new StringBuilder();
+        var messages = new List<string>();
 
-        message.AppendLine($"{DonorsCreated} donors created");
-        message.AppendLine($"{DonorsUpdated} donors updated");
-        message.AppendLine($"{ClinicalDataEntriesCreated} donor clinical data entries created");
-        message.AppendLine($"{ClinicalDataEntriesUpdated} donor clinical data entries updated");
-        message.AppendLine($"{TreatmentsCreated} donor treatments created");
-        message.AppendLine($"{TreatmentsUpdated} donor treatments updated");
-        message.AppendLine($"{ProjectsAssociated} donor projects associated");
-        message.Append($"{StudiesAssociated} donor studies associated");
+        messages.Add($"{DonorsCreated} donors created");
+        messages.Add($"{DonorsUpdated} donors updated");
+        messages.Add($"{ClinicalDataEntriesCreated} donor clinical data entries created");
+        messages.Add($"{ClinicalDataEntriesUpdated} donor clinical data entries updated");
+        messages.Add($"{TreatmentsCreated} donor treatments created");
+        messages.Add($"{TreatmentsUpdated} donor treatments updated");
+        messages.Add($"{ProjectsAssociated} donor projects associated");
+        messages.Append($"{StudiesAssociated} donor studies associated");
 
-        return message.ToString();
+        return string.Join(Environment.NewLine, messages);
     }
 }
