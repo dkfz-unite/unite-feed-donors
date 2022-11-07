@@ -129,12 +129,13 @@ internal class VariantIndexMapper
         index.Chromosome = entity.ChromosomeId.ToDefinitionString();
         index.Start = entity.Start;
         index.End = entity.End;
-        index.NewChromosome = entity.NewChromosomeId.ToDefinitionString();
-        index.NewStart = entity.NewStart;
-        index.NewEnd = entity.NewEnd;
+        index.OtherChromosome = entity.OtherChromosomeId.ToDefinitionString();
+        index.OtherStart = entity.OtherStart;
+        index.OtherEnd = entity.OtherEnd;
         index.Type = entity.TypeId.ToDefinitionString();
-        index.Ref = entity.ReferenceBase;
-        index.Alt = entity.AlternateBase;
+        index.Inverted = entity.Inverted;
+        index.FlankingSequenceFrom = entity.FlankingSequenceFrom;
+        index.FlankingSequenceTo = entity.FlankingSequenceTo;
 
         return index;
     }

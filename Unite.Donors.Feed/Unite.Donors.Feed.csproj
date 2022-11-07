@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Unite.Data" Version="3.4.12" />
+		<PackageReference Include="Unite.Data" Version="3.4.15" />
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="Data\" />
