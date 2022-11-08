@@ -101,8 +101,8 @@ internal class VariantIndexMapper
         index.Chromosome = entity.ChromosomeId.ToDefinitionString();
         index.Start = entity.Start;
         index.End = entity.End;
-        index.SvType = entity.SvTypeId.ToDefinitionString();
-        index.CnaType = entity.CnaTypeId.ToDefinitionString();
+        index.SvType = entity.SvTypeId?.ToDefinitionString();
+        index.CnaType = entity.CnaTypeId?.ToDefinitionString();
         index.Loh = entity.Loh;
         index.HomoDel = entity.HomoDel;
         index.C1Mean = entity.C1Mean;
