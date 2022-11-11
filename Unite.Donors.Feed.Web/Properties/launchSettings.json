@@ -22,7 +22,7 @@
         "UNITE_ELASTIC_HOST": "http://localhost:9200",
         "UNITE_ELASTIC_USER": "elastic",
         "UNITE_ELASTIC_PASSWORD": "Long-pa55w0rd",
-        "UNITE_INDEXING_BUCKET_SIZE": "10"
+        "UNITE_INDEXING_BUCKET_SIZE": "100"
       }
     },
     "Unite.Donors.Feed.Web": {
@@ -39,7 +39,7 @@
         "UNITE_ELASTIC_HOST": "http://localhost:9200",
         "UNITE_ELASTIC_USER": "elastic",
         "UNITE_ELASTIC_PASSWORD": "Long-pa55w0rd",
-        "UNITE_INDEXING_BUCKET_SIZE": "10"
+        "UNITE_INDEXING_BUCKET_SIZE": "100"
       }
     }
   }
