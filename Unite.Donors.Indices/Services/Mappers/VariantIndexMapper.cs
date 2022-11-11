@@ -81,6 +81,7 @@ internal class VariantIndexMapper
         index.Chromosome = entity.ChromosomeId.ToDefinitionString();
         index.Start = entity.Start;
         index.End = entity.End;
+        index.Length = entity.Length.Value;
         index.Type = entity.TypeId.ToDefinitionString();
         index.Ref = entity.ReferenceBase;
         index.Alt = entity.AlternateBase;
@@ -101,6 +102,7 @@ internal class VariantIndexMapper
         index.Chromosome = entity.ChromosomeId.ToDefinitionString();
         index.Start = entity.Start;
         index.End = entity.End;
+        index.Length = entity.Length.Value;
         index.SvType = entity.SvTypeId?.ToDefinitionString();
         index.CnaType = entity.CnaTypeId?.ToDefinitionString();
         index.Loh = entity.Loh;
@@ -132,6 +134,7 @@ internal class VariantIndexMapper
         index.OtherChromosome = entity.OtherChromosomeId.ToDefinitionString();
         index.OtherStart = entity.OtherStart;
         index.OtherEnd = entity.OtherEnd;
+        index.Length = entity.Length;
         index.Type = entity.TypeId.ToDefinitionString();
         index.Inverted = entity.Inverted;
         index.FlankingSequenceFrom = entity.FlankingSequenceFrom;
