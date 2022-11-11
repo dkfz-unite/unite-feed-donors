@@ -9,7 +9,7 @@
 		<Folder Include="Services\Mappers\" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Unite.Data" Version="3.4.18" />
+		<PackageReference Include="Unite.Data" Version="3.4.19" />
 		<PackageReference Include="Unite.Indices" Version="3.3.12" />
 	</ItemGroup>
 </Project>
