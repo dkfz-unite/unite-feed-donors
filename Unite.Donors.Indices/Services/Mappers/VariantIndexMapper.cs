@@ -13,7 +13,7 @@ namespace Unite.Donors.Indices.Services.Mappers;
 
 internal class VariantIndexMapper
 {
-    internal void Map(in Variant entity, VariantIndex index)
+    internal void Map(in Variant entity, VariantIndex index, bool mapFeatures = true)
     {
         if (entity == null)
         {
@@ -22,19 +22,19 @@ internal class VariantIndexMapper
 
         if (entity is SSM.Variant mutation)
         {
-            Map(mutation, index);
+            Map(mutation, index, mapFeatures);
         }
         else if (entity is CNV.Variant copyNumberVariant)
         {
-            Map(copyNumberVariant, index);
+            Map(copyNumberVariant, index, mapFeatures);
         }
         else if (entity is SV.Variant structuralVariant)
         {
-            Map(structuralVariant, index);
+            Map(structuralVariant, index, mapFeatures);
         }
     }
 
-    internal void Map(in SSM.Variant entity, VariantIndex index)
+    internal void Map(in SSM.Variant entity, VariantIndex index, bool mapFeatures = true)
     {
         if (entity == null)
         {
@@ -42,10 +42,23 @@ internal class VariantIndexMapper
         }
 
         index.Mutation = CreateFrom(entity);
-        index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
+
+        if (mapFeatures)
+        {
+            index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
+        }
+        else
+        {
+            var consequences = entity.AffectedTranscripts?
+                .SelectMany(affectedTranscript => affectedTranscript.Consequences)
+                .DistinctBy(consequence => consequence.Type);
+
+            index.Consequences = CreateFrom(consequences);
+        }
+
     }
 
-    internal void Map(in CNV.Variant entity, VariantIndex index)
+    internal void Map(in CNV.Variant entity, VariantIndex index, bool mapFeatures = true)
     {
         if (entity == null)
         {
@@ -53,10 +66,22 @@ internal class VariantIndexMapper
         }
 
         index.CopyNumberVariant = CreateFrom(entity);
-        index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
+
+        if (mapFeatures)
+        {
+            index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
+        }
+        else
+        {
+            var consequences = entity.AffectedTranscripts?
+                .SelectMany(affectedTranscript => affectedTranscript.Consequences)
+                .DistinctBy(consequence => consequence.Type);
+
+            index.Consequences = CreateFrom(consequences);
+        }
     }
 
-    internal void Map(in SV.Variant entity, VariantIndex index)
+    internal void Map(in SV.Variant entity, VariantIndex index, bool mapFeatures = true)
     {
         if (entity == null)
         {
@@ -64,7 +89,19 @@ internal class VariantIndexMapper
         }
 
         index.StructuralVariant = CreateFrom(entity);
-        index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
+
+        if (mapFeatures)
+        {
+            index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
+        }
+        else
+        {
+            var consequences = entity.AffectedTranscripts?
+                .SelectMany(affectedTranscript => affectedTranscript.Consequences)
+                .DistinctBy(consequence => consequence.Type);
+
+            index.Consequences = CreateFrom(consequences);
+        }
     }
 
 
