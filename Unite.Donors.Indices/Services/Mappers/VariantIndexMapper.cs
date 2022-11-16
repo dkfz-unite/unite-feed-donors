@@ -42,7 +42,7 @@ internal class VariantIndexMapper
         }
 
         index.Mutation = CreateFrom(entity);
-        index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
+        //index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
     }
 
     internal void Map(in CNV.Variant entity, VariantIndex index)
@@ -53,7 +53,7 @@ internal class VariantIndexMapper
         }
 
         index.CopyNumberVariant = CreateFrom(entity);
-        index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
+        //index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
     }
 
     internal void Map(in SV.Variant entity, VariantIndex index)
@@ -64,7 +64,7 @@ internal class VariantIndexMapper
         }
 
         index.StructuralVariant = CreateFrom(entity);
-        index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
+        //index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
     }
 
 
@@ -85,6 +85,8 @@ internal class VariantIndexMapper
         index.Type = entity.TypeId.ToDefinitionString();
         index.Ref = entity.ReferenceBase;
         index.Alt = entity.AlternateBase;
+
+        index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
 
         return index;
     }
@@ -115,6 +117,8 @@ internal class VariantIndexMapper
         index.Tcn = entity.Tcn;
         index.DhMax = entity.DhMax;
 
+        index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
+
         return index;
     }
 
@@ -139,6 +143,8 @@ internal class VariantIndexMapper
         index.Inverted = entity.Inverted;
         index.FlankingSequenceFrom = entity.FlankingSequenceFrom;
         index.FlankingSequenceTo = entity.FlankingSequenceTo;
+
+        index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
 
         return index;
     }
