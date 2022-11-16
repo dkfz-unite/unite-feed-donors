@@ -1,9 +1,4 @@
 ﻿using Unite.Data.Entities.Specimens;
-using Unite.Data.Entities.Specimens.Cells;
-using Unite.Data.Entities.Specimens.Cells.Enums;
-using Unite.Data.Entities.Specimens.Organoids;
-using Unite.Data.Entities.Specimens.Tissues;
-using Unite.Data.Entities.Specimens.Xenografts;
 using Unite.Data.Extensions;
 using Unite.Indices.Entities.Basic.Specimens;
 
