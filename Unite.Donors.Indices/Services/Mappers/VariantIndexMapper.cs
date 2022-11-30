@@ -225,6 +225,7 @@ internal class VariantIndexMapper
         var index = new AffectedTranscriptIndex();
 
         index.Feature = CreateFrom(entity.Feature);
+        index.Distance = entity.Distance;
         index.AminoAcidChange = AAChangeCodeGenerator.Generate(entity.ProteinStart, entity.ProteinEnd, entity.AminoAcidChange);
         index.CodonChange = CodonChangeCodeGenerator.Generate(entity.CDSStart, entity.CDSEnd, entity.CodonChange);
 
