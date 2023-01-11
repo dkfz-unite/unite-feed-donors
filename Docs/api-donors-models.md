@@ -12,7 +12,7 @@ Includes general data about the patient
 - Type: _Boolean_
 - Example: `true`
 
-**`WorkPackages`** - Work packages list, which own donor data.
+**`Projects`** - Projects list, which own donor data.
 - Type: _Array_
 - Elemet type: _String_
 - Element limitations: Maximum length 100
@@ -38,7 +38,7 @@ Includes general data about the patient
 ## Clinical Data
 Includes patient clinical data.
 
-**`Gender`** - Donor Gender.
+**`Sex`** - Donor sex.
 - Type: _String_
 - Possible values: `"Female"`, `"Male"`, `"Other"`
 - Example: `"Male"`
