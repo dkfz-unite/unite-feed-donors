@@ -85,6 +85,22 @@ Includes patient clinical data.
 - Limitations: Integer, greater or equal to 0, only either 'VitalStatusChangeDate' or 'VitalStatusChangeDay' can be set at once, not both
 - Example: `367`
 
+**`ProgressionStatus`** - Indicates whether disease was progressing after treatment or not.
+- Type: _Boolean_
+- Example: `false`
+
+**`ProgressionStatusChangeDate`** - Date, when progression status was last revised.
+- Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
+- Type: _String_
+- Format: "YYYY-MM-DDTHH:MM:SS"
+- Limitations: Only either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set at once, not both
+- Example: `"2020-02-12T00:00:00"`
+
+**`ProgressionStatusChangeDay`** - Relative number of days since treatment start, when progression status was last revised.
+- Type: _Number_
+- Limitations: Integer, greater or equal to 0, only either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set at once, not both
+- Example: `37`
+
 **`KpsBaseline`** - KPS baseline.
 - Type: _Number_
 - Limitations: Integer, greater or equal to 0, less or equal to 100
@@ -129,22 +145,6 @@ Includes patient treatment data.
 - Type: _Number_
 - Limitations: Integer, greater or equal to 0, only either 'EndDate' or 'DurationDays' can be set at once, not both
 - Example: `20`
-
-**`ProgressionStatus`** - Indicates whether disease was progressing after treatment or not.
-- Type: _Boolean_
-- Example: `false`
-
-**`ProgressionStatusChangeDate`** - Date, when progression status was last revised.
-- Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
-- Type: _String_
-- Format: "YYYY-MM-DDTHH:MM:SS"
-- Limitations: Only either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set at once, not both
-- Example: `"2020-02-12T00:00:00"`
-
-**`ProgressionStatusChangeDay`** - Relative number of days since treatment start, when progression status was last revised.
-- Type: _Number_
-- Limitations: Integer, greater or equal to 0, only either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set at once, not both
-- Example: `37`
 
 **`Results`** - Patient specific therapy results.
 - Type: _String_
