@@ -24,7 +24,7 @@ Request implements **UPSERT** logic:
     {
         "Id": "DO1",
         "MtaProtected": true,
-        "WorkPackages": [
+        "Projects": [
             "WP1"
         ],
         "Studies": [
