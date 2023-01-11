@@ -31,9 +31,9 @@ Request implements **UPSERT** logic:
             "ST1"
         ],
         "ClinicalData": {
-            "Gender": "Male",
+            "Sex": "Male",
             "Age": 56,
-            "Diagnosis":
+            "Diagnosis": "Glioblastoma"
             "DiagnosisDate": "2020-01-01T00:00:00",
             "PrimarySite": "Brain",
             "Localization": "Left",
