@@ -29,7 +29,6 @@ UNITE_SQL_PASSWORD|SQL server password||
 UNITE_ELASTIC_HOST|ES service host|http://localhost:9200|es.unite.net:9200
 UNITE_ELASTIC_USER|ES service user||
 UNITE_ELASTIC_PASSWORD|ES service password||
-UNITE_INDEXING_INTERVAL|Indexing interval (seconds)|10|
 UNITE_INDEXING_BUCKET_SIZE|Indexing bucket size|10|
 
 ## Installation
@@ -68,7 +67,6 @@ docker run \
 -e UNITE_SQL_PORT=5432 \
 -e UNITE_SQL_USER=[sql_user] \
 -e UNITE_SQL_PASSWORD=[sql_password] \
--e UNITE_INDEXING_INTERVAL=10 \
 -e UNITE_INDEXING_BUCKET_SIZE=10 \
 -d \
 unite.donors.feed:latest
