@@ -42,7 +42,6 @@ internal class VariantIndexMapper
         }
 
         index.Mutation = CreateFrom(entity);
-        //index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
     }
 
     internal void Map(in CNV.Variant entity, VariantIndex index)
@@ -53,7 +52,6 @@ internal class VariantIndexMapper
         }
 
         index.CopyNumberVariant = CreateFrom(entity);
-        //index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
     }
 
     internal void Map(in SV.Variant entity, VariantIndex index)
@@ -64,7 +62,6 @@ internal class VariantIndexMapper
         }
 
         index.StructuralVariant = CreateFrom(entity);
-        //index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
     }
 
 
@@ -105,8 +102,7 @@ internal class VariantIndexMapper
         index.Start = entity.Start;
         index.End = entity.End;
         index.Length = entity.Length.Value;
-        index.SvType = entity.SvTypeId?.ToDefinitionString();
-        index.CnaType = entity.CnaTypeId?.ToDefinitionString();
+        index.Type = entity.TypeId?.ToDefinitionString();
         index.Loh = entity.Loh;
         index.HomoDel = entity.HomoDel;
         index.C1Mean = entity.C1Mean;
@@ -298,14 +294,14 @@ internal class VariantIndexMapper
         var index = new GeneIndex();
 
         index.Id = entity.Id;
+        index.StableId = entity.StableId;
         index.Symbol = entity.Symbol;
         index.Biotype = entity.Biotype;
         index.Chromosome = entity.ChromosomeId.ToDefinitionString();
         index.Start = entity.Start;
         index.End = entity.End;
         index.Strand = entity.Strand;
-
-        index.EnsemblId = entity.Info?.EnsemblId;
+        index.ExonicLength = entity.ExonicLength;
 
         return index;
     }
@@ -320,14 +316,15 @@ internal class VariantIndexMapper
         var index = new TranscriptIndex();
 
         index.Id = entity.Id;
+        index.StableId = entity.StableId;
         index.Symbol = entity.Symbol;
         index.Biotype = entity.Biotype;
+        index.IsCanonical = entity.IsCanonical;
         index.Chromosome = entity.ChromosomeId.ToDefinitionString();
         index.Start = entity.Start;
         index.End = entity.End;
         index.Strand = entity.Strand;
-
-        index.EnsemblId = entity.Info?.EnsemblId;
+        index.ExonicLength = entity.ExonicLength;
 
         index.Protein = CreateFrom(entity.Protein);
 
@@ -344,12 +341,11 @@ internal class VariantIndexMapper
         var index = new ProteinIndex();
 
         index.Id = entity.Id;
-        index.Symbol = entity.Symbol;
+        index.StableId = entity.StableId;
+        index.IsCanonical = entity.IsCanonical;
         index.Start = entity.Start;
         index.End = entity.End;
         index.Length = entity.Length;
-
-        index.EnsemblId = entity.Info?.EnsemblId;
 
         return index;
     }
