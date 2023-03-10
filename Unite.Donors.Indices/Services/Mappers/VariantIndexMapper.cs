@@ -80,8 +80,8 @@ internal class VariantIndexMapper
         index.End = entity.End;
         index.Length = entity.Length.Value;
         index.Type = entity.TypeId.ToDefinitionString();
-        index.Ref = entity.ReferenceBase;
-        index.Alt = entity.AlternateBase;
+        index.Ref = entity.Ref;
+        index.Alt = entity.Alt;
 
         index.AffectedFeatures = CreateFrom(entity.AffectedTranscripts);
 
@@ -102,7 +102,7 @@ internal class VariantIndexMapper
         index.Start = entity.Start;
         index.End = entity.End;
         index.Length = entity.Length.Value;
-        index.Type = entity.TypeId?.ToDefinitionString();
+        index.Type = entity.TypeId.ToDefinitionString();
         index.Loh = entity.Loh;
         index.HomoDel = entity.HomoDel;
         index.C1Mean = entity.C1Mean;

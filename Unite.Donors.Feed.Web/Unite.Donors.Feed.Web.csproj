@@ -5,20 +5,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<ItemGroup>
-		<Folder Include="Configuration\" />
-		<Folder Include="Configuration\Extensions\" />
-		<Folder Include="Controllers\" />
-		<Folder Include="Configuration\Options\" />
-		<Folder Include="Configuration\Filters\" />
-		<Folder Include="Services\" />
-		<Folder Include="HostedServices\" />
-		<Folder Include="Models\" />
-		<Folder Include="Models\Donors\" />
-		<Folder Include="Models\Donors\Validators\" />
-		<Folder Include="Models\Donors\Converters\" />
-		<Folder Include="Handlers\" />
-	</ItemGroup>
-	<ItemGroup>
 		<PackageReference Include="Macross.Json.Extensions" Version="3.0.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.1.2" />
 	</ItemGroup>
@@ -31,8 +17,5 @@
 			<GlobalPropertiesToRemove>
 			</GlobalPropertiesToRemove>
 		</ProjectReference>
-	</ItemGroup>
-	<ItemGroup>
-		<None Remove="FluentValidation.AspNetCore" />
 	</ItemGroup>
 </Project>

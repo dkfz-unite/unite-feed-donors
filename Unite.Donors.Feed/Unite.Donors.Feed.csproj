@@ -5,13 +5,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Unite.Data" Version="4.5.0" />
-	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="Data\" />
-		<Folder Include="Data\Donors\" />
-		<Folder Include="Data\Donors\Models\" />
-		<Folder Include="Data\Donors\Repositories\" />
-		<Folder Include="Data\Donors\Models\Audit\" />
+		<PackageReference Include="Unite.Data" Version="4.6.0" />
 	</ItemGroup>
 </Project>
