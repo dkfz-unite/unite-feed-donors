@@ -21,8 +21,6 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
     private readonly DonorIndexMapper _donorIndexMapper;
     private readonly ImageIndexMapper _imageIndexMapper;
     private readonly SpecimenIndexMapper _specimenIndexMapper;
-    private readonly VariantIndexMapper _variantIndexMapper;
-
 
 
     public DonorIndexCreationService(DomainDbContext dbContext)
@@ -31,7 +29,6 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
         _donorIndexMapper = new DonorIndexMapper();
         _imageIndexMapper = new ImageIndexMapper();
         _specimenIndexMapper = new SpecimenIndexMapper();
-        _variantIndexMapper = new VariantIndexMapper();
     }
 
 
@@ -47,6 +44,11 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
     {
         var donor = LoadDonor(donorId);
 
+        if (donor == null)
+        {
+            return null;
+        }
+
         var index = CreateDonorIndex(donor);
 
         return index;
@@ -54,20 +56,20 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
 
     private DonorIndex CreateDonorIndex(Donor donor)
     {
-        if (donor == null)
-        {
-            return null;
-        }
+        var diagnosisDate = donor.ClinicalData?.DiagnosisDate;
+
+        var stats = LoadGenomicStats(donor.Id);
 
         var index = new DonorIndex();
-
-        var diagnosisDate = donor.ClinicalData?.DiagnosisDate;
 
         _donorIndexMapper.Map(donor, index);
 
         index.Images = CreateImageIndices(donor.Id, diagnosisDate);
-
         index.Specimens = CreateSpecimenIndices(donor.Id, diagnosisDate);
+        index.NumberOfGenes = stats.NumberOfGenes;
+        index.NumberOfMutations = stats.NumberOfMutations;
+        index.NumberOfCopyNumberVariants = stats.NumberOfCopyNumberVariants;
+        index.NumberOfStructuralVariants = stats.NumberOfStructuralVariants;
 
         return index;
     }
@@ -143,8 +145,6 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
 
         _specimenIndexMapper.Map(specimen, index, diagnosisDate);
 
-        index.Variants = CreateVariantIndices(specimen.Id);
-
         return index;
     }
 
@@ -164,57 +164,56 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
     }
 
 
-    private VariantIndex[] CreateVariantIndices(int specimenId)
+    private record GenomicStats(int NumberOfGenes, int NumberOfMutations, int NumberOfCopyNumberVariants, int NumberOfStructuralVariants);
+
+    private GenomicStats LoadGenomicStats(int donorId)
     {
-        var mutations = LoadVariants<SSM.Variant, SSM.VariantOccurrence>(specimenId);
-        var copyNumberVariants = LoadVariants<CNV.Variant, CNV.VariantOccurrence>(specimenId);
-        var structuralVariants = LoadVariants<SV.Variant, SV.VariantOccurrence>(specimenId);
+        var specimenIds = LoadSpecimenIds(donorId);
+        var ssmIds = LoadVariantIds<SSM.Variant, SSM.VariantOccurrence>(specimenIds);
+        var cnvIds = LoadVariantIds<CNV.Variant, CNV.VariantOccurrence>(specimenIds);
+        var svIds = LoadVariantIds<SV.Variant, SV.VariantOccurrence>(specimenIds);
+        var ssmGeneIds = LoadGeneIds<SSM.Variant, SSM.AffectedTranscript>(ssmIds);
+        var cnvGeneIds = LoadGeneIds<CNV.Variant, CNV.AffectedTranscript>(ssmIds);
+        var svGeneIds = LoadGeneIds<SV.Variant, SV.AffectedTranscript>(ssmIds);
+        var geneIds = ssmGeneIds.Union(cnvGeneIds).Union(svGeneIds).ToArray();
 
-        var indices = new List<VariantIndex>();
-
-        if (mutations != null)
-        {
-            indices.AddRange(mutations.Select(variant => CreateVariantIndex(variant)));
-        }
-
-        if (copyNumberVariants != null)
-        {
-            indices.AddRange(copyNumberVariants.Select(variant => CreateVariantIndex(variant)));
-        }
-
-        if (structuralVariants != null)
-        {
-            indices.AddRange(structuralVariants.Select(variant => CreateVariantIndex(variant)));
-        }
-
-        return indices.Any() ? indices.ToArray() : null;
+        return new GenomicStats(geneIds.Length, ssmIds.Length, cnvIds.Length, svIds.Length);
     }
 
-    private VariantIndex CreateVariantIndex<TVariant>(TVariant variant)
+    private int[] LoadSpecimenIds(int donorId)
+    {
+        var ids = _dbContext.Set<Specimen>()
+            .Where(specimen => specimen.DonorId == donorId)
+            .Select(specimen => specimen.Id)
+            .Distinct()
+            .ToArray();
+
+        return ids;
+    }
+
+    private int[] LoadGeneIds<TVariant, TAffectedTranscript>(long[] variantIds)
         where TVariant : Variant
+        where TAffectedTranscript : VariantAffectedFeature<TVariant, Data.Entities.Genome.Transcript>
     {
-        var index = new VariantIndex();
+        var ids = _dbContext.Set<TAffectedTranscript>()
+            .Where(affectedTranscript => variantIds.Contains(affectedTranscript.VariantId))
+            .Select(affectedTranscript => affectedTranscript.Feature.GeneId.Value)
+            .Distinct()
+            .ToArray();
 
-        _variantIndexMapper.Map(variant, index);
-
-        return index;
+        return ids;
     }
 
-    private TVariant[] LoadVariants<TVariant, TVariantOccurrence>(int specimenId)
+    private long[] LoadVariantIds<TVariant, TVariantOccurrence>(int[] specimenIds)
         where TVariant : Variant
         where TVariantOccurrence : VariantOccurrence<TVariant>
     {
-        var variantIds = _dbContext.Set<TVariantOccurrence>()
-            .Where(occurrence => occurrence.AnalysedSample.Sample.SpecimenId == specimenId)
+        var ids = _dbContext.Set<TVariantOccurrence>()
+            .Where(occurrence => specimenIds.Contains(occurrence.AnalysedSample.Sample.SpecimenId))
             .Select(occurrence => occurrence.VariantId)
             .Distinct()
             .ToArray();
 
-        var variants = _dbContext.Set<TVariant>()
-            .IncludeAffectedTranscripts()
-            .Where(variant => variantIds.Contains(variant.Id))
-            .ToArray();
-
-        return variants;
+        return ids;
     }
 }
