@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Unite.Data.Entities.Donors;
+using Unite.Data.Entities.Genome.Transcriptomics;
 using Unite.Data.Entities.Genome.Variants;
 using Unite.Data.Entities.Images;
 using Unite.Data.Entities.Specimens;
@@ -66,10 +67,13 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
 
         index.Images = CreateImageIndices(donor.Id, diagnosisDate);
         index.Specimens = CreateSpecimenIndices(donor.Id, diagnosisDate);
+        index.NumberOfImages = index.Images?.Length ?? 0;
+        index.NumberOfSpecimens = index.Specimens?.Length ?? 0;
         index.NumberOfGenes = stats.NumberOfGenes;
         index.NumberOfMutations = stats.NumberOfMutations;
         index.NumberOfCopyNumberVariants = stats.NumberOfCopyNumberVariants;
         index.NumberOfStructuralVariants = stats.NumberOfStructuralVariants;
+        index.HasGeneExpressions = stats.HasGeneExpressions;
 
         return index;
     }
@@ -164,7 +168,7 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
     }
 
 
-    private record GenomicStats(int NumberOfGenes, int NumberOfMutations, int NumberOfCopyNumberVariants, int NumberOfStructuralVariants);
+    private record GenomicStats(int NumberOfGenes, int NumberOfMutations, int NumberOfCopyNumberVariants, int NumberOfStructuralVariants, bool HasGeneExpressions);
 
     private GenomicStats LoadGenomicStats(int donorId)
     {
@@ -176,8 +180,9 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
         var cnvGeneIds = LoadGeneIds<CNV.Variant, CNV.AffectedTranscript>(ssmIds);
         var svGeneIds = LoadGeneIds<SV.Variant, SV.AffectedTranscript>(ssmIds);
         var geneIds = ssmGeneIds.Union(cnvGeneIds).Union(svGeneIds).ToArray();
+        var hasGeneExpressions = CheckGeneExpressions(specimenIds);
 
-        return new GenomicStats(geneIds.Length, ssmIds.Length, cnvIds.Length, svIds.Length);
+        return new GenomicStats(geneIds.Length, ssmIds.Length, cnvIds.Length, svIds.Length, hasGeneExpressions);
     }
 
     private int[] LoadSpecimenIds(int donorId)
@@ -215,5 +220,13 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
             .ToArray();
 
         return ids;
+    }
+
+    private bool CheckGeneExpressions(int[] specimenIds)
+    {
+        var hasExpressions = _dbContext.Set<GeneExpression>()
+            .Any(expression => specimenIds.Contains(expression.AnalysedSample.Sample.SpecimenId));
+
+        return hasExpressions;
     }
 }
