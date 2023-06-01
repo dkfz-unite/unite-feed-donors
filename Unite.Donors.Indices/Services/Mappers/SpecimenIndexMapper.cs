@@ -17,11 +17,12 @@ internal class SpecimenIndexMapper
         }
 
         index.Id = specimen.Id;
-        index.ParentId = specimen.ParentId;
+        // index.ReferenceId - resolved by property getter
+        // index.Type - resolved by property getter
         index.CreationDay = specimen.CreationDate.RelativeFrom(diagnosisDate) ?? specimen.CreationDay;
 
         index.Tissue = CreateFromTissue(specimen);
-        index.CellLine = CreateFromCellLine(specimen);
+        index.Cell = CreateFromCellLine(specimen);
         index.Organoid = CreateFromOrganoid(specimen, specimen.CreationDate);
         index.Xenograft = CreateFromXenograft(specimen, specimen.CreationDate);
     }
