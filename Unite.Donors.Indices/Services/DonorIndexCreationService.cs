@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Unite.Data.Entities.Donors;
+using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Entities.Genome.Transcriptomics;
 using Unite.Data.Entities.Genome.Variants;
 using Unite.Data.Entities.Images;
@@ -71,9 +72,9 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
         var stats = LoadGenomicStats(donor.Id);
         
         index.NumberOfGenes = stats.NumberOfGenes;
-        index.NumberOfSSMs = stats.NumberOfSSMs;
-        index.NumberOfCNVs = stats.NumberOfCNVs;
-        index.NumberOfSVs = stats.NumberOfSVs;
+        index.NumberOfSsms = stats.NumberOfSsms;
+        index.NumberOfCnvs = stats.NumberOfCnvs;
+        index.NumberOfSvs = stats.NumberOfSvs;
 
         return index;
     }
@@ -174,7 +175,15 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
 
         var index = new DataIndex();
 
-        index.MRIs = _dbContext.Set<Image>()
+        index.Clinical = _dbContext.Set<ClinicalData>()
+            .Where(clinical => clinical.DonorId == donorId)
+            .Any();
+
+        index.Treatments = _dbContext.Set<Treatment>()
+            .Where(treatment => treatment.DonorId == donorId)
+            .Any();
+
+        index.Mris = _dbContext.Set<Image>()
             .Include(image => image.MriImage)
             .Where(image => image.DonorId == donorId)
             .Where(image => image.MriImage != null)
@@ -204,11 +213,11 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
             .Where(specimen => specimen.Xenograft != null)
             .Any();
 
-        index.SSMs = CheckVariants<SSM.Variant, SSM.VariantOccurrence>(specimenIds);
+        index.Ssms = CheckVariants<SSM.Variant, SSM.VariantOccurrence>(specimenIds);
 
-        index.CNVs = CheckVariants<CNV.Variant, CNV.VariantOccurrence>(specimenIds);
+        index.Cnvs = CheckVariants<CNV.Variant, CNV.VariantOccurrence>(specimenIds);
 
-        index.SVs = CheckVariants<SV.Variant, SV.VariantOccurrence>(specimenIds);
+        index.Svs = CheckVariants<SV.Variant, SV.VariantOccurrence>(specimenIds);
 
         index.GeneExp = CheckGeneExp(specimenIds);
 
@@ -216,7 +225,7 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
     }
 
 
-    private record GenomicStats(int NumberOfGenes, int NumberOfSSMs, int NumberOfCNVs, int NumberOfSVs);
+    private record GenomicStats(int NumberOfGenes, int NumberOfSsms, int NumberOfCnvs, int NumberOfSvs);
 
     private GenomicStats LoadGenomicStats(int donorId)
     {

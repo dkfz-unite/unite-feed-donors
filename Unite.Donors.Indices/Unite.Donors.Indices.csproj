@@ -9,6 +9,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Unite.Data" Version="4.6.0" />
-    <PackageReference Include="Unite.Indices" Version="4.8.0" />
+    <PackageReference Include="Unite.Indices" Version="4.9.0" />
   </ItemGroup>
 </Project>

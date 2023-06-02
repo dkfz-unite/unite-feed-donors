@@ -18,7 +18,7 @@ internal class ImageIndexMapper
         // index.Type - resolved by property getter
         index.ScanningDay = image.ScanningDate.RelativeFrom(diagnosisDate) ?? image.ScanningDay;
 
-        index.MRI = CreateFrom(image.MriImage);
+        index.Mri = CreateFrom(image.MriImage);
     }
 
 
