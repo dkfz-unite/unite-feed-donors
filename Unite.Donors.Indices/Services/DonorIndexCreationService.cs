@@ -189,9 +189,19 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
             .Where(image => image.MriImage != null)
             .Any();
 
+        index.Cts = false;
+
         index.Tissues = _dbContext.Set<Specimen>()
             .Include(specimen => specimen.Tissue)
             .Where(specimen => specimen.DonorId == donorId)
+            .Where(specimen => specimen.Tissue != null)
+            .Any();
+
+        index.TissuesMolecular = _dbContext.Set<Specimen>()
+            .Include(specimen => specimen.MolecularData)
+            .Include(specimen => specimen.Tissue)
+            .Where(specimen => specimen.DonorId == donorId)
+            .Where(specimen => specimen.MolecularData != null)
             .Where(specimen => specimen.Tissue != null)
             .Any();
 
@@ -201,11 +211,51 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
             .Where(specimen => specimen.CellLine != null)
             .Any();
 
+        index.CellsMolecular = _dbContext.Set<Specimen>()
+            .Include(specimen => specimen.MolecularData)
+            .Include(specimen => specimen.CellLine)
+            .Where(specimen => specimen.DonorId == donorId)
+            .Where(specimen => specimen.MolecularData != null)
+            .Where(specimen => specimen.CellLine != null)
+            .Any();
+
+        index.CellsDrugs = index.Cells = _dbContext.Set<Specimen>()
+            .Include(specimen => specimen.DrugScreenings)
+            .Include(specimen => specimen.CellLine)
+            .Where(specimen => specimen.DonorId == donorId)
+            .Where(specimen => specimen.DrugScreenings != null && specimen.DrugScreenings.Any())
+            .Where(specimen => specimen.CellLine != null)
+            .Any();
+
         index.Organoids = _dbContext.Set<Specimen>()
             .Include(specimen => specimen.Organoid)
             .Where(specimen => specimen.DonorId == donorId)
             .Where(specimen => specimen.Organoid != null)
             .Any();
+
+        index.OrganoidsMolecular = _dbContext.Set<Specimen>()
+             .Include(specimen => specimen.MolecularData)
+             .Include(specimen => specimen.Organoid)
+             .Where(specimen => specimen.DonorId == donorId)
+             .Where(specimen => specimen.MolecularData != null)
+             .Where(specimen => specimen.Organoid != null)
+             .Any();
+
+        index.OrganoidsMolecular = _dbContext.Set<Specimen>()
+             .Include(specimen => specimen.DrugScreenings)
+             .Include(specimen => specimen.Organoid)
+             .Where(specimen => specimen.DonorId == donorId)
+             .Where(specimen => specimen.DrugScreenings != null && specimen.DrugScreenings.Any())
+             .Where(specimen => specimen.Organoid != null)
+             .Any();
+
+        index.OrganoidsInterventions = index.OrganoidsMolecular = _dbContext.Set<Specimen>()
+             .Include(specimen => specimen.Organoid)
+             .Include(specimen => specimen.Organoid.Interventions)
+             .Where(specimen => specimen.DonorId == donorId)
+             .Where(specimen => specimen.Organoid != null)
+             .Where(specimen => specimen.Organoid.Interventions != null && specimen.Organoid.Interventions.Any())
+             .Any();
 
         index.Xenografts = _dbContext.Set<Specimen>()
             .Include(specimen => specimen.Xenograft)
@@ -213,6 +263,30 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
             .Where(specimen => specimen.Xenograft != null)
             .Any();
 
+        index.Xenografts = _dbContext.Set<Specimen>()
+            .Include(specimen => specimen.MolecularData)
+            .Include(specimen => specimen.Xenograft)
+            .Where(specimen => specimen.DonorId == donorId)
+            .Where(specimen => specimen.MolecularData != null)
+            .Where(specimen => specimen.Xenograft != null)
+            .Any();
+
+        index.XenograftsDrugs = _dbContext.Set<Specimen>()
+            .Include(specimen => specimen.DrugScreenings)
+            .Include(specimen => specimen.Xenograft)
+            .Where(specimen => specimen.DonorId == donorId)
+            .Where(specimen => specimen.DrugScreenings != null && specimen.DrugScreenings.Any())
+            .Where(specimen => specimen.Xenograft != null)
+            .Any();
+
+        index.XenograftsInterventions = index.Xenografts = _dbContext.Set<Specimen>()
+            .Include(specimen => specimen.Xenograft)
+            .Include(specimen => specimen.Xenograft.Interventions)
+            .Where(specimen => specimen.DonorId == donorId)
+            .Where(specimen => specimen.Xenograft != null)
+            .Where(specimen => specimen.Xenograft.Interventions != null && specimen.Xenograft.Interventions.Any())
+            .Any();
+        
         index.Ssms = CheckVariants<SSM.Variant, SSM.VariantOccurrence>(specimenIds);
 
         index.Cnvs = CheckVariants<CNV.Variant, CNV.VariantOccurrence>(specimenIds);
@@ -220,6 +294,8 @@ public class DonorIndexCreationService : IIndexCreationService<DonorIndex>
         index.Svs = CheckVariants<SV.Variant, SV.VariantOccurrence>(specimenIds);
 
         index.GeneExp = CheckGeneExp(specimenIds);
+
+        index.GeneExpSc = false;
 
         return index;
     }
