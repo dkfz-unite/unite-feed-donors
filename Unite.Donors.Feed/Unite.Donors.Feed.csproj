@@ -5,6 +5,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Unite.Data" Version="4.6.0" />
+		<PackageReference Include="Unite.Data" Version="5.0.1" />
 	</ItemGroup>
 </Project>
