@@ -1,24 +1,20 @@
 # Donors Data Feed API
 
 ## GET: [api](http://localhost:5100/api)
-
 Health check.
 
-
-**Response**
-
+### Responses
 `"2022-03-17T09:45:10.9359202Z"` - Current UTC date and time in JSON format, if service is up and running
 
 
 ## POST: [api/donors](http://localhost:5100/api/donors)
-
 Submit donors data (including clinical and treatment data).
 
 Request implements **UPSERT** logic:
 - Missing data will be populated
 - Existing data will be updated
 
-**Boby** (_application/json_)
+### Boby - application/json
 ```json
 [
     {
@@ -33,7 +29,7 @@ Request implements **UPSERT** logic:
         "ClinicalData": {
             "Sex": "Male",
             "Age": 56,
-            "Diagnosis": "Glioblastoma"
+            "Diagnosis": "Glioblastoma",
             "DiagnosisDate": "2020-01-01T00:00:00",
             "PrimarySite": "Brain",
             "Localization": "Left",
@@ -60,8 +56,8 @@ Request implements **UPSERT** logic:
     }
 ]
 ```
-Fields description can be found [here](https://github.com/dkfz-unite/unite-donors-feed/blob/main/Docs/api-donors-models.md).
+Fields description can be found [here](api-donors-models.md).
 
-**Response**
+### Responses
 - `200` - request was processed successfully
 - `400` - request data didn't pass validation
