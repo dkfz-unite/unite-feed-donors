@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Unite.Donors.Feed.Data.Donors;
+using Unite.Donors.Feed.Web.Configuration.Constants;
 using Unite.Donors.Feed.Web.Services;
 using Unite.Donors.Feed.Web.Services.Donors;
 using Unite.Donors.Feed.Web.Services.Donors.Converters;
@@ -8,7 +9,7 @@ using Unite.Donors.Feed.Web.Services.Donors.Converters;
 namespace Unite.Donors.Feed.Web.Controllers;
 
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Policy = Policies.Data.Writer)]
 public class DonorsController : Controller
 {
     private readonly DonorDataWriter _dataWriter;

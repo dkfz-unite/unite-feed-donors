@@ -13,6 +13,8 @@ builder.Services.Configure();
 builder.Services.AddAuthentication(options => options.AddJwtAuthenticationOptions())
                 .AddJwtBearer(options => options.AddJwtBearerOptions());
 
+builder.Services.AddAuthorization(options => options.AddAuthorizationOptions());
+
 builder.Services.AddControllers(options => options.AddMvcOptions())
                 .AddJsonOptions(options => options.AddJsonOptions())
                 .AddFluentValidation();

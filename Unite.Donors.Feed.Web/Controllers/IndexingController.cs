@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Unite.Donors.Feed.Web.Configuration.Constants;
 using Unite.Donors.Feed.Web.Services;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 
 [Route("api/[controller]/[action]")]
-[Authorize]
+[Authorize(Roles = Roles.Admin)]
 public class IndexingController : Controller
 {
     private readonly DonorIndexingTasksService _indexingTaskService;
