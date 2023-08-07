@@ -21,6 +21,7 @@
 	<ItemGroup>
 		<PackageReference Include="Macross.Json.Extensions" Version="3.0.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.1.2" />
+		<PackageReference Include="Unite.Essentials.Tsv" Version="2.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Unite.Donors.Feed\Unite.Donors.Feed.csproj">
@@ -31,8 +32,5 @@
 			<GlobalPropertiesToRemove>
 			</GlobalPropertiesToRemove>
 		</ProjectReference>
-	</ItemGroup>
-	<ItemGroup>
-		<None Remove="FluentValidation.AspNetCore" />
 	</ItemGroup>
 </Project>
