@@ -1,8 +1,4 @@
 ﻿using Unite.Data.Entities.Specimens;
-using Unite.Data.Entities.Specimens.Cells;
-using Unite.Data.Entities.Specimens.Organoids;
-using Unite.Data.Entities.Specimens.Tissues;
-using Unite.Data.Entities.Specimens.Xenografts;
 using Unite.Data.Extensions;
 using Unite.Indices.Entities.Basic.Specimens;
 
@@ -21,87 +17,84 @@ internal class SpecimenIndexMapper
         }
 
         index.Id = specimen.Id;
-        index.ParentId = specimen.ParentId;
+        // index.ReferenceId - resolved by property getter
+        // index.Type - resolved by property getter
         index.CreationDay = specimen.CreationDate.RelativeFrom(diagnosisDate) ?? specimen.CreationDay;
 
-        index.Tissue = CreateFrom(specimen.Tissue, specimen.MolecularData, specimen.DrugScreenings);
-        index.CellLine = CreateFrom(specimen.CellLine, specimen.MolecularData, specimen.DrugScreenings);
-        index.Organoid = CreateFrom(specimen.Organoid, specimen.MolecularData, specimen.DrugScreenings, specimen.CreationDate);
-        index.Xenograft = CreateFrom(specimen.Xenograft, specimen.MolecularData, specimen.DrugScreenings, specimen.CreationDate);
+        index.Tissue = CreateFromTissue(specimen);
+        index.Cell = CreateFromCellLine(specimen);
+        index.Organoid = CreateFromOrganoid(specimen, specimen.CreationDate);
+        index.Xenograft = CreateFromXenograft(specimen, specimen.CreationDate);
     }
 
 
-    private static TissueIndex CreateFrom(in Tissue tissue, in MolecularData molecularData, in IEnumerable<DrugScreening> drugScreenings)
+    private static TissueIndex CreateFromTissue(in Specimen specimen)
     {
-        if (tissue == null)
+        if (specimen.Tissue == null)
         {
             return null;
         }
 
         var index = new TissueIndex();
 
-        index.ReferenceId = tissue.ReferenceId;
+        index.ReferenceId = specimen.Tissue.ReferenceId;
 
-        index.Type = tissue.TypeId?.ToDefinitionString();
-        index.TumorType = tissue.TumorTypeId?.ToDefinitionString();
-        index.Source = tissue.Source?.Value;
+        index.Type = specimen.Tissue.TypeId?.ToDefinitionString();
+        index.TumorType = specimen.Tissue.TumorTypeId?.ToDefinitionString();
+        index.Source = specimen.Tissue.Source?.Value;
 
-        index.MolecularData = CreateFrom(molecularData);
-
-        index.DrugScreenings = CreateFrom(drugScreenings);
+        index.MolecularData = CreateFrom(specimen.MolecularData);
 
         return index;
     }
 
-    private static CellLineIndex CreateFrom(in CellLine cellLine, in MolecularData molecularData, in IEnumerable<DrugScreening> drugScreenings)
+    private static CellLineIndex CreateFromCellLine(in Specimen specimen)
     {
-        if (cellLine == null)
+        if (specimen.CellLine == null)
         {
             return null;
         }
 
         var index = new CellLineIndex();
 
-        index.ReferenceId = cellLine.ReferenceId;
+        index.ReferenceId = specimen.CellLine.ReferenceId;
 
-        index.Species = cellLine.SpeciesId?.ToDefinitionString();
-        index.Type = cellLine.TypeId?.ToDefinitionString();
-        index.CultureType = cellLine.CultureTypeId?.ToDefinitionString();
+        index.Species = specimen.CellLine.SpeciesId?.ToDefinitionString();
+        index.Type = specimen.CellLine.TypeId?.ToDefinitionString();
+        index.CultureType = specimen.CellLine.CultureTypeId?.ToDefinitionString();
 
-        index.Name = cellLine.Info?.Name;
-        index.DepositorName = cellLine.Info?.DepositorName;
-        index.DepositorEstablishment = cellLine.Info?.DepositorEstablishment;
-        index.EstablishmentDate = cellLine.Info?.EstablishmentDate;
+        index.Name = specimen.CellLine.Info?.Name;
+        index.DepositorName = specimen.CellLine.Info?.DepositorName;
+        index.DepositorEstablishment = specimen.CellLine.Info?.DepositorEstablishment;
+        index.EstablishmentDate = specimen.CellLine.Info?.EstablishmentDate;
 
-        index.PubMedLink = cellLine.Info?.PubMedLink;
-        index.AtccLink = cellLine.Info?.AtccLink;
-        index.ExPasyLink = cellLine.Info?.ExPasyLink;
+        index.PubMedLink = specimen.CellLine.Info?.PubMedLink;
+        index.AtccLink = specimen.CellLine.Info?.AtccLink;
+        index.ExPasyLink = specimen.CellLine.Info?.ExPasyLink;
 
-        index.MolecularData = CreateFrom(molecularData);
-
-        index.DrugScreenings = CreateFrom(drugScreenings);
+        index.MolecularData = CreateFrom(specimen.MolecularData);
+        index.DrugScreenings = CreateFrom(specimen.DrugScreenings);
 
         return index;
     }
 
-    private static OrganoidIndex CreateFrom(in Organoid organoid, in MolecularData molecularData, in IEnumerable<DrugScreening> drugScreenings, DateOnly? specimenCreationDate)
+    private static OrganoidIndex CreateFromOrganoid(in Specimen specimen, DateOnly? specimenCreationDate)
     {
-        if (organoid == null)
+        if (specimen.Organoid == null)
         {
             return null;
         }
 
         var index = new OrganoidIndex();
 
-        index.ReferenceId = organoid.ReferenceId;
-        index.ImplantedCellsNumber = organoid.ImplantedCellsNumber;
-        index.Tumorigenicity = organoid.Tumorigenicity;
-        index.Medium = organoid.Medium;
+        index.ReferenceId = specimen.Organoid.ReferenceId;
+        index.ImplantedCellsNumber = specimen.Organoid.ImplantedCellsNumber;
+        index.Tumorigenicity = specimen.Organoid.Tumorigenicity;
+        index.Medium = specimen.Organoid.Medium;
 
-        index.MolecularData = CreateFrom(molecularData);
-
-        index.DrugScreenings = CreateFrom(drugScreenings);
-        index.Interventions = CreateFrom(organoid.Interventions, specimenCreationDate);
+        index.MolecularData = CreateFrom(specimen.MolecularData);
+        index.DrugScreenings = CreateFrom(specimen.DrugScreenings);
+        index.Interventions = CreateFrom(specimen.Organoid.Interventions, specimenCreationDate);
 
         return index;
     }
@@ -130,31 +123,30 @@ internal class SpecimenIndexMapper
         return indices;
     }
 
-    private static XenograftIndex CreateFrom(in Xenograft xenograft, in MolecularData molecularData, in IEnumerable<DrugScreening> drugScreenings, DateOnly? specimenCreationDate)
+    private static XenograftIndex CreateFromXenograft(in Specimen specimen, DateOnly? specimenCreationDate)
     {
-        if (xenograft == null)
+        if (specimen.Xenograft == null)
         {
             return null;
         }
 
         var index = new XenograftIndex();
 
-        index.ReferenceId = xenograft.ReferenceId;
+        index.ReferenceId = specimen.Xenograft.ReferenceId;
 
-        index.MouseStrain = xenograft.MouseStrain;
-        index.GroupSize = xenograft.GroupSize;
-        index.ImplantType = xenograft.ImplantTypeId?.ToDefinitionString();
-        index.TissueLocation = xenograft.TissueLocationId?.ToDefinitionString();
-        index.ImplantedCellsNumber = xenograft.ImplantedCellsNumber;
-        index.Tumorigenicity = xenograft.Tumorigenicity;
-        index.TumorGrowthForm = xenograft.TumorGrowthFormId?.ToDefinitionString();
-        index.SurvivalDaysFrom = xenograft.SurvivalDaysFrom;
-        index.SurvivalDaysTo = xenograft.SurvivalDaysTo;
+        index.MouseStrain = specimen.Xenograft.MouseStrain;
+        index.GroupSize = specimen.Xenograft.GroupSize;
+        index.ImplantType = specimen.Xenograft.ImplantTypeId?.ToDefinitionString();
+        index.TissueLocation = specimen.Xenograft.TissueLocationId?.ToDefinitionString();
+        index.ImplantedCellsNumber = specimen.Xenograft.ImplantedCellsNumber;
+        index.Tumorigenicity = specimen.Xenograft.Tumorigenicity;
+        index.TumorGrowthForm = specimen.Xenograft.TumorGrowthFormId?.ToDefinitionString();
+        index.SurvivalDaysFrom = specimen.Xenograft.SurvivalDaysFrom;
+        index.SurvivalDaysTo = specimen.Xenograft.SurvivalDaysTo;
 
-        index.MolecularData = CreateFrom(molecularData);
-
-        index.DrugScreenings = CreateFrom(drugScreenings);
-        index.Interventions = CreateFrom(xenograft.Interventions, specimenCreationDate);
+        index.MolecularData = CreateFrom(specimen.MolecularData);
+        index.DrugScreenings = CreateFrom(specimen.DrugScreenings);
+        index.Interventions = CreateFrom(specimen.Xenograft.Interventions, specimenCreationDate);
 
         return index;
     }

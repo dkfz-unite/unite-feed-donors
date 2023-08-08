@@ -1,15 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-	</PropertyGroup>
-	<ItemGroup>
-		<Folder Include="Services\" />
-		<Folder Include="Services\Mappers\" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Unite.Data" Version="3.2.3" />
-		<PackageReference Include="Unite.Indices" Version="3.2.3" />
-	</ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Services\" />
+    <Folder Include="Services\Mappers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Unite.Data" Version="5.1.0" />
+    <PackageReference Include="Unite.Indices" Version="5.1.0" />
+  </ItemGroup>
 </Project>

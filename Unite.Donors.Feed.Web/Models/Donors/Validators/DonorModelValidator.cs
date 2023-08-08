@@ -23,11 +23,11 @@ public class DonorModelValidator : AbstractValidator<DonorModel>
             .MaximumLength(255)
             .WithMessage("Maximum length is 255");
 
-        RuleForEach(model => model.WorkPackages)
+        RuleForEach(model => model.Projects)
             .NotEmpty()
             .WithMessage("Should not be empty");
 
-        RuleForEach(model => model.WorkPackages)
+        RuleForEach(model => model.Projects)
             .MaximumLength(100)
             .WithMessage("Maximum length is 100");
 

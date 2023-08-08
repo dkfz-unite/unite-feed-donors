@@ -49,7 +49,7 @@ public class DonorsIndexingHostedService : BackgroundService
             }
             finally
             {
-                await Task.Delay(_options.Interval, cancellationToken);
+                await Task.Delay(10000, cancellationToken);
             }
         }
     }

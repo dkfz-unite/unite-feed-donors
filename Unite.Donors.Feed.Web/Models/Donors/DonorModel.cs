@@ -1,26 +1,23 @@
-﻿using Unite.Data.Extensions;
-
-namespace Unite.Donors.Feed.Web.Services.Donors;
+﻿namespace Unite.Donors.Feed.Web.Services.Donors;
 
 public class DonorModel
 {
-    public string Id { get; set; }
-    public bool? MtaProtected { get; set; }
+    private string _id;
+    private bool? _mtaProtected;
+    private string[] _projects;
+    private string[] _studies;
+
+    public string Id { get => _id?.Trim(); set => _id = value; }
+    public bool? MtaProtected { get => _mtaProtected; set => _mtaProtected = value; }
+    public string[] Projects { get => Trim(_projects); set => _projects = value; }
+    public string[] Studies { get => Trim(_studies); set => _studies = value; }
 
     public ClinicalDataModel ClinicalData { get; set; }
-
     public TreatmentModel[] Treatments { get; set; }
-    public string[] WorkPackages { get; set; }
-    public string[] Studies { get; set; }
 
-    public void Sanitise()
+
+    private static string[] Trim(string[] array)
     {
-        Id = Id?.Trim();
-
-        ClinicalData.Sanitise();
-
-        Treatments?.ForEach(treatment => treatment.Sanitise());
-        WorkPackages?.ForEach(workpackageName => workpackageName.Trim());
-        Studies?.ForEach(studyName => studyName.Trim());
+        return array?.Select(value => value.Trim()).ToArray();
     }
 }

@@ -2,7 +2,6 @@
 using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Extensions;
 using Unite.Indices.Entities.Basic.Donors;
-using Unite.Indices.Entities.Basic.Donors.Clinical;
 
 namespace Unite.Donors.Indices.Services.Mappers;
 
@@ -21,7 +20,7 @@ internal class DonorIndexMapper
 
         index.ClinicalData = CreateFrom(donor.ClinicalData);
         index.Treatments = CreateFrom(donor.Treatments, donor.ClinicalData?.DiagnosisDate);
-        index.WorkPackages = CreateFrom(donor.DonorWorkPackages);
+        index.Projects = CreateFrom(donor.DonorProjects);
         index.Studies = CreateFrom(donor.DonorStudies);
     }
 
@@ -73,7 +72,7 @@ internal class DonorIndexMapper
         return indices;
     }
 
-    private static WorkPackageIndex[] CreateFrom(in IEnumerable<WorkPackageDonor> workPackageDonors)
+    private static ProjectIndex[] CreateFrom(in IEnumerable<ProjectDonor> workPackageDonors)
     {
         if (workPackageDonors == null || !workPackageDonors.Any())
         {
@@ -82,10 +81,10 @@ internal class DonorIndexMapper
 
         var indices = workPackageDonors.Select(workPackageDonor =>
         {
-            var index = new WorkPackageIndex();
+            var index = new ProjectIndex();
 
-            index.Id = workPackageDonor.WorkPackage.Id;
-            index.Name = workPackageDonor.WorkPackage.Name;
+            index.Id = workPackageDonor.Project.Id;
+            index.Name = workPackageDonor.Project.Name;
 
             return index;
 
