@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Unite.Donors.Feed.Data.Donors;
 using Unite.Donors.Feed.Web.Configuration.Constants;
+using Unite.Donors.Feed.Web.Models.Donors;
+using Unite.Donors.Feed.Web.Models.Donors.Converters;
 using Unite.Donors.Feed.Web.Services;
-using Unite.Donors.Feed.Web.Services.Donors;
-using Unite.Donors.Feed.Web.Services.Donors.Converters;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 

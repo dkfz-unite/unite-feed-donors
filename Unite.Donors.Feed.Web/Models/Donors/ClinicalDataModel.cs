@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Unite.Data.Entities.Donors.Clinical.Enums;
 
-namespace Unite.Donors.Feed.Web.Services.Donors;
+namespace Unite.Donors.Feed.Web.Models.Donors;
 
 public class ClinicalDataModel
 {

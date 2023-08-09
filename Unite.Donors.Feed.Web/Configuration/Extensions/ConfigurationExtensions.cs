@@ -6,13 +6,13 @@ using Unite.Donors.Feed.Data.Donors;
 using Unite.Donors.Feed.Web.Configuration.Options;
 using Unite.Donors.Feed.Web.Handlers;
 using Unite.Donors.Feed.Web.HostedServices;
-using Unite.Donors.Feed.Web.Services.Donors;
-using Unite.Donors.Feed.Web.Services.Donors.Validators;
 using Unite.Donors.Indices.Services;
 using Unite.Indices.Entities.Donors;
 using Unite.Indices.Services;
 using Unite.Indices.Services.Configuration.Options;
 using Unite.Donors.Feed.Web.Services;
+using Unite.Donors.Feed.Web.Models.Donors;
+using Unite.Donors.Feed.Web.Models.Donors.Validators;
 
 namespace Unite.Donors.Feed.Web.Configuration.Extensions;
 

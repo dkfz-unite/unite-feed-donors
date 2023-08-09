@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
-using Unite.Donors.Feed.Web.Services.Donors;
 
-namespace Unite.Donors.Feed.Web.Services.Donors.Validators;
+namespace Unite.Donors.Feed.Web.Models.Donors.Validators;
 
 public class ClinicalDataModelValidator : AbstractValidator<ClinicalDataModel>
 {
