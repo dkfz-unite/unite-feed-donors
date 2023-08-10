@@ -2,8 +2,6 @@
 
 public class TreatmentModel
 {
-    public string DonorId { get; set; }
-    
     private string _therapy;
     private string _details;
     private DateTime? _startDate;
