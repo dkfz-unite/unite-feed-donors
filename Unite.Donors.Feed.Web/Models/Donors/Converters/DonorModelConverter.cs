@@ -1,4 +1,6 @@
-﻿namespace Unite.Donors.Feed.Web.Services.Donors.Converters;
+﻿using Unite.Donors.Feed.Web.Models.Donors;
+
+namespace Unite.Donors.Feed.Web.Models.Donors.Converters;
 
 public class DonorModelConverter
 {

@@ -1,13 +1,13 @@
 # Donors Data Feed API
 
-## GET: [api](http://localhost:5100/api)
+## GET: [api](http://localhost:5100/api) - [api/donors-feed](https://localhost/api/donors-feed)
 Health check.
 
 ### Responses
 `"2022-03-17T09:45:10.9359202Z"` - Current UTC date and time in JSON format, if service is up and running
 
 
-## POST: [api/donors](http://localhost:5100/api/donors)
+## POST: [api/donors](http://localhost:5100/api/donors) - [api/donors-feed/donors](https://localhost/api/donors-feed/donors)
 Submit donors data (including clinical and treatment data).
 
 Request implements **UPSERT** logic:

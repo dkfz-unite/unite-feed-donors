@@ -1,4 +1,4 @@
-﻿namespace Unite.Donors.Feed.Web.Services.Donors;
+﻿namespace Unite.Donors.Feed.Web.Models.Donors;
 
 public class DonorModel
 {
