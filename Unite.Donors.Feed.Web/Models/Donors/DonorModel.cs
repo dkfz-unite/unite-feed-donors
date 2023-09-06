@@ -14,7 +14,7 @@ public class DonorModel
 
     public ClinicalDataModel ClinicalData { get; set; }
     public TreatmentModel[] Treatments { get; set; }
-
+    public string[] WorkPackages { get; internal set; }
 
     private static string[] Trim(string[] array)
     {

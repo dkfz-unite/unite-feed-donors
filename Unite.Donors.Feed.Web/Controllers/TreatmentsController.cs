@@ -1,16 +1,8 @@
-
-using System.IO;
-using System.Linq;
-using FluentValidation;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Unite.Data.Extensions;
-using Unite.Donors.Feed.Data.Donors;
-using Unite.Donors.Feed.Web.Services.Donors;
-using Unite.Donors.Feed.Web.Services.Donors.Converters;
-using Unite.Donors.Feed.Web.Services;
+using Unite.Donors.Feed.Web.Models.Donors;
 using Unite.Essentials.Tsv;
-using Unite.Donors.Feed.Web.Services.Treatments.Converters;
+using Unite.Donors.Feed.Web.Models.Converters;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 
@@ -21,7 +13,7 @@ public class TreatmentsController : Controller
     //private readonly DonorIndexingTasksService _indexingTaskService;
     //private readonly ILogger _logger;
 
-    private readonly TreatmentModelConverter _converter;
+    private readonly TreatmentStandaloneModelConverter _converter;
 
 
     public TreatmentsController(
@@ -34,7 +26,7 @@ public class TreatmentsController : Controller
         //_indexingTaskService = indexingTaskService;
         //_logger = logger;
 
-        _converter = new TreatmentModelConverter();
+        _converter = new TreatmentStandaloneModelConverter();
     }
 
     [HttpPost]
@@ -60,9 +52,7 @@ public class TreatmentsController : Controller
             return Json(exception.Message);
         }
 
-        TreatmentModel[] models = dataModels.Select(model => _converter.Convert(model)).ToArray();
-
-        models.ForEach(model => model.Sanitise());
+        TreatmentStandaloneModel[] models = dataModels.Select(model => _converter.Convert(model)).ToArray();
 
         if (syncIOFeature != null)
         {

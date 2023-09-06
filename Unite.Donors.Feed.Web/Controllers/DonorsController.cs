@@ -8,6 +8,7 @@ using Unite.Donors.Feed.Web.Models.Donors;
 using Unite.Donors.Feed.Web.Models.Donors.Converters;
 using Unite.Donors.Feed.Web.Services;
 using Unite.Essentials.Tsv;
+using Unite.Donors.Feed.Web.Models.Donors.Binders;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 
@@ -49,6 +50,21 @@ public class DonorsController : Controller
         return Ok();
     }
 
+    [HttpPost("tsv")]
+    [AllowAnonymous]
+    public IActionResult PostTsv([ModelBinder(typeof(DonorsTsvModelBinder))] DonorModel[] models)
+    {
+        // var dataModels = models.Select(model => _converter.Convert(model)).ToArray();
+
+        // _dataWriter.SaveData(dataModels, out var audit);
+
+        // _logger.LogInformation(audit.ToString());
+
+        // _indexingTaskService.PopulateTasks(audit.Donors);
+
+        return Json(models);
+    }
+
     [HttpPost("ValidateTsv")]
     [Consumes("text/tab-separated-values")]
     public JsonResult ValidateTsv()
@@ -74,7 +90,7 @@ public class DonorsController : Controller
 
         DonorModel[] models = dataModels.Select(model => _converter.Convert(model)).ToArray();
 
-        models.ForEach(model => model.Sanitise());
+        //models.ForEach(model => model.Sanitise());
 
         if (syncIOFeature != null)
         {

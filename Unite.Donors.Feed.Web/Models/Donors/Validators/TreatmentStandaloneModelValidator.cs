@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Unite.Donors.Feed.Web.Services.Donors.Validators;
+namespace Unite.Donors.Feed.Web.Models.Donors.Validators;
 
 public class TreatmentStandaloneModelValidator : AbstractValidator<TreatmentStandaloneModel>
 {
