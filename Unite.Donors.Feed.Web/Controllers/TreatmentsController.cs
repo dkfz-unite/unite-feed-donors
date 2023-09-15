@@ -1,75 +1,65 @@
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Unite.Donors.Feed.Web.Models.Donors;
-using Unite.Essentials.Tsv;
 using Unite.Donors.Feed.Web.Models.Converters;
+using Unite.Donors.Feed.Web.Models.Donors.Binders;
+using Unite.Donors.Feed.Data.Donors;
+using Unite.Donors.Feed.Web.Services;
+using Microsoft.AspNetCore.Authorization;
+using Unite.Donors.Feed.Web.Configuration.Constants;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 
-[Route("api/[controller]/[action]")]
+[Route("api/[controller]")]
+[Authorize(Policy = Policies.Data.Writer)]
 public class TreatmentsController : Controller
 {
-    //private readonly DonorDataWriter _dataWriter;
-    //private readonly DonorIndexingTasksService _indexingTaskService;
-    //private readonly ILogger _logger;
+    private readonly DonorDataWriter _dataWriter;
+    private readonly DonorIndexingTasksService _indexingTaskService;
+    private readonly ILogger _logger;
 
     private readonly TreatmentStandaloneModelConverter _converter;
 
 
     public TreatmentsController(
-        //DonorDataWriter dataWriter,
-        //DonorIndexingTasksService indexingTaskService,
-        //ILogger<TreatmentsController> logger
+        DonorDataWriter dataWriter,
+        DonorIndexingTasksService indexingTaskService,
+        ILogger<TreatmentsController> logger
         )
     {
-        //_dataWriter = dataWriter;
-        //_indexingTaskService = indexingTaskService;
-        //_logger = logger;
+        _dataWriter = dataWriter;
+        _indexingTaskService = indexingTaskService;
+        _logger = logger;
 
         _converter = new TreatmentStandaloneModelConverter();
     }
 
-    [HttpPost]
-    [Consumes("text/tab-separated-values")]
-    public JsonResult ValidateTsv()
+    [HttpPost("json")]
+    [Consumes("application/json")]
+    public IActionResult PostJson([FromBody] TreatmentStandaloneModel[] models)
     {
-        //Microsoft.AspNetCore.Http.HttpRequest request = Request;
+        var dataModels = models.Select(model => _converter.Convert(model)).ToArray();
 
-        // Something for stream to be read
-        //var syncIOFeature = HttpContext.Features.Get<IHttpBodyControlFeature>();
-        //if (syncIOFeature != null)
-        //{
-        //    syncIOFeature.AllowSynchronousIO = true;
-        //}
+        _dataWriter.SaveData(dataModels, out var audit);
 
-        //TreatmentTsvModel[] dataModels = new List<TreatmentTsvModel>().ToArray();
-        //try
-        //{
-        //    dataModels = TsvReader.Read<TreatmentTsvModel>(Request.Body).ToArray();
-        //}
-        //catch (Exception exception)
-        //{
-        //    return Json(exception.Message);
-        //}
+        _logger.LogInformation(audit.ToString());
 
-        //TreatmentStandaloneModel[] models = dataModels.Select(model => _converter.Convert(model)).ToArray();
+        _indexingTaskService.PopulateTasks(audit.Donors);
 
-        //if (syncIOFeature != null)
-        //{
-        //    syncIOFeature.AllowSynchronousIO = false;
-        //}
-
-        //return Json(models);
-
-        return Json(Ok());
+        return Ok();
     }
 
-    [HttpPost]
+    [HttpPost("tsv")]
     [Consumes("text/tab-separated-values")]
-    public JsonResult UploadTsv()
+    public IActionResult PostTsv([ModelBinder(typeof(TreatmentsTsvModelBinder))] TreatmentStandaloneModel[] models)
     {
-        var request = Request;
+        var dataModels = models.Select(model => _converter.Convert(model)).ToArray();
 
-        return Json(Ok());
+        _dataWriter.SaveData(dataModels, out var audit);
+
+        _logger.LogInformation(audit.ToString());
+
+        _indexingTaskService.PopulateTasks(audit.Donors);
+
+        return Ok();
     }
 }
