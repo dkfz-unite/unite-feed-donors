@@ -36,30 +36,32 @@ public class TreatmentsController : Controller
         //Microsoft.AspNetCore.Http.HttpRequest request = Request;
 
         // Something for stream to be read
-        var syncIOFeature = HttpContext.Features.Get<IHttpBodyControlFeature>();
-        if (syncIOFeature != null)
-        {
-            syncIOFeature.AllowSynchronousIO = true;
-        }
+        //var syncIOFeature = HttpContext.Features.Get<IHttpBodyControlFeature>();
+        //if (syncIOFeature != null)
+        //{
+        //    syncIOFeature.AllowSynchronousIO = true;
+        //}
 
-        TreatmentTsvModel[] dataModels = new List<TreatmentTsvModel>().ToArray();
-        try
-        {
-            dataModels = TsvReader.Read<TreatmentTsvModel>(Request.Body).ToArray();
-        }
-        catch (Exception exception)
-        {
-            return Json(exception.Message);
-        }
+        //TreatmentTsvModel[] dataModels = new List<TreatmentTsvModel>().ToArray();
+        //try
+        //{
+        //    dataModels = TsvReader.Read<TreatmentTsvModel>(Request.Body).ToArray();
+        //}
+        //catch (Exception exception)
+        //{
+        //    return Json(exception.Message);
+        //}
 
-        TreatmentStandaloneModel[] models = dataModels.Select(model => _converter.Convert(model)).ToArray();
+        //TreatmentStandaloneModel[] models = dataModels.Select(model => _converter.Convert(model)).ToArray();
 
-        if (syncIOFeature != null)
-        {
-            syncIOFeature.AllowSynchronousIO = false;
-        }
+        //if (syncIOFeature != null)
+        //{
+        //    syncIOFeature.AllowSynchronousIO = false;
+        //}
 
-        return Json(models);
+        //return Json(models);
+
+        return Json(Ok());
     }
 
     [HttpPost]
