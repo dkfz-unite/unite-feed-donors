@@ -90,7 +90,7 @@ public class DonorModelConverter
         target.Id = source.Id;
         target.MtaProtected = source.MtaProtected;
 
-        target.WorkPackages = source.WorkPackages?.Split(",");
+        target.Projects = source.WorkPackages?.Split(",");
         target.Studies = source.Studies?.Split(",");
 
         target.ClinicalData = new ClinicalDataModel();
