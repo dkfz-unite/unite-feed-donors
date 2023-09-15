@@ -1,4 +1,6 @@
-﻿namespace Unite.Donors.Feed.Web.Models.Donors;
+﻿using System.Text.Json.Serialization;
+
+namespace Unite.Donors.Feed.Web.Models.Donors;
 
 public class DonorModel
 {
@@ -14,7 +16,7 @@ public class DonorModel
 
     public ClinicalDataModel ClinicalData { get; set; }
     public TreatmentModel[] Treatments { get; set; }
-    public string[] WorkPackages { get; internal set; }
+    //public string[] WorkPackages { get; internal set; } // Its projects
 
     private static string[] Trim(string[] array)
     {
