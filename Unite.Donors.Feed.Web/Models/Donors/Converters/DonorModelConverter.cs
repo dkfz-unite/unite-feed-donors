@@ -31,15 +31,6 @@ public class DonorModelConverter
         return donorModel;
     }
 
-    public DonorModel Convert(DonorTsvModel source)
-    {
-        var donorModel = new DonorModel();
-
-        Map(source, donorModel);
-
-        return donorModel;
-    }
-
     private static void Map(DonorModel source, Data.Donors.Models.DonorModel target)
     {
         target.ReferenceId = source.Id;
@@ -83,40 +74,5 @@ public class DonorModelConverter
         return date != null
             ? DateOnly.FromDateTime(date.Value)
             : null;
-    }
-
-    private static void Map(DonorTsvModel source, DonorModel target)
-    {
-        target.Id = source.Id;
-        target.MtaProtected = source.MtaProtected;
-
-        target.Projects = source.WorkPackages?.Split(",");
-        target.Studies = source.Studies?.Split(",");
-
-        target.ClinicalData = new ClinicalDataModel();
-        target.ClinicalData.Gender = source.Gender;
-        target.ClinicalData.Age = source.Age;
-        target.ClinicalData.Diagnosis = source.Diagnosis;
-        target.ClinicalData.DiagnosisDate = source.DiagnosisDate;
-        target.ClinicalData.PrimarySite = source.PrimarySite;
-        target.ClinicalData.Localization = source.Localization;
-        target.ClinicalData.VitalStatus = source.VitalStatus;
-        target.ClinicalData.VitalStatusChangeDate = source.VitalStatusChangeDate;
-        target.ClinicalData.VitalStatusChangeDay = source.VitalStatusChangeDay;
-        target.ClinicalData.ProgressionStatus = source.ProgressionStatus;
-        target.ClinicalData.ProgressionStatusChangeDate = source.ProgressionStatusChangeDate;
-        target.ClinicalData.ProgressionStatusChangeDay = source.ProgressionStatusChangeDay;
-        target.ClinicalData.KpsBaseline = source.KpsBaseline;
-        target.ClinicalData.SteroidsBaseline = source.SteroidsBaseline;
-
-        var targetTreatment = new TreatmentModel();
-        targetTreatment.Therapy = source.Therapy;
-        targetTreatment.Details = source.Details;
-        targetTreatment.StartDate = source.StartDate;
-        targetTreatment.StartDay = source.StartDay;
-        targetTreatment.EndDate = source.EndDate;
-        targetTreatment.DurationDays = source.DurationDays;
-        targetTreatment.Results = source.Results;
-        target.Treatments = new List<TreatmentModel>() { targetTreatment }.ToArray();
     }
 }
