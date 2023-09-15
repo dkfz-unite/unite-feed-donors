@@ -1,28 +1,44 @@
-﻿
-using Unite.Donors.Feed.Web.Models.Donors;
+﻿using Unite.Donors.Feed.Web.Models.Donors;
 
 namespace Unite.Donors.Feed.Web.Models.Converters;
 
 public class TreatmentStandaloneModelConverter
 {
-    public TreatmentStandaloneModel Convert(TreatmentTsvModel source)
+    public Data.Donors.Models.DonorModel Convert(TreatmentStandaloneModel source)
     {
-        var donorModel = new TreatmentStandaloneModel();
+        var donorModel = new Data.Donors.Models.DonorModel();
 
         Map(source, donorModel);
 
         return donorModel;
     }
 
-    private static void Map(TreatmentTsvModel source, TreatmentStandaloneModel target)
+    private static void Map(TreatmentStandaloneModel source, Data.Donors.Models.DonorModel target)
     {
-        target.DonorId = source.DonorId;
+        target.ReferenceId = source.DonorId;
+
+        var treatmentModel = new Data.Donors.Models.TreatmentModel();
+
+        Map(source, treatmentModel);
+
+        target.Treatments = new Data.Donors.Models.TreatmentModel[] { treatmentModel };
+    }
+
+    private static void Map(TreatmentStandaloneModel source, Data.Donors.Models.TreatmentModel target)
+    {
         target.Therapy = source.Therapy;
         target.Details = source.Details;
-        target.StartDate = source.StartDate;
+        target.StartDate = FromDateTime(source.StartDate);
         target.StartDay = source.StartDay;
-        target.EndDate = source.EndDate;
+        target.EndDate = FromDateTime(source.EndDate);
         target.DurationDays = source.DurationDays;
         target.Results = source.Results;
+    }
+
+    private static DateOnly? FromDateTime(DateTime? date)
+    {
+        return date != null
+            ? DateOnly.FromDateTime(date.Value)
+            : null;
     }
 }
