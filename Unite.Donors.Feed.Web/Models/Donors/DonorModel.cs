@@ -9,14 +9,17 @@ public class DonorModel
     private string[] _projects;
     private string[] _studies;
 
+    [JsonPropertyName("id")]
     public string Id { get => _id?.Trim(); set => _id = value; }
+    [JsonPropertyName("mta")]
     public bool? MtaProtected { get => _mtaProtected; set => _mtaProtected = value; }
+    [JsonPropertyName("work_packages")]
     public string[] Projects { get => Trim(_projects); set => _projects = value; }
+    [JsonPropertyName("studies")]
     public string[] Studies { get => Trim(_studies); set => _studies = value; }
 
     public ClinicalDataModel ClinicalData { get; set; }
     public TreatmentModel[] Treatments { get; set; }
-    //public string[] WorkPackages { get; internal set; } // Its projects
 
     private static string[] Trim(string[] array)
     {
