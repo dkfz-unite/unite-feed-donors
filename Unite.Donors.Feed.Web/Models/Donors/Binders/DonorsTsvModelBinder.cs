@@ -18,7 +18,7 @@ public class DonorsTsvModelBinder : IModelBinder
             .Map(entity => entity.Id, "id")
             .Map(entity => entity.MtaProtected, "mta")
             .Map(entity => entity.Studies, "studies")
-            .Map(entity => entity.Projects, "work_packages")
+            .Map(entity => entity.Projects, "projects")
             .Map(entity => entity.ClinicalData.Gender, "gender")
             .Map(entity => entity.ClinicalData.Age, "age")
             .Map(entity => entity.ClinicalData.Diagnosis, "diagnosis")
