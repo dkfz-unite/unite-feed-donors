@@ -2,7 +2,7 @@
 
 ## General
 Donors data feed service provides the following functionality:
-- [Donors data feed web API](Docs/api-donors.md) - REST API for uploading clinical and treatment data to the portal (including input data validation).
+- [Donors data feed web API](Docs/api.md) - REST API for uploading clinical and treatment data to the portal (including input data validation).
 - Donors data indexing service - background service responsible for donor-centric data index creation.
 
 Donors data feed service is written in ASP.NET (.NET 5)
