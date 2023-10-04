@@ -20,7 +20,7 @@ public class ClinicalDataModel
     private int? _kpsBaseline;
     private bool? _steroidsBaseline;
 
-    [JsonPropertyName("Sex")]
+    [JsonPropertyName("sex")]
     public Gender? Gender { get => _gender; set => _gender = value; }
     [JsonPropertyName("age")]
     public int? Age { get => _age; set => _age = value; }
