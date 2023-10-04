@@ -7,7 +7,7 @@ Health check.
 `"2022-03-17T09:45:10.9359202Z"` - Current UTC date and time in JSON format, if service is up and running
 
 
-## POST: [api/donors/json](http://localhost:5100/api/donors/json) - [api/donors-feed/donors/json](https://localhost/api/donors-feed/donors/json)
+## POST: [api/donors](http://localhost:5100/api/donors) - [api/donors-feed/donors/json](https://localhost/api/donors-feed/donors)
 Submit donors data (including clinical and treatment data).
 
 Request implements **UPSERT** logic:
@@ -68,7 +68,7 @@ Fields description can be found [here](api-donors-models.md).
 - `403` - missing required permissions
 
 
-## POST: [api/donors/tsv](http://localhost:5100/api/donors/tsv) - [api/donors-feed/donors/json](https://localhost/api/donors-feed/donors/tsv)
+## POST: [api/donors/tsv](http://localhost:5100/api/donors/tsv) - [api/donors-feed/donors/tsv](https://localhost/api/donors-feed/donors/tsv)
 Submit donors data (including clinical and excluding treatment data).
 
 Request implements **UPSERT** logic:
@@ -93,7 +93,7 @@ Fields description can be found [here](api-donors-models.md).
 - `403` - missing required permissions
 
 
-## POST: [api/treatments/json](http://localhost:5100/api/donors/json) - [api/donors-feed/treatments/json](https://localhost/api/donors-feed/treatments/json)
+## POST: [api/treatments](http://localhost:5100/api/treatments) - [api/donors-feed/treatments](https://localhost/api/donors-feed/treatments)
 Submit treatment data (including a donor id for reference whom to add this to).
 
 Request implements **UPSERT** logic:
@@ -127,7 +127,7 @@ Fields description can be found [here](api-treatments-models.md).
 - `403` - missing required permissions
 
 
-## POST: [api/treatments/tsv](http://localhost:5100/api/donors/tsv) - [api/donors-feed/treatments/json](https://localhost/api/donors-feed/treatments/tsv)
+## POST: [api/treatments/tsv](http://localhost:5100/api/treatments/tsv) - [api/donors-feed/treatments/tsv](https://localhost/api/donors-feed/treatments/tsv)
 Submit treatment data (including a donor id for reference whom to add this to).
 
 Request implements **UPSERT** logic:
