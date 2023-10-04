@@ -81,7 +81,7 @@ Request implements **UPSERT** logic:
 ### Body - application/json
 ```tsv
 id	mta	projects	studies	sex	age	diagnosis	diagnosis_date	primary_site	localization	vital_status	vital_status_change_date	vital_status_change_day	progression_status	progression_status_change_date	progression_status_change_day	kps_baseline	steroids_baseline
-DO1	mta	WP1	ST1	sex	56	Glioblastoma	2020-01-01	Brain	Left	true	2021-01-01	365	false	2020-02-12	37	90	false
+DO1	true	WP1	ST1	sex	56	Glioblastoma	2020-01-01	Brain	Left	true	2021-01-01	365	false	2020-02-12	37	90	false
 
 ```
 Fields description can be found [here](api-donors-models.md).
