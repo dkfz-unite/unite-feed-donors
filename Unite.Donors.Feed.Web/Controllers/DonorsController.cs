@@ -33,9 +33,9 @@ public class DonorsController : Controller
     }
 
 
-    [HttpPost("json")]
-    [Consumes("application/json")]
-    public IActionResult PostJson([FromBody] DonorModel[] models)
+    [HttpPost("")]
+    [Consumes("application/json", new[] { "application/jsonc" })]
+    public IActionResult Post([FromBody] DonorModel[] models)
     {
         var dataModels = models.Select(model => _converter.Convert(model)).ToArray();
 
