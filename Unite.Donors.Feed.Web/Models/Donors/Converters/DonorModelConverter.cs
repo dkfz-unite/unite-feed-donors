@@ -1,6 +1,4 @@
-﻿using Unite.Donors.Feed.Web.Models.Donors;
-
-namespace Unite.Donors.Feed.Web.Models.Donors.Converters;
+﻿namespace Unite.Donors.Feed.Web.Models.Donors.Converters;
 
 public class DonorModelConverter
 {
@@ -32,7 +30,6 @@ public class DonorModelConverter
 
         return donorModel;
     }
-
 
     private static void Map(DonorModel source, Data.Donors.Models.DonorModel target)
     {

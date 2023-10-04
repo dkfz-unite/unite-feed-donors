@@ -3,150 +3,150 @@
 ## Donor
 Includes general data about the patient
 
-**`Id`*** - Donor pseudonymized identifier.
+**`id`*** - Donor pseudonymized identifier.
 - Type: _String_
 - Limitations: Maximum length 255
 - Example: `"DO1"`
 
-**`MtaProtected`** - Indicates whether donor data is MTA protected.
+**`mta`** - Indicates whether donor data is MTA protected.
 - Type: _Boolean_
 - Example: `true`
 
-**`Projects`** - Projects list, which own donor data.
+**`projects`** - Projects list, which own donor data.
 - Type: _Array_
 - Elemet type: _String_
 - Element limitations: Maximum length 100
 - Example: `["WP1", "WP2"]`
 
-**`Studies`** - Studies list, which include donor data.
+**`studies`** - Studies list, which include donor data.
 - Type: _Array_
 - Elemet type: _String_
 - Element limitations: Maximum length 100
 - Example: `["ST1", "ST2"]`
 
-**`ClinicalData`** - Donor clinical data.
-- Type: _Object([ClinicalData](https://github.com/dkfz-unite/unite-donors-feed/blob/main/Docs/api-donors-models.md#clinical-data))_
+**`clinical_data`** - Donor clinical data.
+- Type: _Object([clinical_data](https://github.com/dkfz-unite/unite-donors-feed/blob/main/Docs/api-donors-models.md#clinical-data))_
 - Limitations - If set, at least one field has to be set
 - Example: `{...}`
 
-**`Treatments`** - Donor treatments data.
+**`treatments`** - Donor treatments data.
 - Type: _Array_
-- Element type: _Object([Treatment](https://github.com/dkfz-unite/unite-donors-feed/blob/main/Docs/api-donors-models.md#treatment))_
+- Element type: _Object([treatment](https://github.com/dkfz-unite/unite-donors-feed/blob/main/Docs/api-donors-models.md#treatment))_
 - Example: `[{...}, {...}]`
 
 
 ## Clinical Data
 Includes patient clinical data.
 
-**`Sex`** - Donor sex.
+**`sex`** - Donor sex.
 - Type: _String_
 - Possible values: `"Female"`, `"Male"`, `"Other"`
-- Example: `"Male"`
+- Example: `"Other"`
 
-**`Age`** - Donor age at diagnosis.
+**`age`** - Donor age at diagnosis.
 - Type: _Number_
 - Limitations: Integer, greater or equal to 0
 - Example: `56`
 
-**`Diagnosis`** - Donor diagnosis.
+**`diagnosis`** - Donor diagnosis.
 - Type: _String_
 - Limitations: Maximum length 255
 - Example: `"Glioblastoma"`
 
-**`DiagnosisDate`** - Date, when diagnosis was stated.
+**`diagnosis_date`** - Date, when diagnosis was stated.
 - Note: Serves as anchor date for calculation of all other relative dates. It's hidden and protected. Without this date, no other relative dates will be calculated and shown.
 - Type: _String_
-- Format: "YYYY-MM-DDTHH:MM:SS"
-- Example: `"2020-01-01T00:00:00"`
+- Format: "YYYY-MM-DD"
+- Example: `"2020-01-01"`
 
-**`PrimarySite`** - Primary site of disease.
+**`primary_site`** - Primary site of disease.
 - Type: _String_
 - Limitations: Maximum length 100
 - Example: `"Brain"`
 
-**`Localization`** - Tumor localization relative to primary site.
+**`localization`** - Tumor localization relative to primary site.
 - Type: _String_
 - Limitations: Maximum length 100
 - Example: `"Left"`
 
-**`VitalStatus`** - Indicates whether patient is still alive.
+**`vital_status`** - Indicates whether patient is still alive.
 - Type: _Boolean_
 - Example: `true`
 
-**`VitalStatusChangeDate`** - Date, when vital status was last revised.
+**`vital_status_change_date`** - Date, when vital status was last revised.
 - Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
 - Type: _String_
-- Format: "YYYY-MM-DDTHH:MM:SS"
+- Format: "YYYY-MM-DD"
 - Limitations: Only either 'VitalStatusChangeDate' or 'VitalStatusChangeDay' can be set at once, not both
-- Example: `"2021-01-01T00:00:00"`
+- Example: `"2021-01-01"`
 
-**`VitalStatusChangeDay`** - Relative number of days since diagnosis statement, when vital status was last revised.
+**`vital_status_change_day`** - Relative number of days since diagnosis statement, when vital status was last revised.
 - Type: _Number_
 - Limitations: Integer, greater or equal to 0, only either 'VitalStatusChangeDate' or 'VitalStatusChangeDay' can be set at once, not both
 - Example: `367`
 
-**`ProgressionStatus`** - Indicates whether disease was progressing after treatment or not.
+**`progression_status`** - Indicates whether disease was progressing after treatment or not.
 - Type: _Boolean_
 - Example: `false`
 
-**`ProgressionStatusChangeDate`** - Date, when progression status was last revised.
+**`progression_status_change_date`** - Date, when progression status was last revised.
 - Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
 - Type: _String_
-- Format: "YYYY-MM-DDTHH:MM:SS"
+- Format: "YYYY-MM-DD"
 - Limitations: Only either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set at once, not both
-- Example: `"2020-02-12T00:00:00"`
+- Example: `"2020-02-12"`
 
-**`ProgressionStatusChangeDay`** - Relative number of days since treatment start, when progression status was last revised.
+**`progression_status_change_day`** - Relative number of days since treatment start, when progression status was last revised.
 - Type: _Number_
 - Limitations: Integer, greater or equal to 0, only either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set at once, not both
 - Example: `37`
 
-**`KpsBaseline`** - KPS baseline.
+**`kps_baseline`** - KPS baseline.
 - Type: _Number_
 - Limitations: Integer, greater or equal to 0, less or equal to 100
 - Example: `90`
 
-**`SteroidsBaseline`** - Steroids baseline.
+**`steroids_baseline`** - Steroids baseline.
 - Type: _Boolean_
 - Example: `false`
 
 ## Treatment
 Includes patient treatment data.
 
-**`Therapy`*** - Therapy name.
+**`therapy`*** - Therapy name.
 - Type: _String_
 - Limitations: Maximum length 100
 - Example: `"Radiotherapy"`
 
-**`Details`** - Patient specific therapy details.
+**`details`** - Patient specific therapy details.
 - Type: _String_
-- Example: `"Patient specific therapy details."`
+- Eample: `"Patient specific therapy details."`
 
-**`StartDate`** - Date, when treatment has started.
+**`start_date`** - Date, when treatment has started.
 - Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
 - Type: _String_
-- Format: "YYYY-MM-DDTHH:MM:SS"
+- Format: "YYYY-MM-DD"
 - Limitations: Only either 'StartDateDate' or 'StartDay' can be set at once, not both
-- Example: `"2020-01-07T00:00:00"`
+- Example: `"2020-01-07"`
 
-**`StartDay`** - Relative number of days since diagnosis statement, when treatment has started.
+**`start_day`** - Relative number of days since diagnosis statement, when treatment has started.
 - Type: _Number_
 - Limitations: Integer, greater or equal to 0, only either 'StartDate' or 'StartDay' can be set at once, not both
 - Example: `7`
 
-**`EndDate`** - Date, when treatment has ended.
+**`end_date`** - Date, when treatment has ended.
 - Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
 - Type: _String_
-- Format: "YYYY-MM-DDTHH:MM:SS"
+- Format: "YYYY-MM-DD"
 - Limitations: Only either 'EndDateDate' or 'DurationDays' can be set at once, not both
-- Example: `"2020-01-27T00:00:00"`
+- Example: `"2020-01-27"`
 
-**`DurationDays`** - Treatment duration in days.
+**`duration_days`** - Treatment duration in days.
 - Type: _Number_
 - Limitations: Integer, greater or equal to 0, only either 'EndDate' or 'DurationDays' can be set at once, not both
 - Example: `20`
 
-**`Results`** - Patient specific therapy results.
+**`results`** - Patient specific therapy results.
 - Type: _String_
 - Example: `"Patient specific therapy results."`
 
