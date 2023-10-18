@@ -78,7 +78,7 @@ Request implements **UPSERT** logic:
 ### Headers
 - `Authorization: Bearer [token]` - JWT token with `Data.Write` permission.
 
-### Body - application/json
+### Body - text/tab-separated-values
 ```tsv
 id	mta	projects	studies	sex	age	diagnosis	diagnosis_date	primary_site	localization	vital_status	vital_status_change_date	vital_status_change_day	progression_status	progression_status_change_date	progression_status_change_day	kps_baseline	steroids_baseline
 DO1	true	WP1	ST1	sex	56	Glioblastoma	2020-01-01	Brain	Left	true	2021-01-01	365	false	2020-02-12	37	90	false
@@ -137,7 +137,7 @@ Request implements **UPSERT** logic:
 ### Headers
 - `Authorization: Bearer [token]` - JWT token with `Data.Write` permission.
 
-### Body - application/json
+### Body - text/tab-separated-values
 ```tsv
 donor_id	therapy	details	start_date	start_day	end_date	duration_days	results
 DO1	Radiotherapy	Patient specific therapy details.	2020-01-07	7	2020-01-27	20	Patient specific therapy results.
