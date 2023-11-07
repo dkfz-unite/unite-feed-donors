@@ -34,7 +34,7 @@ public class TreatmentsController : Controller
     }
 
     [HttpPost("")]
-    [Consumes("application/json", new[] { "application/jsonc" })]
+    [Consumes("application/json")]
     public IActionResult Post([FromBody] TreatmentStandaloneModel[] models)
     {
         var dataModels = models.Select(model => _converter.Convert(model)).ToArray();
