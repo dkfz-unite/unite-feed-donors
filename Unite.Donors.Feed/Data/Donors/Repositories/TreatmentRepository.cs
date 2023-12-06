@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Unite.Data.Context;
 using Unite.Data.Entities.Donors.Clinical;
-using Unite.Data.Services;
 using Unite.Donors.Feed.Data.Donors.Models;
 
 namespace Unite.Donors.Feed.Data.Donors.Repositories;

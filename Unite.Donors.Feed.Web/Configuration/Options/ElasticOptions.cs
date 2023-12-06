@@ -1,4 +1,4 @@
-﻿using Unite.Indices.Services.Configuration.Options;
+﻿using Unite.Indices.Context.Configuration.Options;
 
 namespace Unite.Donors.Feed.Web.Configuration.Options;
 

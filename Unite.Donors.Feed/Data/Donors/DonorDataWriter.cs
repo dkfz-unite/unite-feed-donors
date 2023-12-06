@@ -1,6 +1,8 @@
-﻿using Unite.Data.Entities.Donors;
+﻿using Microsoft.EntityFrameworkCore;
+using Unite.Data.Context;
+using Unite.Data.Context.Services;
+using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Donors.Clinical;
-using Unite.Data.Services;
 using Unite.Donors.Feed.Data.Donors.Models;
 using Unite.Donors.Feed.Data.Donors.Models.Audit;
 using Unite.Donors.Feed.Data.Donors.Repositories;
@@ -16,8 +18,10 @@ public class DonorDataWriter : DataWriter<DonorModel, DonorsUploadAudit>
     private readonly StudyDonorRepository _studyDonorRepository;
 
 
-    public DonorDataWriter(DomainDbContext dbContext) : base(dbContext)
+    public DonorDataWriter(IDbContextFactory<DomainDbContext> dbContextFactory) : base(dbContextFactory)
     {
+        var dbContext = dbContextFactory.CreateDbContext();
+        
         _donorRepository = new DonorRepository(dbContext);
         _clinicalDataRepository = new ClinicalDataRepository(dbContext);
         _treatmentRepository = new TreatmentRepository(dbContext);
