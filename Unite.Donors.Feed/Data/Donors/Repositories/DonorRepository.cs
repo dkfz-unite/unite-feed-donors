@@ -1,5 +1,5 @@
-﻿using Unite.Data.Entities.Donors;
-using Unite.Data.Services;
+﻿using Unite.Data.Context;
+using Unite.Data.Entities.Donors;
 using Unite.Donors.Feed.Data.Donors.Models;
 
 namespace Unite.Donors.Feed.Data.Donors.Repositories;

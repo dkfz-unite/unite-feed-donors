@@ -1,23 +1,24 @@
 ﻿using System.Diagnostics;
+using Unite.Data.Context.Services.Tasks;
 using Unite.Data.Entities.Tasks.Enums;
-using Unite.Data.Services.Tasks;
+using Unite.Donors.Indices.Services;
+using Unite.Indices.Context;
 using Unite.Indices.Entities.Donors;
-using Unite.Indices.Services;
 
 namespace Unite.Donors.Feed.Web.Handlers;
 
 public class DonorsIndexingHandler
 {
     private readonly TasksProcessingService _taskProcessingService;
-    private readonly IIndexCreationService<DonorIndex> _indexCreationService;
-    private readonly IIndexingService<DonorIndex> _indexingService;
+    private readonly DonorIndexCreationService _indexCreationService;
+    private readonly IIndexService<DonorIndex> _indexingService;
     private readonly ILogger _logger;
 
 
     public DonorsIndexingHandler(
         TasksProcessingService taskProcessingService,
-        IIndexCreationService<DonorIndex> indexCreationService,
-        IIndexingService<DonorIndex> indexingService,
+        DonorIndexCreationService indexCreationService,
+        IIndexService<DonorIndex> indexingService,
         ILogger<DonorsIndexingHandler> logger)
     {
         _taskProcessingService = taskProcessingService;
@@ -29,7 +30,7 @@ public class DonorsIndexingHandler
 
     public void Prepare()
     {
-        _indexingService.UpdateMapping().GetAwaiter().GetResult();
+        _indexingService.UpdateIndex().GetAwaiter().GetResult();
     }
 
     public void Handle(int bucketSize)
@@ -51,7 +52,7 @@ public class DonorsIndexingHandler
                 return false;
             }
 
-            _logger.LogInformation($"Indexing {tasks.Length} donors");
+            _logger.LogInformation("Indexing {number} donors", tasks.Length);
 
             stopwatch.Restart();
 
@@ -67,11 +68,11 @@ public class DonorsIndexingHandler
 
             }).ToArray();
 
-            _indexingService.IndexMany(indices);
+            _indexingService.AddRange(indices);
 
             stopwatch.Stop();
 
-            _logger.LogInformation($"Indexing of {tasks.Length} donors completed in {Math.Round(stopwatch.Elapsed.TotalSeconds, 2)}s");
+            _logger.LogInformation("Indexing of {number} donors completed in {time}s", tasks.Length, Math.Round(stopwatch.Elapsed.TotalSeconds, 2));
 
             return true;
         });

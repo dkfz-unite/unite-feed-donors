@@ -1,14 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Services\" />
-    <Folder Include="Services\Mappers\" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Unite.Data" Version="5.1.0" />
-    <PackageReference Include="Unite.Indices" Version="5.1.0" />
+    <PackageReference Include="Unite.Mapping" Version="1.0.0" />
   </ItemGroup>
 </Project>

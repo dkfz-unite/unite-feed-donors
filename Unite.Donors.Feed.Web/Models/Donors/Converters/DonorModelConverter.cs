@@ -45,14 +45,14 @@ public class DonorModelConverter
         target.Gender = source.Gender;
         target.Age = source.Age;
         target.Diagnosis = source.Diagnosis;
-        target.DiagnosisDate = FromDateTime(source.DiagnosisDate);
+        target.DiagnosisDate = source.DiagnosisDate;
         target.PrimarySite = source.PrimarySite;
         target.Localization = source.Localization;
         target.VitalStatus = source.VitalStatus;
-        target.VitalStatusChangeDate = FromDateTime(source.VitalStatusChangeDate);
+        target.VitalStatusChangeDate = source.VitalStatusChangeDate;
         target.VitalStatusChangeDay = source.VitalStatusChangeDay;
         target.ProgressionStatus = source.ProgressionStatus;
-        target.ProgressionStatusChangeDate = FromDateTime(source.ProgressionStatusChangeDate);
+        target.ProgressionStatusChangeDate = source.ProgressionStatusChangeDate;
         target.ProgressionStatusChangeDay = source.ProgressionStatusChangeDay;
         target.KpsBaseline = source.KpsBaseline;
         target.SteroidsBaseline = source.SteroidsBaseline;
@@ -62,17 +62,10 @@ public class DonorModelConverter
     {
         target.Therapy = source.Therapy;
         target.Details = source.Details;
-        target.StartDate = FromDateTime(source.StartDate);
+        target.StartDate = source.StartDate;
         target.StartDay = source.StartDay;
-        target.EndDate = FromDateTime(source.EndDate);
+        target.EndDate = source.EndDate;
         target.DurationDays = source.DurationDays;
         target.Results = source.Results;
-    }
-
-    private static DateOnly? FromDateTime(DateTime? date)
-    {
-        return date != null
-            ? DateOnly.FromDateTime(date.Value)
-            : null;
     }
 }

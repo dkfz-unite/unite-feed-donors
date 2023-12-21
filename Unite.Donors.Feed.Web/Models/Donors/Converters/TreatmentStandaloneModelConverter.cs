@@ -28,17 +28,10 @@ public class TreatmentStandaloneModelConverter
     {
         target.Therapy = source.Therapy;
         target.Details = source.Details;
-        target.StartDate = FromDateTime(source.StartDate);
+        target.StartDate = source.StartDate;
         target.StartDay = source.StartDay;
-        target.EndDate = FromDateTime(source.EndDate);
+        target.EndDate = source.EndDate;
         target.DurationDays = source.DurationDays;
         target.Results = source.Results;
-    }
-
-    private static DateOnly? FromDateTime(DateTime? date)
-    {
-        return date != null
-            ? DateOnly.FromDateTime(date.Value)
-            : null;
     }
 }
