@@ -11,6 +11,7 @@ using Unite.Data.Entities.Images;
 using Unite.Data.Entities.Images.Enums;
 using Unite.Data.Entities.Specimens;
 using Unite.Data.Entities.Specimens.Enums;
+using Unite.Indices.Entities;
 using Unite.Indices.Entities.Donors;
 using Unite.Mapping;
 
