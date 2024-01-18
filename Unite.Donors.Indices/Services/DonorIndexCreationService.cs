@@ -150,12 +150,13 @@ public class DonorIndexCreationService
 
         return dbContext.Set<Specimen>()
             .AsNoTracking()
-            .IncludeTissue()
-            .IncludeCellLine()
+            .IncludeMaterial()
+            .IncludeLine()
             .IncludeOrganoid()
             .IncludeXenograft()
             .IncludeMolecularData()
-            .IncludeDrugScreeningData()
+            .IncludeInterventions()
+            .IncludeDrugScreenings()
             .Where(specimen => specimenIds.Contains(specimen.Id))
             .ToArray();
     }
@@ -213,39 +214,39 @@ public class DonorIndexCreationService
 
         index.Cts = false;
 
-        index.Tissues = dbContext.Set<Specimen>()
+        index.Materials = dbContext.Set<Specimen>()
             .AsNoTracking()
             .Where(specimen => specimen.DonorId == donorId)
             .Where(specimen => specimen.TypeId == SpecimenType.Xenograft)
             .Any();
 
-        index.TissuesMolecular = dbContext.Set<Specimen>()
+        index.MaterialsMolecular = dbContext.Set<Specimen>()
             .AsNoTracking()
             .IncludeMolecularData()
             .Where(specimen => specimen.DonorId == donorId)
-            .Where(specimen => specimen.TypeId == SpecimenType.Tissue)
+            .Where(specimen => specimen.TypeId == SpecimenType.Material)
             .Where(specimen => specimen.MolecularData != null)
             .Any();
 
-        index.Cells = dbContext.Set<Specimen>()
+        index.Lines = dbContext.Set<Specimen>()
             .AsNoTracking()
             .Where(specimen => specimen.DonorId == donorId)
-            .Where(specimen => specimen.TypeId == SpecimenType.CellLine)
+            .Where(specimen => specimen.TypeId == SpecimenType.Line)
             .Any();
 
-        index.CellsMolecular = dbContext.Set<Specimen>()
+        index.LinesMolecular = dbContext.Set<Specimen>()
             .AsNoTracking()
             .IncludeMolecularData()
             .Where(specimen => specimen.DonorId == donorId)
-            .Where(specimen => specimen.TypeId == SpecimenType.CellLine)
+            .Where(specimen => specimen.TypeId == SpecimenType.Line)
             .Where(specimen => specimen.MolecularData != null)
             .Any();
 
-        index.CellsDrugs = dbContext.Set<Specimen>()
+        index.LinesDrugs = dbContext.Set<Specimen>()
             .AsNoTracking()
-            .IncludeDrugScreeningData()
+            .IncludeDrugScreenings()
             .Where(specimen => specimen.DonorId == donorId)
-            .Where(specimen => specimen.TypeId == SpecimenType.CellLine)
+            .Where(specimen => specimen.TypeId == SpecimenType.Line)
             .Where(specimen => specimen.DrugScreenings != null && specimen.DrugScreenings.Any())
             .Any();
 
@@ -263,20 +264,20 @@ public class DonorIndexCreationService
             .Where(specimen => specimen.MolecularData != null)
             .Any();
 
-        index.CellsDrugs = dbContext.Set<Specimen>()
+        index.OrganoidsInterventions = dbContext.Set<Specimen>()
             .AsNoTracking()
-            .IncludeDrugScreeningData()
+            .IncludeInterventions()
+            .Where(specimen => specimen.DonorId == donorId)
+            .Where(specimen => specimen.TypeId == SpecimenType.Organoid)
+            .Where(specimen => specimen.Interventions != null && specimen.Interventions.Any())
+            .Any();
+
+        index.OrganoidsDrugs = dbContext.Set<Specimen>()
+            .AsNoTracking()
+            .IncludeDrugScreenings()
             .Where(specimen => specimen.DonorId == donorId)
             .Where(specimen => specimen.TypeId == SpecimenType.Organoid)
             .Where(specimen => specimen.DrugScreenings != null && specimen.DrugScreenings.Any())
-            .Any();
-
-        index.OrganoidsInterventions = dbContext.Set<Specimen>()
-            .AsNoTracking()
-            .Include(specimen => specimen.Organoid.Interventions)
-            .Where(specimen => specimen.DonorId == donorId)
-            .Where(specimen => specimen.TypeId == SpecimenType.Organoid)
-            .Where(specimen => specimen.Organoid.Interventions != null && specimen.Organoid.Interventions.Any())
             .Any();
 
         index.Xenografts = dbContext.Set<Specimen>()
@@ -293,20 +294,20 @@ public class DonorIndexCreationService
             .Where(specimen => specimen.MolecularData != null)
             .Any();
 
+        index.XenograftsInterventions = dbContext.Set<Specimen>()
+            .AsNoTracking()
+            .IncludeInterventions()
+            .Where(specimen => specimen.DonorId == donorId)
+            .Where(specimen => specimen.TypeId == SpecimenType.Xenograft)
+            .Where(specimen => specimen.Interventions != null && specimen.Interventions.Any())
+            .Any();
+
         index.XenograftsDrugs = dbContext.Set<Specimen>()
             .AsNoTracking()
-            .IncludeDrugScreeningData()
+            .IncludeDrugScreenings()
             .Where(specimen => specimen.DonorId == donorId)
             .Where(specimen => specimen.TypeId == SpecimenType.Xenograft)
             .Where(specimen => specimen.DrugScreenings != null && specimen.DrugScreenings.Any())
-            .Any();
-
-        index.XenograftsInterventions = dbContext.Set<Specimen>()
-            .AsNoTracking()
-            .Include(specimen => specimen.Xenograft.Interventions)
-            .Where(specimen => specimen.DonorId == donorId)
-            .Where(specimen => specimen.TypeId == SpecimenType.Xenograft)
-            .Where(specimen => specimen.Xenograft.Interventions != null && specimen.Xenograft.Interventions.Any())
             .Any();
         
         index.Ssms = CheckVariants<SSM.Variant, SSM.VariantEntry>(specimenIds);
