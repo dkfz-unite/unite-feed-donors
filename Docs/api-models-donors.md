@@ -14,13 +14,13 @@ Patient upload data model.
 - Type: _Array_
 - Elemet type: _String_
 - Element limitations: Maximum length 100
-- Example: `["WP1", "WP2"]`
+- Example: `["Project1", "Project2"]`
 
 **`studies`** - Studies list, which include donor data.
 - Type: _Array_
 - Elemet type: _String_
 - Element limitations: Maximum length 100
-- Example: `["ST1", "ST2"]`
+- Example: `["Study1", "Study1"]`
 
 **`clinical_data`** - Donor clinical data.
 - Type: _Object([clinical_data](./api-models-base-clinical.md))_
