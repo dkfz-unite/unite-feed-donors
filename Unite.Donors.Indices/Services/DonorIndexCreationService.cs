@@ -217,7 +217,7 @@ public class DonorIndexCreationService
         index.Cts = dbContext.Set<Image>()
             .AsNoTracking()
             .Where(image => image.DonorId == donorId)
-            .Where(image => image.TypeId == ImageType.MRI)
+            .Where(image => image.TypeId == ImageType.CT)
             .Any();
 
         index.Materials = dbContext.Set<Specimen>()
