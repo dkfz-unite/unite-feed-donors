@@ -4,7 +4,7 @@ Patient upload data model.
 **`id`*** - Donor pseudonymized identifier.
 - Type: _String_
 - Limitations: Maximum length 255
-- Example: `"DO1"`
+- Example: `"Donor1"`
 
 **`mta`** - Indicates whether donor data is MTA protected.
 - Type: _Boolean_
