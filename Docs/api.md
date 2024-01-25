@@ -39,51 +39,50 @@ Supported formats are:
 ##### json - application/json
 ```json
 [
-    {
-        "id": "DO1",
-        "mta": true,
-        "projects": [
-            "WP1"
-        ],
-        "studies": [
-            "ST1"
-        ],
-        "clinical_data": {
-            "sex": "Other",
-            "age": 56,
-            "diagnosis": "Glioblastoma",
-            "diagnosis_date": "2020-01-01",
-            "primary_site": "Brain",
-            "localization": "Left",
-            "vital_status": true,
-            "vital_status_change_date": "2021-01-01",
-            "vital_status_change_day": 365,
-            "progression_status": false,
-            "progression_status_change_date": "2020-02-12",
-            "progression_status_change_day": 37,
-            "kps_baseline": 90,
-            "steroids_baseline": false
-        },
-        "treatments": [
-            {
-                "therapy": "Radiotherapy",
-                "details": "Patient specific therapy details.",
-                "start_date": "2020-01-07",
-                "start_day": 7,
-                "end_date": "2020-01-27",
-                "duration_days": 20,
-                "results": "Patient specific therapy results."
-            }
-        ]
-    }
+  {
+    "id": "Donor1",
+    "mta": true,
+    "projects": [
+      "Project1"
+    ],
+    "studies": [
+      "Study1"
+    ],
+    "clinical_data": {
+      "sex": "Other",
+      "age": 56,
+      "diagnosis": "Glioblastoma",
+      "diagnosis_date": "2020-01-01",
+      "primary_site": "Brain",
+      "localization": "Left",
+      "vital_status": true,
+      "vital_status_change_date": "2021-01-01",
+      "vital_status_change_day": 365,
+      "progression_status": false,
+      "progression_status_change_date": "2020-02-12",
+      "progression_status_change_day": 37,
+      "kps_baseline": 90,
+      "steroids_baseline": false
+    },
+    "treatments": [
+      {
+        "therapy": "Surgery",
+        "details": "Patient specific therapy details.",
+        "start_date": "2020-01-07",
+        "start_day": 7,
+        "end_date": "2020-01-27",
+        "duration_days": 20,
+        "results": "Patient specific therapy results."
+      }
+    ]
+  }
 ]
 ```
 
 ##### tsv - text/tab-separated-values
 ```tsv
 id	mta	projects	studies	sex	age	diagnosis	diagnosis_date	primary_site	localization	vital_status	vital_status_change_date	vital_status_change_day	progression_status	progression_status_change_date	progression_status_change_day	kps_baseline	steroids_baseline
-DO1	true	WP1	ST1	sex	56	Glioblastoma	2020-01-01	Brain	Left	true	2021-01-01	365	false	2020-02-12	37	90	false
-
+Donor2	true	Project1	Study1	Male	56	Glioblastoma	2020-01-01	Brain	Left	true	2021-01-01	365	false	2020-02-12	37	90	false
 ```
 
 Fields description can be found [here](./api-models-donors.md).
@@ -106,27 +105,28 @@ Supported formats are:
 
 ##### json - application/json
 ```json
-{
-    "donor_id": "DO1",
+[
+  {
+    "donor_id": "Donor1",
     "data": [
-        {
-            "therapy": "Radiotherapy",
-            "details": "Patient specific therapy details.",
-            "start_date": "2020-01-07",
-            "start_day": 7,
-            "end_date": "2020-01-27",
-            "duration_days": 20,
-            "results": "Patient specific therapy results."
-        }
+      {
+        "therapy": "Radiotherapy",
+        "details": "Patient specific therapy details.",
+        "start_date": "2020-01-27",
+        "start_day": 27,
+        "end_date": "2020-03-27",
+        "duration_days": 90,
+        "results": "Patient specific therapy results."
+      }
     ]
-}
+  }
+]
 ```
 
 ##### tsv - text/tab-separated-values
 ```tsv
 donor_id	therapy	details	start_date	start_day	end_date	duration_days	results
-DO1	Radiotherapy	Patient specific therapy details.	2020-01-07	7	2020-01-27	20	Patient specific therapy results.
-
+Donor2	Surgery	Patient specific therapy details.	2020-01-07	7	2020-01-17	10	Patient specific therapy results.
 ```
 
 Fields description can be found [here](api-models-treatments.md).
