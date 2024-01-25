@@ -1,19 +1,17 @@
 ﻿using FluentValidation;
-using Unite.Donors.Feed.Data.Donors;
+using Unite.Data.Context.Configuration.Extensions;
+using Unite.Data.Context.Configuration.Options;
+using Unite.Data.Context.Services.Tasks;
+using Unite.Donors.Feed.Data;
 using Unite.Donors.Feed.Web.Configuration.Options;
 using Unite.Donors.Feed.Web.Handlers;
 using Unite.Donors.Feed.Web.HostedServices;
-using Unite.Donors.Indices.Services;
+using Unite.Donors.Feed.Web.Models;
+using Unite.Donors.Feed.Web.Models.Validators;
 using Unite.Donors.Feed.Web.Services;
-using Unite.Donors.Feed.Web.Models.Donors;
-using Unite.Donors.Feed.Web.Models.Donors.Validators;
-using Unite.Data.Context.Configuration.Options;
-using Unite.Indices.Context.Configuration.Options;
-using Unite.Data.Context.Configuration.Extensions;
-using Unite.Data.Context.Services.Tasks;
+using Unite.Donors.Indices.Services;
 using Unite.Indices.Context.Configuration.Extensions;
-using Unite.Indices.Context;
-using Unite.Indices.Entities.Donors;
+using Unite.Indices.Context.Configuration.Options;
 
 namespace Unite.Donors.Feed.Web.Configuration.Extensions;
 
@@ -29,7 +27,8 @@ public static class ConfigurationExtensions
         services.AddIndexServices();
         services.AddValidation();
 
-        services.AddTransient<DonorDataWriter>();
+        services.AddTransient<DonorsDataWriter>();
+        services.AddTransient<TreatmentsDataWriter>();
 
         services.AddTransient<DonorIndexingTasksService>();
         services.AddTransient<TasksProcessingService>();
@@ -38,7 +37,6 @@ public static class ConfigurationExtensions
         services.AddTransient<DonorsIndexingOptions>();
         services.AddTransient<DonorsIndexingHandler>();
         services.AddTransient<DonorIndexCreationService>();
-        services.AddTransient<IIndexService<DonorIndex>, DonorsIndexService>();
     }
 
 
@@ -53,7 +51,9 @@ public static class ConfigurationExtensions
 
     private static IServiceCollection AddValidation(this IServiceCollection services)
     {
-        services.AddTransient<IValidator<DonorModel[]>, DonorModelsValidator>();
+        services.AddTransient<IValidator<DonorDataModel[]>, DonorDataModelsValidator>();
+        services.AddTransient<IValidator<TreatmentsDataModel[]>, TreatmentsDataModelsValidator>();
+        services.AddTransient<IValidator<TreatmentDataFlatModel[]>, TreatmentDataFlatModelsValidator>();
 
         return services;
     }

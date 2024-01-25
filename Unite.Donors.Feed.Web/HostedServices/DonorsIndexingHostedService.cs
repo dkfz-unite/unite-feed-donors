@@ -1,5 +1,6 @@
 ﻿using Unite.Donors.Feed.Web.Configuration.Options;
 using Unite.Donors.Feed.Web.Handlers;
+using Unite.Essentials.Extensions;
 
 namespace Unite.Donors.Feed.Web.HostedServices;
 
@@ -34,7 +35,7 @@ public class DonorsIndexingHostedService : BackgroundService
         }
         catch (Exception exception)
         {
-            LogError(exception);
+            _logger.LogError("{error}", exception.GetShortMessage());
         }
 
         while (!cancellationToken.IsCancellationRequested)
@@ -45,22 +46,12 @@ public class DonorsIndexingHostedService : BackgroundService
             }
             catch (Exception exception)
             {
-                LogError(exception);
+                _logger.LogError("{error}", exception.GetShortMessage());
             }
             finally
             {
                 await Task.Delay(10000, cancellationToken);
             }
-        }
-    }
-
-    private void LogError(Exception exception)
-    {
-        _logger.LogError(exception.Message);
-
-        if (exception.InnerException != null)
-        {
-            _logger.LogError(exception.InnerException.Message);
         }
     }
 }

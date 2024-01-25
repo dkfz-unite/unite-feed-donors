@@ -196,6 +196,8 @@ public class DonorIndexCreationService
 
         var index = new DataIndex();
 
+        index.Donors = true;
+
         index.Clinical = dbContext.Set<ClinicalData>()
             .AsNoTracking()
             .Where(clinical => clinical.DonorId == donorId)
@@ -212,7 +214,11 @@ public class DonorIndexCreationService
             .Where(image => image.TypeId == ImageType.MRI)
             .Any();
 
-        index.Cts = false;
+        index.Cts = dbContext.Set<Image>()
+            .AsNoTracking()
+            .Where(image => image.DonorId == donorId)
+            .Where(image => image.TypeId == ImageType.MRI)
+            .Any();
 
         index.Materials = dbContext.Set<Specimen>()
             .AsNoTracking()

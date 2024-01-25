@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Unite.Donors.Feed.Data.Donors;
+using Unite.Donors.Feed.Data;
 using Unite.Donors.Feed.Web.Configuration.Constants;
-using Unite.Donors.Feed.Web.Models.Donors;
-using Unite.Donors.Feed.Web.Models.Donors.Converters;
+using Unite.Donors.Feed.Web.Models;
+using Unite.Donors.Feed.Web.Models.Binders;
+using Unite.Donors.Feed.Web.Models.Converters;
 using Unite.Donors.Feed.Web.Services;
-using Unite.Donors.Feed.Web.Models.Donors.Binders;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 
@@ -13,50 +13,48 @@ namespace Unite.Donors.Feed.Web.Controllers;
 [Authorize(Policy = Policies.Data.Writer)]
 public class DonorsController : Controller
 {
-    private readonly DonorDataWriter _dataWriter;
+    private readonly DonorsDataWriter _dataWriter;
     private readonly DonorIndexingTasksService _indexingTaskService;
     private readonly ILogger _logger;
 
-    private readonly DonorModelConverter _converter;
+    private readonly DonorDataModelsConverter _converter = new();
 
 
     public DonorsController(
-        DonorDataWriter dataWriter,
+        DonorsDataWriter dataWriter,
         DonorIndexingTasksService indexingTaskService,
         ILogger<DonorsController> logger)
     {
         _dataWriter = dataWriter;
         _indexingTaskService = indexingTaskService;
         _logger = logger;
-
-        _converter = new DonorModelConverter();
     }
 
 
     [HttpPost("")]
     [Consumes("application/json")]
-    public IActionResult Post([FromBody] DonorModel[] models)
+    public IActionResult Post([FromBody]DonorDataModel[] models)
     {
-        var dataModels = models.Select(model => _converter.Convert(model)).ToArray();
+        var dataModels = _converter.Convert(models);
 
-        _dataWriter.SaveData(dataModels, out var audit);
-
-        _logger.LogInformation(audit.ToString());
-
-        _indexingTaskService.PopulateTasks(audit.Donors);
-
-        return Ok();
+        return PostData(dataModels);
     }
 
     [HttpPost("tsv")]
     [Consumes("text/tab-separated-values")]
-    public IActionResult PostTsv([ModelBinder(typeof(DonorsTsvModelBinder))] DonorModel[] models)
+    public IActionResult PostTsv([ModelBinder(typeof(DonorsTsvModelBinder))]DonorDataModel[] models)
     {
-        var dataModels = models.Select(model => _converter.Convert(model)).ToArray();
+        var dataModels = _converter.Convert(models);
 
-        _dataWriter.SaveData(dataModels, out var audit);
+        return PostData(dataModels);
+    }
 
-        _logger.LogInformation(audit.ToString());
+
+    private IActionResult PostData(Data.Models.DonorModel[] models)
+    {
+        _dataWriter.SaveData(models, out var audit);
+
+        _logger.LogInformation("{audit}", audit.ToString());
 
         _indexingTaskService.PopulateTasks(audit.Donors);
 

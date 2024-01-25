@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Unite.Essentials.Extensions;
 
 namespace Unite.Donors.Feed.Web.Configuration.Filters;
 
@@ -16,7 +17,7 @@ public class DefaultExceptionFilter : IExceptionFilter
 
     public void OnException(ExceptionContext context)
     {
-        _logger.LogError(context.Exception, context.Exception.Message);
+        _logger.LogError("{error}", context.Exception.GetShortMessage());
 
         context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
     }
