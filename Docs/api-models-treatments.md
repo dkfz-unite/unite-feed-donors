@@ -4,7 +4,7 @@ Treatment upload data model.
 **`donor_id`*** - Donor pseudonymized identifier.
 - Type: _String_
 - Limitations: Maximum length 255
-- Example: `"DO1"`
+- Example: `"Donor1"`
 
 **`data`*** - Treatments data.
 - Type: _Array_
