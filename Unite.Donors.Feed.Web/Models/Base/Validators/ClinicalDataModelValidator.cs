@@ -29,22 +29,32 @@ public class ClinicalDataModelValidator : AbstractValidator<ClinicalDataModel>
         RuleFor(model => model.VitalStatusChangeDate)
             .Empty()
             .When(model => model.VitalStatusChangeDay.HasValue)
-            .WithMessage("Either 'VitalStatusChangeDate' or 'VitalStatusChangeDay' can be set, not both");
+            .WithMessage("Either exact 'date' or relative 'days' can be set, not both");
 
         RuleFor(model => model.VitalStatusChangeDay)
            .Empty()
            .When(model => model.VitalStatusChangeDate.HasValue)
-           .WithMessage("Either 'VitalStatusChangeDate' or 'VitalStatusChangeDay' can be set, not both");
+           .WithMessage("Either exact 'date' or relative 'days' can be set, not both");
+
+        RuleFor(model => model.VitalStatusChangeDay)
+            .GreaterThanOrEqualTo(1)
+            .When(model => model.VitalStatusChangeDay.HasValue)
+            .WithMessage("Should be greater than or equal to 1");
 
         RuleFor(model => model.ProgressionStatusChangeDate)
             .Empty()
             .When(model => model.ProgressionStatusChangeDay.HasValue)
-            .WithMessage("Either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set, not both");
+            .WithMessage("Either exact 'date' or relative 'days' can be set, not both");
 
         RuleFor(model => model.ProgressionStatusChangeDay)
             .Empty()
             .When(model => model.ProgressionStatusChangeDate.HasValue)
-            .WithMessage("Either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set, not both");
+            .WithMessage("Either exact 'date' or relative 'days' can be set, not both");
+
+        RuleFor(model => model.ProgressionStatusChangeDay)
+            .GreaterThanOrEqualTo(1)
+            .When(model => model.ProgressionStatusChangeDay.HasValue)
+            .WithMessage("Should be greater than or equal to 1");
 
         RuleFor(model => model.KpsBaseline)
             .InclusiveBetween(0, 100)

@@ -18,7 +18,7 @@ public class TreatmentModelValidator : AbstractValidator<TreatmentModel>
         RuleFor(model => model.StartDate)
             .Empty()
             .When(model => model.StartDay.HasValue)
-            .WithMessage("Either 'StartDate' or 'StartDay' can be set, not both");
+            .WithMessage("Either exact 'date' or relative 'days' can be set, not both");
 
         RuleFor(model => model.StartDate)
             .LessThanOrEqualTo(model => model.EndDate)
@@ -29,17 +29,22 @@ public class TreatmentModelValidator : AbstractValidator<TreatmentModel>
         RuleFor(model => model.StartDay)
             .Empty()
             .When(model => model.StartDate.HasValue)
-            .WithMessage("Either 'StartDate' or 'StartDay' can be set, not both");
+            .WithMessage("Either exact 'date' or relative 'days' can be set, not both");
 
         RuleFor(model => model.StartDay)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Should be greater than or equal to 0");
+            .GreaterThanOrEqualTo(1)
+            .WithMessage("Should be greater than or equal to 1");
 
 
         RuleFor(model => model.EndDate)
             .Empty()
             .When(model => model.DurationDays.HasValue)
-            .WithMessage("Either 'EndDate' or 'DurationDays' can be set, not both");
+            .WithMessage("Either exact 'date' or relative 'days' can be set, not both");
+
+        RuleFor(model => model.EndDate)
+            .Empty()
+            .When(model => model.StartDay.HasValue)
+            .WithMessage("'EndDate' can not be set when 'StartDay' is set");
 
         RuleFor(model => model.EndDate)
             .GreaterThanOrEqualTo(model => model.StartDate)
@@ -50,10 +55,10 @@ public class TreatmentModelValidator : AbstractValidator<TreatmentModel>
         RuleFor(model => model.DurationDays)
             .Empty()
             .When(model => model.EndDate.HasValue)
-            .WithMessage("Either 'EndDate' or 'DurationDays' can be set, not both");
+            .WithMessage("Either exact 'date' or relative 'days' can be set, not both");
 
         RuleFor(model => model.DurationDays)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Should be greater than or equal to 0");
+            .GreaterThanOrEqualTo(1)
+            .WithMessage("Should be greater than or equal to 1");
     }
 }

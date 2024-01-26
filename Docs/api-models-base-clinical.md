@@ -1,6 +1,9 @@
 # Clinical Data Model
 Includes patient clinical data.
 
+>[!NOTE]
+> All exact dates are hiddent and protected. Relative dates are shown instead, if calculation was possible.
+
 **`sex`** - Donor sex.
 - Type: _String_
 - Possible values: `"Female"`, `"Male"`, `"Other"`
@@ -17,7 +20,7 @@ Includes patient clinical data.
 - Example: `"Glioblastoma"`
 
 **`diagnosis_date`** - Date, when diagnosis was stated.
-- Note: Serves as anchor date for calculation of all other relative dates. It's hidden and protected. Without this date, no other relative dates will be calculated and shown.
+- Note: **Serves as anchor date for calculation of all other relative dates. Without this date, no other relative dates will be calculated and shown.**
 - Type: _String_
 - Format: "YYYY-MM-DD"
 - Example: `"2020-01-01"`
@@ -37,15 +40,14 @@ Includes patient clinical data.
 - Example: `true`
 
 **`vital_status_change_date`** - Date, when vital status was last revised.
-- Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
 - Type: _String_
 - Format: "YYYY-MM-DD"
-- Limitations: Only either 'VitalStatusChangeDate' or 'VitalStatusChangeDay' can be set at once, not both
+- Limitations: Only either 'vital_status_change_date' or 'vital_status_change_day' can be set at once, not both
 - Example: `"2021-01-01"`
 
 **`vital_status_change_day`** - Relative number of days since diagnosis statement, when vital status was last revised.
 - Type: _Number_
-- Limitations: Integer, greater or equal to 0, only either 'VitalStatusChangeDate' or 'VitalStatusChangeDay' can be set at once, not both
+- Limitations: Integer, greater or equal to 1, only either 'vital_status_change_date' or 'vital_status_change_day' can be set at once, not both
 - Example: `367`
 
 **`progression_status`** - Indicates whether disease was progressing after treatment or not.
@@ -53,15 +55,14 @@ Includes patient clinical data.
 - Example: `false`
 
 **`progression_status_change_date`** - Date, when progression status was last revised.
-- Note: It's hidden and protected. Relative date is shown instead, if calculation was possible.
 - Type: _String_
 - Format: "YYYY-MM-DD"
-- Limitations: Only either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set at once, not both
+- Limitations: Only either 'progression_status_change_date' or 'progression_status_change_day' can be set at once, not both
 - Example: `"2020-02-12"`
 
 **`progression_status_change_day`** - Relative number of days since treatment start, when progression status was last revised.
 - Type: _Number_
-- Limitations: Integer, greater or equal to 0, only either 'ProgressionStatusChangeDate' or 'ProgressionStatusChangeDay' can be set at once, not both
+- Limitations: Integer, greater or equal to 1, only either 'progression_status_change_date' or 'progression_status_change_day' can be set at once, not both
 - Example: `37`
 
 **`kps_baseline`** - KPS baseline.
