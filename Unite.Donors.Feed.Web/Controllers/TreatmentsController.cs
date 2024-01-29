@@ -68,7 +68,7 @@ public class TreatmentsController : Controller
         {
             _logger.LogWarning("{error}", exception.Message);
 
-            return BadRequest(exception.Message);
+            return NotFound(exception.Message);
         }
     }
 }
