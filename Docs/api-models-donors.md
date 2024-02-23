@@ -10,13 +10,13 @@ Patient upload data model.
 - Type: _Boolean_
 - Example: `true`
 
-**`projects`** - Projects list, which own donor data.
+**`projects`*** - Projects list, which own donor data.
 - Type: _Array_
 - Elemet type: _String_
 - Element limitations: Maximum length 100
 - Example: `["Project1", "Project2"]`
 
-**`studies`** - Studies list, which include donor data.
+**`studies`*** - Studies list, which include donor data.
 - Type: _Array_
 - Elemet type: _String_
 - Element limitations: Maximum length 100
