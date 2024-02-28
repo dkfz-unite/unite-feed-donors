@@ -17,7 +17,7 @@ Includes patient clinical data.
 **`diagnosis`*** - Donor diagnosis.
 - Type: _String_
 - Limitations: Maximum length 255
-- Example: `"Glioblastoma"`
+- Example: `"Diagnosis1"`
 
 **`diagnosis_date`** - Date, when diagnosis was stated.
 - Note: **Serves as anchor date for calculation of all other relative dates. Without this date, no other relative dates will be calculated and shown.**
