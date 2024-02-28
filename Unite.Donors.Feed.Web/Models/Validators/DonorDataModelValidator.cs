@@ -21,7 +21,7 @@ public class DonorDataModelValidator : AbstractValidator<DonorDataModel>
 
         RuleForEach(model => model.Projects)
             .NotEmpty()
-            .WithMessage("Should not be empty");
+            .WithMessage("Should not have empty values");
 
         RuleForEach(model => model.Projects)
             .MaximumLength(100)
@@ -29,7 +29,7 @@ public class DonorDataModelValidator : AbstractValidator<DonorDataModel>
 
         RuleForEach(model => model.Studies)
             .NotEmpty()
-            .WithMessage("Should not be empty");
+            .WithMessage("Should not have empty values");
 
         RuleForEach(model => model.Studies)
             .MaximumLength(100)
