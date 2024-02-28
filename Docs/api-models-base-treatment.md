@@ -7,7 +7,7 @@ Includes patient treatment data.
 **`therapy`*** - Therapy name.
 - Type: _String_
 - Limitations: Maximum length 100
-- Example: `"Radiotherapy"`
+- Example: `"Therapy1"`
 
 **`details`** - Patient specific therapy details.
 - Type: _String_
