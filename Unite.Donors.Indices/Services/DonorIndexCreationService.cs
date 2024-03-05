@@ -28,7 +28,6 @@ public class DonorIndexCreationService
     private readonly IDbContextFactory<DomainDbContext> _dbContextFactory;
     private readonly DonorsRepository _donorsRepository;
     private readonly SpecimensRepository _specimensRepository;
-    private readonly VariantsRepository _variantRepository;
 
 
     public DonorIndexCreationService(IDbContextFactory<DomainDbContext> dbContextFactory)
@@ -36,7 +35,6 @@ public class DonorIndexCreationService
         _dbContextFactory = dbContextFactory;
         _donorsRepository = new DonorsRepository(dbContextFactory);
         _specimensRepository = new SpecimensRepository(dbContextFactory);
-        _variantRepository = new VariantsRepository(dbContextFactory);
     }
 
 
@@ -246,6 +244,14 @@ public class DonorIndexCreationService
             .Where(specimen => specimen.DonorId == donorId)
             .Where(specimen => specimen.TypeId == SpecimenType.Line)
             .Where(specimen => specimen.MolecularData != null)
+            .Any();
+
+        index.LinesInterventions = dbContext.Set<Specimen>()
+            .AsNoTracking()
+            .IncludeInterventions()
+            .Where(specimen => specimen.DonorId == donorId)
+            .Where(specimen => specimen.TypeId == SpecimenType.Line)
+            .Where(specimen => specimen.Interventions != null && specimen.Interventions.Any())
             .Any();
 
         index.LinesDrugs = dbContext.Set<Specimen>()
