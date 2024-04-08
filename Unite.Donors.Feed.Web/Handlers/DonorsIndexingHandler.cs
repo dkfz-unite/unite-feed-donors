@@ -2,6 +2,7 @@
 using Unite.Data.Context.Services.Tasks;
 using Unite.Data.Entities.Tasks.Enums;
 using Unite.Donors.Indices.Services;
+using Unite.Essentials.Extensions;
 using Unite.Indices.Context;
 using Unite.Indices.Entities.Donors;
 
@@ -47,7 +48,7 @@ public class DonorsIndexingHandler
 
         _taskProcessingService.Process(IndexingTaskType.Donor, bucketSize, (tasks) =>
         {
-            if (_taskProcessingService.HasSubmissionTasks() || _taskProcessingService.HasAnnotationTasks())
+            if (_taskProcessingService.HasTasks(WorkerType.Submission) || _taskProcessingService.HasTasks(WorkerType.Annotation))
             {
                 return false;
             }
@@ -56,19 +57,23 @@ public class DonorsIndexingHandler
 
             stopwatch.Restart();
 
-            var grouped = tasks.DistinctBy(task => task.Target);
+            var indicesToRemove = new List<string>();
+            var indicesToCreate = new List<DonorIndex>();
 
-            var indices = grouped.Select(task =>
+            tasks.ForEach(task =>
             {
                 var id = int.Parse(task.Target);
 
                 var index = _indexCreationService.CreateIndex(id);
 
-                return index;
+                if (index == null)
+                    indicesToRemove.Add(id.ToString());
+                else
+                    indicesToCreate.Add(index);
+            });
 
-            }).ToArray();
-
-            _indexingService.AddRange(indices);
+            _indexingService.DeleteRange(indicesToRemove);
+            _indexingService.AddRange(indicesToCreate);
 
             stopwatch.Stop();
 

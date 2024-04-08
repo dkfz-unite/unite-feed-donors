@@ -6,6 +6,7 @@ using Unite.Donors.Feed.Web.Models;
 using Unite.Donors.Feed.Web.Models.Binders;
 using Unite.Donors.Feed.Web.Models.Converters;
 using Unite.Donors.Feed.Web.Services;
+using Unite.Donors.Indices.Services;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 
@@ -14,6 +15,8 @@ namespace Unite.Donors.Feed.Web.Controllers;
 public class DonorsController : Controller
 {
     private readonly DonorsDataWriter _dataWriter;
+    private readonly DonorsDataRemover _dataRemover;
+    private readonly DonorIndexRemovalService _indexRemover;
     private readonly DonorIndexingTasksService _indexingTaskService;
     private readonly ILogger _logger;
 
@@ -22,10 +25,14 @@ public class DonorsController : Controller
 
     public DonorsController(
         DonorsDataWriter dataWriter,
+        DonorsDataRemover dataRemover,
+        DonorIndexRemovalService indexRemover,
         DonorIndexingTasksService indexingTaskService,
         ILogger<DonorsController> logger)
     {
         _dataWriter = dataWriter;
+        _dataRemover = dataRemover;
+        _indexRemover = indexRemover;
         _indexingTaskService = indexingTaskService;
         _logger = logger;
     }
@@ -49,15 +56,45 @@ public class DonorsController : Controller
         return PostData(dataModels);
     }
 
+    [HttpDelete("{id}")]
+    public IActionResult Delete(int id)
+    {
+        return DeleteData(id);
+    }
+
 
     private IActionResult PostData(Data.Models.DonorModel[] models)
     {
         _dataWriter.SaveData(models, out var audit);
+        
+        _indexingTaskService.PopulateTasks(audit.Donors);
 
         _logger.LogInformation("{audit}", audit.ToString());
 
-        _indexingTaskService.PopulateTasks(audit.Donors);
-
         return Ok();
+    }
+
+    private IActionResult DeleteData(int id)
+    {
+        var donor = _dataRemover.Find(id);
+
+        if (donor != null)
+        {
+            _indexingTaskService.ChangeStatus(false);
+            _indexingTaskService.PopulateTasks([id]);
+            _indexRemover.DeleteIndex(id);
+            _dataRemover.SaveData(donor);
+            _indexingTaskService.ChangeStatus(true);
+
+            _logger.LogInformation("Donor '{id}' has been deleted", id);
+
+            return Ok();
+        }
+        else
+        {
+            _logger.LogWarning("Wrong attempt to remove donor '{id}'", id);
+
+            return NotFound();
+        }
     }
 }

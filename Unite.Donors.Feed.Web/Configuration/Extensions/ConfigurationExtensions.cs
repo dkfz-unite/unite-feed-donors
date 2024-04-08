@@ -24,10 +24,12 @@ public static class ConfigurationExtensions
         services.AddOptions();
         services.AddDatabase();
         services.AddDatabaseFactory(sqlOptions);
+        services.AddRepositories();
         services.AddIndexServices();
         services.AddValidation();
 
         services.AddTransient<DonorsDataWriter>();
+        services.AddTransient<DonorsDataRemover>();
         services.AddTransient<TreatmentsDataWriter>();
 
         services.AddTransient<DonorIndexingTasksService>();
@@ -37,6 +39,7 @@ public static class ConfigurationExtensions
         services.AddTransient<DonorsIndexingOptions>();
         services.AddTransient<DonorsIndexingHandler>();
         services.AddTransient<DonorIndexCreationService>();
+        services.AddTransient<DonorIndexRemovalService>();
     }
 
 
