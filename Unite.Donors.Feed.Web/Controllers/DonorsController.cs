@@ -92,7 +92,7 @@ public class DonorsController : Controller
         }
         else
         {
-            _logger.LogWarning("Wrong attempt to remove donor '{id}'", id);
+            _logger.LogWarning("Wrong attempt to delete donor '{id}'", id);
 
             return NotFound();
         }
