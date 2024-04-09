@@ -21,29 +21,42 @@ public class SpecimenRepository
     {
         var specimens = _dbContext.Set<Specimen>()
             .AsNoTracking()
-            .Include(entity => entity.Children)
             .Where(entity => entity.ParentId == null)
             .Where(entity => entity.DonorId == donorId)
             .ToArray();
 
         specimens.ForEach(Delete);
+
         _dbContext.SaveChanges();
     }
 
     
     private void Delete(Specimen specimen)
     {
-        specimen.Children.ForEach(Delete);
+        var children = LoadChildren(specimen);
+        
+        if (children.IsNotEmpty())
+        {
+            children.ForEach(Delete);
+        }
 
         var analyses = _dbContext.Set<AnalysedSample>()
             .AsNoTracking()
             .Include(entity => entity.Analysis)
             .Where(entity => entity.TargetSampleId == specimen.Id)
             .Select(entity => entity.Analysis)
-            .DistinctBy(entity => entity.Id)
+            .Distinct()
             .ToArray();
 
         _dbContext.Remove(specimen);
         _dbContext.RemoveRange(analyses);
+    }
+
+    private Specimen[] LoadChildren(Specimen specimen)
+    {
+        return _dbContext.Set<Specimen>()
+            .AsNoTracking()
+            .Where(entity => entity.ParentId == specimen.Id)
+            .ToArray();
     }
 }

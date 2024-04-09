@@ -28,7 +28,7 @@ public class ImageRepository
             .Include(entity => entity.Analysis)
             .Where(entity => entity.TargetSample.DonorId == donorId)
             .Select(entity => entity.Analysis)
-            .DistinctBy(entity => entity.Id)
+            .Distinct()
             .ToArray();
 
         _dbContext.RemoveRange(images);

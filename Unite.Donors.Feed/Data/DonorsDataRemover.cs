@@ -15,6 +15,9 @@ public class DonorsDataRemover : DataWriter<Donor>
 
     public DonorsDataRemover(IDbContextFactory<DomainDbContext> dbContextFactory) : base(dbContextFactory)
     {
+        var dbContext = dbContextFactory.CreateDbContext();
+
+        Initialize(dbContext);
     }
 
 
