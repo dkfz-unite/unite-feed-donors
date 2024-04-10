@@ -31,8 +31,8 @@ public class ImageRepository
             .Distinct()
             .ToArray();
 
-        _dbContext.RemoveRange(images);
         _dbContext.RemoveRange(analyses);
+        _dbContext.RemoveRange(images);
         _dbContext.SaveChanges();
     }
 }

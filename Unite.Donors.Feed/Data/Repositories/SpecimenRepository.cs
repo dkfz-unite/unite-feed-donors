@@ -43,13 +43,13 @@ public class SpecimenRepository
         var analyses = _dbContext.Set<AnalysedSample>()
             .AsNoTracking()
             .Include(entity => entity.Analysis)
-            .Where(entity => entity.TargetSampleId == specimen.Id)
+            .Where(entity => entity.TargetSampleId == specimen.Id || entity.MatchedSampleId == specimen.Id)
             .Select(entity => entity.Analysis)
             .Distinct()
             .ToArray();
 
-        _dbContext.Remove(specimen);
         _dbContext.RemoveRange(analyses);
+        _dbContext.Remove(specimen);
     }
 
     private Specimen[] LoadChildren(Specimen specimen)
