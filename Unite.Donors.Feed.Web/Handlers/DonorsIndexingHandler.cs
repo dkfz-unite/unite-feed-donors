@@ -29,24 +29,24 @@ public class DonorsIndexingHandler
     }
 
 
-    public void Prepare()
+    public async Task Prepare()
     {
-        _indexingService.UpdateIndex().GetAwaiter().GetResult();
+        await _indexingService.UpdateIndex();
     }
 
-    public void Handle(int bucketSize)
+    public async Task Handle(int bucketSize)
     {
-        ProcessDonorIndexingTasks(bucketSize);
+        await ProcessDonorIndexingTasks(bucketSize);
     }
 
 
-    private void ProcessDonorIndexingTasks(int bucketSize)
+    private async Task ProcessDonorIndexingTasks(int bucketSize)
     {
         var stopwatch = new Stopwatch();
 
         
 
-        _taskProcessingService.Process(IndexingTaskType.Donor, bucketSize, (tasks) =>
+        await _taskProcessingService.Process(IndexingTaskType.Donor, bucketSize, async (tasks) =>
         {
             if (_taskProcessingService.HasTasks(WorkerType.Submission) || _taskProcessingService.HasTasks(WorkerType.Annotation))
             {
@@ -57,7 +57,7 @@ public class DonorsIndexingHandler
 
             stopwatch.Restart();
 
-            var indicesToRemove = new List<string>();
+            var indicesToDelete = new List<string>();
             var indicesToCreate = new List<DonorIndex>();
 
             tasks.ForEach(task =>
@@ -67,13 +67,16 @@ public class DonorsIndexingHandler
                 var index = _indexCreationService.CreateIndex(id);
 
                 if (index == null)
-                    indicesToRemove.Add($"{id}");
+                    indicesToDelete.Add($"{id}");
                 else
                     indicesToCreate.Add(index);
             });
 
-            _indexingService.DeleteRange(indicesToRemove);
-            _indexingService.AddRange(indicesToCreate);
+            if (indicesToDelete.Any())
+                await _indexingService.DeleteRange(indicesToDelete);
+
+            if (indicesToCreate.Any())
+                await _indexingService.AddRange(indicesToCreate);
 
             stopwatch.Stop();
 

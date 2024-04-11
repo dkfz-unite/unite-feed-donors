@@ -4,6 +4,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Unite.Mapping" Version="1.8.1" />
+    <PackageReference Include="Unite.Mapping" Version="1.8.2" />
   </ItemGroup>
 </Project>
