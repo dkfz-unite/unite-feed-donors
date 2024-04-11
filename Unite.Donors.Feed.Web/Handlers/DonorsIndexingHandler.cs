@@ -44,16 +44,10 @@ public class DonorsIndexingHandler
     {
         var stopwatch = new Stopwatch();
 
-        
-
         await _taskProcessingService.Process(IndexingTaskType.Donor, bucketSize, async (tasks) =>
         {
             if (_taskProcessingService.HasTasks(WorkerType.Submission) || _taskProcessingService.HasTasks(WorkerType.Annotation))
-            {
                 return false;
-            }
-
-            _logger.LogInformation("Indexing {number} donors", tasks.Length);
 
             stopwatch.Restart();
 
@@ -80,7 +74,7 @@ public class DonorsIndexingHandler
 
             stopwatch.Stop();
 
-            _logger.LogInformation("Indexing of {number} donors completed in {time}s", tasks.Length, Math.Round(stopwatch.Elapsed.TotalSeconds, 2));
+            _logger.LogInformation("Indexed {number} donors in {time}s", tasks.Length, Math.Round(stopwatch.Elapsed.TotalSeconds, 2));
 
             return true;
         });
