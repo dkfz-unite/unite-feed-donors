@@ -15,6 +15,14 @@ internal class DonorRepository
     }
 
 
+    public Donor Find(int id)
+    {
+        return _dbContext.Set<Donor>()
+            .FirstOrDefault(entity =>
+                entity.Id == id
+            );
+    }
+
     public Donor Find(DonorModel model)
     {
         var entity = _dbContext.Set<Donor>()
@@ -45,6 +53,12 @@ internal class DonorRepository
         Map(model, entity);
 
         _dbContext.Update(entity);
+        _dbContext.SaveChanges();
+    }
+
+    public void Delete(Donor entity)
+    {
+        _dbContext.Remove(entity);
         _dbContext.SaveChanges();
     }
 

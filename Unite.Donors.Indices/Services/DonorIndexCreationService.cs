@@ -221,7 +221,7 @@ public class DonorIndexCreationService
         index.Materials = dbContext.Set<Specimen>()
             .AsNoTracking()
             .Where(specimen => specimen.DonorId == donorId)
-            .Where(specimen => specimen.TypeId == SpecimenType.Xenograft)
+            .Where(specimen => specimen.TypeId == SpecimenType.Material)
             .Any();
 
         index.MaterialsMolecular = dbContext.Set<Specimen>()

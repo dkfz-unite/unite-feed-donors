@@ -10,24 +10,26 @@ namespace Unite.Donors.Feed.Data;
 
 public class DonorsDataWriter : DataWriter<DonorModel, DonorsDataUploadAudit>
 {
-    private readonly DonorRepository _donorRepository;
-    private readonly ClinicalDataRepository _clinicalDataRepository;
-    private readonly TreatmentRepository _treatmentRepository;
-    private readonly ProjectDonorRepository _projectDonorRepository;
-    private readonly StudyDonorRepository _studyDonorRepository;
+    private DonorRepository _donorRepository;
+    private ClinicalDataRepository _clinicalDataRepository;
+    private TreatmentRepository _treatmentRepository;
+    private ProjectDonorRepository _projectDonorRepository;
+    private StudyDonorRepository _studyDonorRepository;
 
 
     public DonorsDataWriter(IDbContextFactory<DomainDbContext> dbContextFactory) : base(dbContextFactory)
     {
-        var dbContext = dbContextFactory.CreateDbContext();
-        
+    }
+
+
+    protected override void Initialize(DomainDbContext dbContext)
+    {
         _donorRepository = new DonorRepository(dbContext);
         _clinicalDataRepository = new ClinicalDataRepository(dbContext);
         _treatmentRepository = new TreatmentRepository(dbContext);
         _projectDonorRepository = new ProjectDonorRepository(dbContext);
         _studyDonorRepository = new StudyDonorRepository(dbContext);
     }
-
 
     protected override void ProcessModel(DonorModel model, ref DonorsDataUploadAudit audit)
     {
