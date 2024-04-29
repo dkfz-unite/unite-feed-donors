@@ -175,11 +175,9 @@ public class DonorIndexCreationService
     {
         var index = AnalysisIndexMapper.CreateFrom<AnalysisIndex>(analysis, diagnosisDate);
 
-        if (index != null)
+        if (index != null && analysis.Resources.IsNotEmpty())
         {
-            index.Resources = analysis.Resources?
-                .Select(resource => ResourceIndexMapper.CreateFrom<ResourceIndex>(resource))
-                .ToArrayOrNull();
+            index.Resources = analysis.Resources.Select(resource => ResourceIndexMapper.CreateFrom<ResourceIndex>(resource)).ToArray();
         }
 
         return index;
