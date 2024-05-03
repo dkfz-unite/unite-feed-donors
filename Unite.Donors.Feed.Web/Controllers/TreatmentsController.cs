@@ -34,7 +34,6 @@ public class TreatmentsController : Controller
     }
 
     [HttpPost("")]
-    [Consumes("application/json")]
     public IActionResult Post([FromBody] TreatmentsDataModel[] models)
     {
         var dataModels = _defaultModelsConverter.Convert(models);
@@ -43,7 +42,6 @@ public class TreatmentsController : Controller
     }
 
     [HttpPost("tsv")]
-    [Consumes("text/tab-separated-values")]
     public IActionResult PostTsv([ModelBinder(typeof(TreatmentsTsvModelBinder))]TreatmentDataFlatModel[] models)
     {
         var dataModels = _flatModelsConverter.Convert(models);
