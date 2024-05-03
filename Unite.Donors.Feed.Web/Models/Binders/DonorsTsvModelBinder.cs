@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Unite.Essentials.Tsv;
+using Unite.Essentials.Tsv.Converters;
 
 namespace Unite.Donors.Feed.Web.Models.Binders;
 
@@ -13,12 +14,13 @@ public class DonorsTsvModelBinder : IModelBinder
         using var reader = new StreamReader(bindingContext.HttpContext.Request.Body);
 
         var tsv = await reader.ReadToEndAsync();
+        var arrayConverter = new ArrayConverter();
 
         var map = new ClassMap<DonorDataModel>()
             .Map(entity => entity.Id, "id")
             .Map(entity => entity.MtaProtected, "mta")
-            .Map(entity => entity.Studies, "studies")
-            .Map(entity => entity.Projects, "projects")
+            .Map(entity => entity.Studies, "studies", arrayConverter)
+            .Map(entity => entity.Projects, "projects", arrayConverter)
             .Map(entity => entity.ClinicalData.Gender, "sex")
             .Map(entity => entity.ClinicalData.Age, "age")
             .Map(entity => entity.ClinicalData.Diagnosis, "diagnosis")
@@ -37,5 +39,21 @@ public class DonorsTsvModelBinder : IModelBinder
         var model = TsvReader.Read(tsv, map).ToArray();
 
         bindingContext.Result = ModelBindingResult.Success(model);
+    }
+}
+
+internal class ArrayConverter : IConverter<string[]>
+{
+    public object Convert(string value, string row)
+    {
+        if (string.IsNullOrEmpty(value))
+            return null;
+        
+        return value.Split(',', StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    public string Convert(object value, object row)
+    {
+        throw new NotImplementedException();
     }
 }

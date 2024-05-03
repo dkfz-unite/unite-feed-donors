@@ -39,7 +39,6 @@ public class DonorsController : Controller
 
 
     [HttpPost("")]
-    [Consumes("application/json")]
     public IActionResult Post([FromBody]DonorDataModel[] models)
     {
         var dataModels = _converter.Convert(models);
@@ -48,7 +47,6 @@ public class DonorsController : Controller
     }
 
     [HttpPost("tsv")]
-    [Consumes("text/tab-separated-values")]
     public IActionResult PostTsv([ModelBinder(typeof(DonorsTsvModelBinder))]DonorDataModel[] models)
     {
         var dataModels = _converter.Convert(models);
