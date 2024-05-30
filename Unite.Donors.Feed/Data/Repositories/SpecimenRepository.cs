@@ -40,10 +40,10 @@ public class SpecimenRepository
             children.ForEach(Delete);
         }
 
-        var analyses = _dbContext.Set<AnalysedSample>()
+        var analyses = _dbContext.Set<Sample>()
             .AsNoTracking()
             .Include(entity => entity.Analysis)
-            .Where(entity => entity.TargetSampleId == specimen.Id || entity.MatchedSampleId == specimen.Id)
+            .Where(entity => entity.SpecimenId == specimen.Id || entity.MatchedSample.SpecimenId == specimen.Id)
             .Select(entity => entity.Analysis)
             .Distinct()
             .ToArray();
