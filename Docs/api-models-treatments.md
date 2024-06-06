@@ -1,5 +1,5 @@
-# Treatmen Upload Data Model
-Treatment upload data model.
+# Treatmen Data Model
+Includes information about patient treatments.
 
 **`donor_id`*** - Donor pseudonymized identifier.
 - Type: _String_
@@ -9,6 +9,7 @@ Treatment upload data model.
 **`data`*** - Treatments data.
 - Type: _Array_
 - Element type: _Object([Treatment](api-models-base-treatment.md))_
+- Limitations: Should contain at least one element
 - Example: `[{...}, {...}]`
 
 ##

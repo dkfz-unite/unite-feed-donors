@@ -1,5 +1,7 @@
 # Clinical Data Model
-Includes patient clinical data.
+Includes information about patient clinical data.
+
+_At least one field has to be set_
 
 >[!NOTE]
 > All exact dates are hiddent and protected. Relative dates are shown instead, if calculation was possible.
@@ -14,7 +16,7 @@ Includes patient clinical data.
 - Limitations: Integer, greater or equal to 0
 - Example: `56`
 
-**`diagnosis`*** - Donor diagnosis.
+**`diagnosis`** - Donor diagnosis.
 - Type: _String_
 - Limitations: Maximum length 255
 - Example: `"Diagnosis1"`
@@ -73,6 +75,3 @@ Includes patient clinical data.
 **`steroids_baseline`** - Steroids baseline.
 - Type: _Boolean_
 - Example: `false`
-
-##
-**`*`** - Required fields

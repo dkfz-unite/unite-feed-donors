@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 using Unite.Donors.Feed.Web.Models.Base;
 
-namespace Unite.Donors.Feed.Web.Models;
+namespace Unite.Donors.Feed.Web.Models.Donors;
 
-public class DonorDataModel
+public class DonorModel
 {
     private string _id;
     private bool? _mtaProtected;

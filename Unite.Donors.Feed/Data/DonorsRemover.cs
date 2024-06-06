@@ -6,14 +6,14 @@ using Unite.Donors.Feed.Data.Repositories;
 
 namespace Unite.Donors.Feed.Data;
 
-public class DonorsDataRemover : DataWriter<Donor>
+public class DonorsRemover : DataWriter<Donor>
 {
     private DonorRepository _donorRepository;
     private ImageRepository _imageRepository;
     private SpecimenRepository _specimenRepository;
 
 
-    public DonorsDataRemover(IDbContextFactory<DomainDbContext> dbContextFactory) : base(dbContextFactory)
+    public DonorsRemover(IDbContextFactory<DomainDbContext> dbContextFactory) : base(dbContextFactory)
     {
         var dbContext = dbContextFactory.CreateDbContext();
 

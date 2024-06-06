@@ -2,14 +2,14 @@
 using Unite.Donors.Feed.Web.Models.Base;
 using Unite.Donors.Feed.Web.Models.Base.Validators;
 
-namespace Unite.Donors.Feed.Web.Models.Validators;
+namespace Unite.Donors.Feed.Web.Models.Donors.Validators;
 
-public class DonorDataModelValidator : AbstractValidator<DonorDataModel>
+public class DonorModelValidator : AbstractValidator<DonorModel>
 {
     private readonly IValidator<TreatmentModel> _treatmentModelValidator = new TreatmentModelValidator();
     private readonly IValidator<ClinicalDataModel> _clinicalDataModelValidator = new ClinicalDataModelValidator();
 
-    public DonorDataModelValidator()
+    public DonorModelValidator()
     {
         RuleFor(model => model.Id)
             .NotEmpty()
@@ -44,9 +44,9 @@ public class DonorDataModelValidator : AbstractValidator<DonorDataModel>
 }
 
 
-public class DonorDataModelsValidator : AbstractValidator<DonorDataModel[]>
+public class DonorDataModelsValidator : AbstractValidator<DonorModel[]>
 {
-    private readonly IValidator<DonorDataModel> _modelValidator = new DonorDataModelValidator();
+    private readonly IValidator<DonorModel> _modelValidator = new DonorModelValidator();
 
     public DonorDataModelsValidator()
     {

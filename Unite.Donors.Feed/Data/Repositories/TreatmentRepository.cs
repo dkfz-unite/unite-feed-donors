@@ -5,85 +5,89 @@ using Unite.Donors.Feed.Data.Models;
 
 namespace Unite.Donors.Feed.Data.Repositories;
 
-internal class TreatmentRepository
+public class TreatmentRepository
 {
     private readonly DomainDbContext _dbContext;
+    private readonly TherapyRepository _therapyRepository;
 
     public TreatmentRepository(DomainDbContext dbContext)
     {
         _dbContext = dbContext;
+        _therapyRepository = new TherapyRepository(dbContext);
     }
 
 
     public Treatment Find(int donorId, TreatmentModel model)
     {
-        var entity = _dbContext.Set<Treatment>()
-            .Include(entity => entity.Therapy)
-            .FirstOrDefault(entity =>
-                entity.DonorId == donorId &&
-                entity.Therapy.Name == model.Therapy &&
-                entity.StartDate == model.StartDate &&
-                entity.StartDay == model.StartDay
-            );
+        var therapy = _therapyRepository.Find(model.Therapy);
 
-        return entity;
+        if (therapy == null)
+            return null;
+
+        return _dbContext.Set<Treatment>().AsNoTracking().FirstOrDefault(entity =>
+            entity.DonorId == donorId &&
+            entity.TherapyId == therapy.Id &&
+            entity.StartDate == model.StartDate &&
+            entity.StartDay == model.StartDay
+        );
     }
 
-    public Treatment Create(int donorId, TreatmentModel model)
+    public IEnumerable<Treatment> CreateAll(int donorId, IEnumerable<TreatmentModel> models)
     {
-        var entity = new Treatment
+        var entities = new List<Treatment>();
+
+        foreach (var model in models)
         {
-            DonorId = donorId
-        };
+            var therapyId = _therapyRepository.FindOrCreate(model.Therapy).Id;
 
-        Map(model, ref entity);
+            var entity = new Treatment()
+            {
+                DonorId = donorId,
+                TherapyId = therapyId
+            };
 
-        _dbContext.Add(entity);
-        _dbContext.SaveChanges();
+            Map(model, ref entity);
 
-        return entity;
+            entities.Add(entity);
+        }
+
+        if (entities.Any())
+        {
+            _dbContext.AddRange(entities);
+            _dbContext.SaveChanges();
+        }
+
+        return entities;
     }
 
-    public void Update(Treatment entity, TreatmentModel model)
+    public IEnumerable<Treatment> RecreateAll(int donorId, IEnumerable<TreatmentModel> models)
     {
-        Map(model, ref entity);
+        RemoveAll(donorId);
 
-        _dbContext.Update(entity);
-        _dbContext.SaveChanges();
+        return CreateAll(donorId, models);
     }
 
 
-    private void Map(in TreatmentModel model, ref Treatment entity)
+    private void RemoveAll(int donorId)
     {
-        entity.Therapy = GetTherapy(model.Therapy);
+        var entities = _dbContext.Set<Treatment>()
+            .Where(entity => entity.DonorId == donorId)
+            .ToList();
+
+        if (entities.Any())
+        {
+            _dbContext.RemoveRange(entities);
+            _dbContext.SaveChanges();
+        }
+    }
+    
+    private static void Map(in TreatmentModel model, ref Treatment entity)
+    {
         entity.Details = model.Details;
         entity.StartDate = model.StartDate;
         entity.StartDay = model.StartDay;
         entity.EndDate = model.EndDate;
         entity.DurationDays = model.DurationDays;
         entity.Results = model.Results;
-    }
-
-    private Therapy GetTherapy(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return null;
-        }
-
-        var entity = _dbContext.Set<Therapy>()
-            .FirstOrDefault(entity =>
-                entity.Name == name
-            );
-
-        if (entity == null)
-        {
-            entity = new Therapy { Name = name };
-
-            _dbContext.Add(entity);
-            _dbContext.SaveChanges();
-        }
-
-        return entity;
     }
 }

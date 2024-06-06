@@ -3,62 +3,45 @@ using Microsoft.AspNetCore.Mvc;
 using Unite.Donors.Feed.Data;
 using Unite.Donors.Feed.Data.Exceptions;
 using Unite.Donors.Feed.Web.Configuration.Constants;
-using Unite.Donors.Feed.Web.Models;
-using Unite.Donors.Feed.Web.Models.Binders;
-using Unite.Donors.Feed.Web.Models.Converters;
+using Unite.Donors.Feed.Web.Models.Donors;
+using Unite.Donors.Feed.Web.Models.Donors.Binders;
+using Unite.Donors.Feed.Web.Models.Donors.Converters;
 using Unite.Donors.Feed.Web.Services;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/donors/treatments")]
 [Authorize(Policy = Policies.Data.Writer)]
 public class TreatmentsController : Controller
 {
-    private readonly TreatmentsDataWriter _dataWriter;
-    private readonly DonorIndexingTasksService _indexingTaskService;
+    private readonly TreatmentsWriter _dataWriter;
+    private readonly DonorIndexingTasksService _tasksService;
     private readonly ILogger _logger;
 
-    private readonly TreatmentsDataModelsConverter _defaultModelsConverter = new();
-    private readonly TreatmentDataFlatModelsConverter _flatModelsConverter = new();
+    private readonly TreatmentsModelConverter _converter = new();
 
 
     public TreatmentsController(
-        TreatmentsDataWriter dataWriter,
-        DonorIndexingTasksService indexingTaskService,
+        TreatmentsWriter dataWriter,
+        DonorIndexingTasksService tasksService,
         ILogger<TreatmentsController> logger
         )
     {
         _dataWriter = dataWriter;
-        _indexingTaskService = indexingTaskService;
+        _tasksService = tasksService;
         _logger = logger;
     }
 
     [HttpPost("")]
-    public IActionResult Post([FromBody] TreatmentsDataModel[] models)
-    {
-        var dataModels = _defaultModelsConverter.Convert(models);
-
-        return PostData(dataModels);
-    }
-
-    [HttpPost("tsv")]
-    public IActionResult PostTsv([ModelBinder(typeof(TreatmentsTsvModelBinder))]TreatmentDataFlatModel[] models)
-    {
-        var dataModels = _flatModelsConverter.Convert(models);
-
-        return PostData(dataModels);
-    }
-
-
-    private IActionResult PostData(Data.Models.DonorModel[] models)
+    public IActionResult Post([FromBody]TreatmentsModel[] models)
     {
         try
         {
-            _dataWriter.SaveData(models, out var audit);
+            var data = models.Select(_converter.Convert).ToArray();
 
+            _dataWriter.SaveData(data, out var audit);
+            _tasksService.PopulateTasks(audit.Donors);
             _logger.LogInformation("{audit}", audit.ToString());
-
-            _indexingTaskService.PopulateTasks(audit.Donors);
 
             return Ok();
         }
@@ -68,5 +51,11 @@ public class TreatmentsController : Controller
 
             return NotFound(exception.Message);
         }
+    }
+
+    [HttpPost("tsv")]
+    public IActionResult PostTsv([ModelBinder(typeof(TreatmentsTsvModelsBinder))]TreatmentsModel[] models)
+    {
+        return Post(models);
     }
 }

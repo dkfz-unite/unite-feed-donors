@@ -1,4 +1,5 @@
-﻿using Unite.Data.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using Unite.Data.Context;
 using Unite.Data.Entities.Donors;
 
 namespace Unite.Donors.Feed.Data.Repositories;
@@ -6,115 +7,73 @@ namespace Unite.Donors.Feed.Data.Repositories;
 internal class StudyDonorRepository
 {
     private readonly DomainDbContext _dbContext;
+    private readonly StudyRepository _studyRepository;
 
 
     public StudyDonorRepository(DomainDbContext dbContext)
     {
         _dbContext = dbContext;
+        _studyRepository = new StudyRepository(dbContext);
     }
 
-    public StudyDonor FindOrCreate(int donorId, string studyName)
+
+    public StudyDonor Find(int donorId, string name)
     {
-        return Find(donorId, studyName) ?? Create(donorId, studyName);
+        var study = _studyRepository.Find(name);
+
+        if (study == null)
+            return null;
+
+        return _dbContext.Set<StudyDonor>().AsNoTracking().FirstOrDefault(entity =>
+            entity.DonorId == donorId &&
+            entity.StudyId == study.Id
+        );
     }
 
-    public StudyDonor Find(int donorId, string studyName)
+    public IEnumerable<StudyDonor> CreateAll(int donorId, IEnumerable<string> names)
     {
-        var entity = _dbContext.Set<StudyDonor>()
-            .FirstOrDefault(entity =>
-                entity.DonorId == donorId &&
-                entity.Study.Name == studyName
-            );
+        var entities = new List<StudyDonor>();
 
-        return entity;
-    }
-
-    public StudyDonor Create(int donorId, string studyName)
-    {
-        var entity = new StudyDonor
+        foreach (var name in names)
         {
-            DonorId = donorId,
-            Study = GetStudy(studyName)
-        };
+            var studyId = _studyRepository.FindOrCreate(name).Id;
 
-        _dbContext.Add(entity);
-        _dbContext.SaveChanges();
-
-        return entity;
-    }
-
-    public IEnumerable<StudyDonor> CreateOrUpdate(int donorId, IEnumerable<string> studyNames)
-    {
-        RemoveRedundant(donorId, studyNames);
-
-        var created = CreateMissing(donorId, studyNames);
-
-        return created;
-    }
-
-    public IEnumerable<StudyDonor> CreateMissing(int donorId, IEnumerable<string> studyNames)
-    {
-        var entitiesToAdd = new List<StudyDonor>();
-
-        foreach (var studyName in studyNames)
-        {
-            var entity = Find(donorId, studyName);
-
-            if (entity == null)
+            var entity = new StudyDonor()
             {
-                entity = new StudyDonor
-                {
-                    DonorId = donorId,
-                    Study = GetStudy(studyName)
-                };
+                DonorId = donorId,
+                StudyId = studyId
+            };
 
-                entitiesToAdd.Add(entity);
-            }
+            entities.Add(entity);
         }
 
-        if (entitiesToAdd.Any())
+        if (entities.Any())
         {
-            _dbContext.AddRange(entitiesToAdd);
+            _dbContext.AddRange(entities);
             _dbContext.SaveChanges();
         }
 
-        return entitiesToAdd;
+        return entities;
     }
 
-    public void RemoveRedundant(int donorId, IEnumerable<string> studyNames)
+    public IEnumerable<StudyDonor> RecreateAll(int donorId, IEnumerable<string> names)
     {
-        var entitiesToRemove = _dbContext.Set<StudyDonor>()
-            .Where(entity => entity.DonorId == donorId && !studyNames.Contains(entity.Study.Name))
+        RemoveAll(donorId);
+
+        return CreateAll(donorId, names);
+    }
+
+
+    private void RemoveAll(int donorId)
+    {
+        var entities = _dbContext.Set<StudyDonor>()
+            .Where(entity => entity.DonorId == donorId)
             .ToArray();
 
-        if (entitiesToRemove.Any())
+        if (entities.Any())
         {
-            _dbContext.RemoveRange(entitiesToRemove);
+            _dbContext.RemoveRange(entities);
             _dbContext.SaveChanges();
         }
-    }
-
-
-    private Study GetStudy(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return null;
-        }
-
-        var entity = _dbContext.Set<Study>()
-            .FirstOrDefault(study =>
-                study.Name == name
-            );
-
-        if (entity == null)
-        {
-            entity = new Study { Name = name };
-
-            _dbContext.Add(entity);
-            _dbContext.SaveChanges();
-        }
-
-        return entity;
     }
 }

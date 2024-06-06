@@ -54,13 +54,9 @@ public class DonorIndexCreationService
         var donor = LoadDonor(donorId);
 
         if (donor == null)
-        {
             return null;
-        }
 
-        var index = CreateDonorIndex(donor);
-
-        return index;
+        return CreateDonorIndex(donor);
     }
 
     private DonorIndex CreateDonorIndex(Donor donor)
@@ -101,9 +97,7 @@ public class DonorIndexCreationService
     {
         var images = LoadImages(donorId);
 
-        var indices = images.Select(image => CreateImageIndex(image, diagnosisDate));
-
-        return indices.Any() ? indices.ToArray() : null;
+        return images.Select(image => CreateImageIndex(image, diagnosisDate)).ToArrayOrNull();
     }
 
     private static ImageIndex CreateImageIndex(Image image, DateOnly? diagnosisDate)
@@ -129,9 +123,7 @@ public class DonorIndexCreationService
     {
         var specimens = LoadSpecimens(donorId);
 
-        var indices = specimens.Select(specimen => CreateSpecimenIndex(specimen, diagnosisDate));
-
-        return indices.Any() ? indices.ToArray() : null;
+        return specimens.Select(specimen => CreateSpecimenIndex(specimen, diagnosisDate)).ToArrayOrNull();
     }
 
     private SpecimenIndex CreateSpecimenIndex(Specimen specimen, DateOnly? diagnosisDate)
@@ -167,19 +159,14 @@ public class DonorIndexCreationService
     {
         var samples = LoadSamples(specimenId);
 
-        var indices = samples.Select(sample => CreateSampleIndex(sample, diagnosisDate));
-
-        return indices.Any() ? indices.ToArray() : null;
+        return samples.Select(sample => CreateSampleIndex(sample, diagnosisDate)).ToArrayOrNull();
     }
 
     private static SampleIndex CreateSampleIndex(Sample sample, DateOnly? diagnosisDate)
     {
         var index = SampleIndexMapper.CreateFrom<SampleIndex>(sample, diagnosisDate);
 
-        if (index != null && sample.Resources.IsNotEmpty())
-        {
-            index.Resources = sample.Resources?.Select(resource => ResourceIndexMapper.CreateFrom<ResourceIndex>(resource)).ToArray();
-        }
+        index.Resources = sample.Resources?.Select(resource => ResourceIndexMapper.CreateFrom<ResourceIndex>(resource)).ToArrayOrNull();
 
         return index;
     }
