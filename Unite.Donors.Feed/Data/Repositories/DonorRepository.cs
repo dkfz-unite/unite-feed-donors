@@ -68,7 +68,7 @@ internal class DonorRepository
     {
         target.MtaProtected = source.MtaProtected;
 
-        if (target.ClinicalData != null)
+        if (source.ClinicalData != null)
         {
             if (target.ClinicalData == null)
                 target.ClinicalData = new ClinicalData();
