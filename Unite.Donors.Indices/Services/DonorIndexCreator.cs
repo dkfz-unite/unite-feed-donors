@@ -176,10 +176,18 @@ public class DonorIndexCreator
     {
         using var dbContext = _dbContextFactory.CreateDbContext();
 
+        var hasSsms = CheckVariants<SSM.Variant, SSM.VariantEntry>([specimenId]);
+        var hasCnvs = CheckVariants<CNV.Variant, CNV.VariantEntry>([specimenId]);
+        var hasSvs = CheckVariants<SV.Variant, SV.VariantEntry>([specimenId]);
+        var hasGeneExp = CheckGeneExp([specimenId]);
+
+        if (!hasSsms && !hasCnvs && !hasSvs && !hasGeneExp)
+            return [];
+
         return dbContext.Set<Sample>()
             .AsNoTracking()
             .Include(sample => sample.Analysis)
-            .Include(sample => sample.Resources)
+            .Include(sample => sample.Resources) 
             .Where(sample => sample.SpecimenId == specimenId)
             .ToArray();
     }
