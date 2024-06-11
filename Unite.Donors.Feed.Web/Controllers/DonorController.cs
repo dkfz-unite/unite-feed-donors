@@ -12,14 +12,14 @@ namespace Unite.Donors.Feed.Web.Controllers;
 public class DonorController : Controller
 {
     private readonly DonorsRemover _dataRemover;
-    private readonly DonorIndexRemovalService _indexRemover;
+    private readonly DonorIndexRemover _indexRemover;
     private readonly DonorIndexingTasksService _tasksService;
     private readonly ILogger _logger;
 
 
     public DonorController(
         DonorsRemover dataRemover,
-        DonorIndexRemovalService indexRemover,
+        DonorIndexRemover indexRemover,
         DonorIndexingTasksService tasksService,
         ILogger<DonorController> logger)
     {

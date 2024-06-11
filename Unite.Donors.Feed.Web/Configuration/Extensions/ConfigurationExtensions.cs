@@ -39,8 +39,8 @@ public static class ConfigurationExtensions
         services.AddHostedService<DonorsIndexingWorker>();
         services.AddTransient<DonorsIndexingOptions>();
         services.AddTransient<DonorsIndexingHandler>();
-        services.AddTransient<DonorIndexCreationService>();
-        services.AddTransient<DonorIndexRemovalService>();
+        services.AddTransient<DonorIndexCreator>();
+        services.AddTransient<DonorIndexRemover>();
     }
 
 

@@ -24,7 +24,7 @@ using SV = Unite.Data.Entities.Genome.Analysis.Dna.Sv;
 
 namespace Unite.Donors.Indices.Services;
 
-public class DonorIndexCreationService
+public class DonorIndexCreator
 {
     private record GenomicStats(int NumberOfGenes, int NumberOfSsms, int NumberOfCnvs, int NumberOfSvs);
 
@@ -33,7 +33,7 @@ public class DonorIndexCreationService
     private readonly SpecimensRepository _specimensRepository;
 
 
-    public DonorIndexCreationService(IDbContextFactory<DomainDbContext> dbContextFactory)
+    public DonorIndexCreator(IDbContextFactory<DomainDbContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
         _donorsRepository = new DonorsRepository(dbContextFactory);
