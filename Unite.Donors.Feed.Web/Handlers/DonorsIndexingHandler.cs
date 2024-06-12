@@ -11,19 +11,19 @@ namespace Unite.Donors.Feed.Web.Handlers;
 public class DonorsIndexingHandler
 {
     private readonly TasksProcessingService _taskProcessingService;
-    private readonly DonorIndexCreationService _indexCreationService;
+    private readonly DonorIndexCreator _indexCreator;
     private readonly IIndexService<DonorIndex> _indexingService;
     private readonly ILogger _logger;
 
 
     public DonorsIndexingHandler(
         TasksProcessingService taskProcessingService,
-        DonorIndexCreationService indexCreationService,
+        DonorIndexCreator indexCreator,
         IIndexService<DonorIndex> indexingService,
         ILogger<DonorsIndexingHandler> logger)
     {
         _taskProcessingService = taskProcessingService;
-        _indexCreationService = indexCreationService;
+        _indexCreator = indexCreator;
         _indexingService = indexingService;
         _logger = logger;
     }
@@ -58,7 +58,7 @@ public class DonorsIndexingHandler
             {
                 var id = int.Parse(task.Target);
 
-                var index = _indexCreationService.CreateIndex(id);
+                var index = _indexCreator.CreateIndex(id);
 
                 if (index == null)
                     indicesToDelete.Add($"{id}");

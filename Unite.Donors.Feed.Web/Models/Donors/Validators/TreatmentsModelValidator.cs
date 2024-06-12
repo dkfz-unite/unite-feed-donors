@@ -1,14 +1,14 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Unite.Donors.Feed.Web.Models.Base;
 using Unite.Donors.Feed.Web.Models.Base.Validators;
 
-namespace Unite.Donors.Feed.Web.Models.Validators;
+namespace Unite.Donors.Feed.Web.Models.Donors.Validators;
 
-public class TreatmentDataFlatModelValidator : AbstractValidator<TreatmentDataFlatModel>
+public class TreatmentsModelValidator : AbstractValidator<TreatmentsModel>
 {
     private readonly IValidator<TreatmentModel> _treatmentModelValidator = new TreatmentModelValidator();
     
-    public TreatmentDataFlatModelValidator()
+    public TreatmentsModelValidator()
     {
         RuleFor(model => model.DonorId)
             .NotEmpty()
@@ -18,16 +18,20 @@ public class TreatmentDataFlatModelValidator : AbstractValidator<TreatmentDataFl
             .MaximumLength(255)
             .WithMessage("Maximum length is 255");
 
-        RuleFor(model => model)
+        RuleFor(model => model.Entries)
+            .NotEmpty()
+            .WithMessage("Should not be empty");
+
+        RuleForEach(model => model.Entries)
             .SetValidator(_treatmentModelValidator);
     }
 }
 
-public class TreatmentDataFlatModelsValidator : AbstractValidator<TreatmentDataFlatModel[]>
+public class TreatmentsDataModelsValidator : AbstractValidator<TreatmentsModel[]>
 {
-    private readonly IValidator<TreatmentDataFlatModel> _modelValidator = new TreatmentDataFlatModelValidator();
-
-    public TreatmentDataFlatModelsValidator()
+    private readonly IValidator<TreatmentsModel> _modelValidator = new TreatmentsModelValidator();
+    
+    public TreatmentsDataModelsValidator()
     {
         RuleFor(models => models)
             .Must(models => models.Any())

@@ -1,4 +1,5 @@
-﻿using Unite.Data.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using Unite.Data.Context;
 using Unite.Data.Entities.Donors;
 
 namespace Unite.Donors.Feed.Data.Repositories;
@@ -6,109 +7,73 @@ namespace Unite.Donors.Feed.Data.Repositories;
 internal class ProjectDonorRepository
 {
     private readonly DomainDbContext _dbContext;
+    private readonly ProjectRepository _projectRepository;
 
 
     public ProjectDonorRepository(DomainDbContext dbContext)
     {
         _dbContext = dbContext;
-    }
-
-    public ProjectDonor FindOrCreate(int donorId, string projectName)
-    {
-        return Find(donorId, projectName) ?? Create(donorId, projectName);
-    }
-
-    public ProjectDonor Find(int donorId, string projectName)
-    {
-        var entity = _dbContext.Set<ProjectDonor>()
-            .FirstOrDefault(entity =>
-                entity.DonorId == donorId &&
-                entity.Project.Name == projectName
-            );
-
-        return entity;
-    }
-
-    public ProjectDonor Create(int donorId, string projectName)
-    {
-        var entity = new ProjectDonor
-        {
-            DonorId = donorId,
-            Project = GetProject(projectName)
-        };
-
-        _dbContext.Add(entity);
-        _dbContext.SaveChanges();
-
-        return entity;
-    }
-
-    public IEnumerable<ProjectDonor> CreateOrUpdate(int donorId, IEnumerable<string> projectNames)
-    {
-        RemoveRedundant(donorId, projectNames);
-
-        var created = CreateMissing(donorId, projectNames);
-
-        return created;
-    }
-
-    public IEnumerable<ProjectDonor> CreateMissing(int donorId, IEnumerable<string> projectNames)
-    {
-        var entitiesToAdd = new List<ProjectDonor>();
-
-        foreach (var projectName in projectNames)
-        {
-            var entity = Find(donorId, projectName);
-
-            if (entity == null)
-            {
-                entity = new ProjectDonor
-                {
-                    DonorId = donorId,
-                    Project = GetProject(projectName)
-                };
-
-                entitiesToAdd.Add(entity);
-            }
-        }
-
-        if (entitiesToAdd.Any())
-        {
-            _dbContext.AddRange(entitiesToAdd);
-            _dbContext.SaveChanges();
-        }
-
-        return entitiesToAdd;
-    }
-
-    public void RemoveRedundant(int donorId, IEnumerable<string> projectNames)
-    {
-        var entitiesToRemove = _dbContext.Set<ProjectDonor>()
-            .Where(entity => entity.DonorId == donorId && !projectNames.Contains(entity.Project.Name))
-            .ToArray();
-
-        if (entitiesToRemove.Any())
-        {
-            _dbContext.RemoveRange(entitiesToRemove);
-            _dbContext.SaveChanges();
-        }
+        _projectRepository = new ProjectRepository(dbContext);
     }
 
 
-    private Project GetProject(string name)
+    public ProjectDonor Find(int donorId, string name)
     {
-        var project = _dbContext.Set<Project>().FirstOrDefault(project =>
-            project.Name == name
-        );
+        var project = _projectRepository.Find(name);
 
         if (project == null)
-        {
-            project = new Project { Name = name };
+            return null;
 
-            _dbContext.Add(project);
+        return _dbContext.Set<ProjectDonor>().AsNoTracking().FirstOrDefault(entity =>
+            entity.DonorId == donorId &&
+            entity.ProjectId == project.Id
+        );
+    }
+
+    public IEnumerable<ProjectDonor> CreateAll(int donorId, IEnumerable<string> names)
+    {
+        var entities = new List<ProjectDonor>();
+
+        foreach (var name in names)
+        {
+            var projectId = _projectRepository.FindOrCreate(name).Id;
+
+            var entity = new ProjectDonor()
+            {
+                DonorId = donorId,
+                ProjectId = projectId
+            };
+
+            entities.Add(entity);
+        }
+
+        if (entities.Any())
+        {
+            _dbContext.AddRange(entities);
             _dbContext.SaveChanges();
         }
 
-        return project;
+        return entities;
+    }
+
+    public IEnumerable<ProjectDonor> RecreateAll(int donorId, IEnumerable<string> names)
+    {
+        RemoveAll(donorId);
+
+        return CreateAll(donorId, names);
+    }
+
+
+    private void RemoveAll(int donorId)
+    {
+        var entities = _dbContext.Set<ProjectDonor>()
+            .Where(entity => entity.DonorId == donorId)
+            .ToArray();
+
+        if (entities.Any())
+        {
+            _dbContext.RemoveRange(entities);
+            _dbContext.SaveChanges();
+        }
     }
 }

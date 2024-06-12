@@ -1,5 +1,5 @@
 # Treatment Model
-Includes patient treatment data.
+Includes information about patient treatment.
 
 >[!NOTE]
 > All exact dates are hiddent and protected. Relative dates are shown instead, if calculation was possible.

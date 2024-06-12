@@ -7,7 +7,7 @@ using SpecimenIndex = Unite.Indices.Entities.Specimens.SpecimenIndex;
 
 namespace Unite.Donors.Indices.Services;
 
-public class DonorIndexRemovalService
+public class DonorIndexRemover
 {
     private readonly DonorsRepository _donorsRepository;
     private readonly IIndexService<DonorIndex> _donorsIndexService;
@@ -15,7 +15,7 @@ public class DonorIndexRemovalService
     private readonly IIndexService<SpecimenIndex> _specimensIndexService;
     
 
-    public DonorIndexRemovalService(
+    public DonorIndexRemover(
         DonorsRepository donorsRepository,
         IIndexService<DonorIndex> donorsIndexService,
         IIndexService<ImageIndex> imagesIndexService,

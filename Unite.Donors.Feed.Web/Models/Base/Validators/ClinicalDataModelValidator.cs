@@ -7,10 +7,6 @@ public class ClinicalDataModelValidator : AbstractValidator<ClinicalDataModel>
     public ClinicalDataModelValidator()
     {
         RuleFor(model => model.Diagnosis)
-            .NotEmpty()
-            .WithMessage("Should not be empty");
-
-        RuleFor(model => model.Diagnosis)
             .MaximumLength(255)
             .WithMessage("Maximum length is 255");
 

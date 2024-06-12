@@ -2,21 +2,20 @@
 using Unite.Essentials.Tsv;
 using Unite.Essentials.Tsv.Converters;
 
-namespace Unite.Donors.Feed.Web.Models.Binders;
+namespace Unite.Donors.Feed.Web.Models.Donors.Binders;
 
-public class DonorsTsvModelBinder : IModelBinder
+public class DonorTsvModelsBinder : IModelBinder
 {
     public async Task BindModelAsync(ModelBindingContext bindingContext)
     {
-        if (bindingContext == null)
-            throw new ArgumentNullException(nameof(bindingContext));
+        ArgumentNullException.ThrowIfNull(bindingContext);
 
         using var reader = new StreamReader(bindingContext.HttpContext.Request.Body);
 
         var tsv = await reader.ReadToEndAsync();
         var arrayConverter = new ArrayConverter();
 
-        var map = new ClassMap<DonorDataModel>()
+        var map = new ClassMap<DonorModel>()
             .Map(entity => entity.Id, "id")
             .Map(entity => entity.MtaProtected, "mta")
             .Map(entity => entity.Studies, "studies", arrayConverter)

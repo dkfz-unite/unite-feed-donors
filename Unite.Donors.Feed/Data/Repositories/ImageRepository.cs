@@ -23,10 +23,10 @@ public class ImageRepository
             .Where(entity => entity.DonorId == donorId)
             .ToArray();
 
-        var analyses = _dbContext.Set<AnalysedSample>()
+        var analyses = _dbContext.Set<Sample>()
             .AsNoTracking()
             .Include(entity => entity.Analysis)
-            .Where(entity => entity.TargetSample.DonorId == donorId)
+            .Where(entity => entity.Specimen.DonorId == donorId)
             .Select(entity => entity.Analysis)
             .Distinct()
             .ToArray();
