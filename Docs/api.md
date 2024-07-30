@@ -14,8 +14,8 @@ All data submision request implement **UPSERT** logic:
 
 ## Overview
 - get:[api](#get-api) - health check.
-- post:[api/donors/{type?}](#post-apidonorstype) - submit all patients data in given type.
-- post:[api/donors/treatments/{type?}](#post-apidonorstreatmentstype) - submit patients treatments data in given type.
+- post:[api/entries/{type?}](#post-apientriestype) - submit patients and their clinical data in given type.
+- post:[api/treatments/{type?}](#post-apitreatmentstype) - submit patients treatments data in given type.
 
 > [!Note]
 > **Json** is default data type for all requests and will be used if no data type is specified.
@@ -28,7 +28,7 @@ Health check.
 `"2022-03-17T09:45:10.9359202Z"` - Current UTC date and time in JSON format, if service is up and running
 
 
-## POST: [api/donors/{type?}](http://localhost:5100/api/donors)
+## POST: [api/entries/{type?}](http://localhost:5100/api/entries)
 Submit patients data (including clinical and treatments data).
 
 ### Body
@@ -103,7 +103,7 @@ Fields description can be found [here](./api-models-donors.md).
 
 
 
-## POST: [api/donors/treatments/{type?}](http://localhost:5100/api/donors/treatments)
+## POST: [api/treatments/{type?}](http://localhost:5100/api/treatments)
 Submit patients treatment data. Patients should exist in the system.
 
 ### Body
