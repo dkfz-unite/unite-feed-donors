@@ -16,6 +16,7 @@ All data submision request implement **UPSERT** logic:
 - get:[api](#get-api) - health check.
 - post:[api/entries/{type?}](#post-apientriestype) - submit patients and their clinical data in given type.
 - post:[api/treatments/{type?}](#post-apitreatmentstype) - submit patients treatments data in given type.
+- delete:[api/entry/{id}](#delete-apientryid) - delete donor data.
 
 > [!Note]
 > **Json** is default data type for all requests and will be used if no data type is specified.
@@ -102,7 +103,6 @@ Fields description can be found [here](./api-models-donors.md).
 - `403` - missing required permissions
 
 
-
 ## POST: [api/treatments/{type?}](http://localhost:5100/api/treatments)
 Submit patients treatment data. Patients should exist in the system.
 
@@ -171,3 +171,16 @@ Fields description can be found [here](api-models-treatments.md).
 - `400` - request data didn't pass validation
 - `401` - missing JWT token
 - `403` - missing required permissions
+
+
+## DELETE: [api/entry/{id}](http://localhost:5100/api/entry/1)
+Delete donor data.
+
+### Parameters
+- `id` - ID of the donor to delete.
+
+### Responses
+- `200` - request was processed successfully
+- `401` - missing JWT token
+- `403` - missing required permissions
+- `404` - image with given ID was not found
