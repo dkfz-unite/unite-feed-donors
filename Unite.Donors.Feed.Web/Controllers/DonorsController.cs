@@ -9,7 +9,7 @@ using Unite.Donors.Feed.Web.Services;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 
-[Route("api/donors")]
+[Route("api/entries")]
 [Authorize(Policy = Policies.Data.Writer)]
 public class DonorsController : Controller
 {
