@@ -6,7 +6,6 @@ using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Entities.Genome.Analysis;
 using Unite.Data.Entities.Genome.Analysis.Dna;
-using Unite.Data.Entities.Genome.Analysis.Enums;
 using Unite.Data.Entities.Genome.Analysis.Rna;
 using Unite.Data.Entities.Images;
 using Unite.Data.Entities.Images.Enums;
@@ -377,8 +376,8 @@ public class DonorIndexCreator
     {
         using var dbContext = _dbContextFactory.CreateDbContext();
 
-        return dbContext.Set<Sample>()
+        return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(sample => specimenIds.Contains(sample.SpecimenId) && sample.Analysis.TypeId == AnalysisType.RNASeqSc);
+            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == "rnasc-exp");
     }
 }
