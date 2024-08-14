@@ -15,7 +15,7 @@ RUN dotnet restore "Unite.Donors.Indices/Unite.Donors.Indices.csproj"
 RUN dotnet restore "Unite.Donors.Feed/Unite.Donors.Feed.csproj"
 RUN dotnet restore "Unite.Donors.Feed.Web/Unite.Donors.Feed.Web.csproj"
 
-FROM restore as build
+FROM restore AS build
 COPY . .
 WORKDIR "/src/Unite.Donors.Feed.Web"
 RUN dotnet build --no-restore "Unite.Donors.Feed.Web.csproj" -c Release

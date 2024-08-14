@@ -6,7 +6,6 @@ using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Entities.Genome.Analysis;
 using Unite.Data.Entities.Genome.Analysis.Dna;
-using Unite.Data.Entities.Genome.Analysis.Enums;
 using Unite.Data.Entities.Genome.Analysis.Rna;
 using Unite.Data.Entities.Images;
 using Unite.Data.Entities.Images.Enums;
@@ -163,11 +162,27 @@ public class DonorIndexCreator
         return samples.Select(sample => CreateSampleIndex(sample, diagnosisDate)).ToArrayOrNull();
     }
 
-    private static SampleIndex CreateSampleIndex(Sample sample, DateOnly? diagnosisDate)
+    private SampleIndex CreateSampleIndex(Sample sample, DateOnly? diagnosisDate)
     {
         var index = SampleIndexMapper.CreateFrom<SampleIndex>(sample, diagnosisDate);
 
-        index.Resources = sample.Resources?.Select(resource => ResourceIndexMapper.CreateFrom<ResourceIndex>(resource)).ToArray();
+        var ssm = CheckVariants<SSM.Variant, SSM.VariantEntry>([sample.SpecimenId]);
+        var cnv = CheckVariants<CNV.Variant, CNV.VariantEntry>([sample.SpecimenId]);
+        var sv = CheckVariants<SV.Variant, SV.VariantEntry>([sample.SpecimenId]);
+        var exp = CheckGeneExp([sample.SpecimenId]);
+
+        if (ssm || cnv || sv || exp)
+        {
+            index.Data = new Unite.Indices.Entities.Basic.Analysis.SampleDataIndex
+            {
+                Ssm = ssm,
+                Cnv = cnv,
+                Sv = sv,
+                Exp = exp
+            };
+        }
+
+        index.Resources = sample.Resources?.Select(resource => ResourceIndexMapper.CreateFrom<Unite.Indices.Entities.Basic.Analysis.ResourceIndex>(resource)).ToArray();
 
         return index;
     }
@@ -176,13 +191,13 @@ public class DonorIndexCreator
     {
         using var dbContext = _dbContextFactory.CreateDbContext();
 
-        var hasSsms = CheckVariants<SSM.Variant, SSM.VariantEntry>([specimenId]);
-        var hasCnvs = CheckVariants<CNV.Variant, CNV.VariantEntry>([specimenId]);
-        var hasSvs = CheckVariants<SV.Variant, SV.VariantEntry>([specimenId]);
-        var hasGeneExp = CheckGeneExp([specimenId]);
+        // var hasSsms = CheckVariants<SSM.Variant, SSM.VariantEntry>([specimenId]);
+        // var hasCnvs = CheckVariants<CNV.Variant, CNV.VariantEntry>([specimenId]);
+        // var hasSvs = CheckVariants<SV.Variant, SV.VariantEntry>([specimenId]);
+        // var hasGeneExp = CheckGeneExp([specimenId]);
 
-        if (!hasSsms && !hasCnvs && !hasSvs && !hasGeneExp)
-            return [];
+        // if (!hasSsms && !hasCnvs && !hasSvs && !hasGeneExp)
+        //     return [];
 
         return dbContext.Set<Sample>()
             .AsNoTracking()
@@ -361,8 +376,8 @@ public class DonorIndexCreator
     {
         using var dbContext = _dbContextFactory.CreateDbContext();
 
-        return dbContext.Set<Sample>()
+        return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(sample => specimenIds.Contains(sample.SpecimenId) && sample.Analysis.TypeId == AnalysisType.RNASeqSc);
+            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == "rnasc-exp");
     }
 }
