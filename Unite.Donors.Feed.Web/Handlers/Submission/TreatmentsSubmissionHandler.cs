@@ -10,28 +10,29 @@ namespace Unite.Donors.Feed.Web.Handlers.Submission;
 public class TreatmentsSubmissionHandler
 {
     private readonly TreatmentsWriter _dataWriter;
-     private readonly DonorIndexingTasksService _indexingTaskService;
-    private readonly DonorSubmissionService _submissionService;
-    private readonly TasksProcessingService _taskProcessingService;
+    private readonly DonorIndexingTasksService _tasksService;
+    private readonly DonorsSubmissionService _submissionService;
+    private readonly TasksProcessingService _tasksProcessingService;
+
     private readonly Models.Donors.Converters.TreatmentsModelConverter _modelConverter;
 
     private readonly ILogger _logger;
 
- public TreatmentsSubmissionHandler
-           (TreatmentsWriter dataWriter,
-           DonorIndexingTasksService indexingTasksService,
-           DonorSubmissionService submissionService,
-           TasksProcessingService tasksProcessingService,
-           ILogger<TreatmentsSubmissionHandler> logger)
+    public TreatmentsSubmissionHandler(
+        TreatmentsWriter dataWriter,
+        DonorIndexingTasksService tasksService,
+        DonorsSubmissionService submissionService,
+        TasksProcessingService tasksProcessingService,
+        ILogger<TreatmentsSubmissionHandler> logger)
     {
         _dataWriter = dataWriter;
-        _indexingTaskService = indexingTasksService;
+        _tasksService = tasksService;
         _submissionService = submissionService;
-        _taskProcessingService = tasksProcessingService;
+        _tasksProcessingService = tasksProcessingService;
         _logger = logger;
 
-        _modelConverter = new Models.Donors.Converters.TreatmentsModelConverter ();
-   
+        _modelConverter = new Models.Donors.Converters.TreatmentsModelConverter();
+
     }
 
     public void Handle()
@@ -39,11 +40,11 @@ public class TreatmentsSubmissionHandler
         ProcessSubmissionTasks();
     }
 
-     private void ProcessSubmissionTasks()
+    private void ProcessSubmissionTasks()
     {
         var stopwatch = new Stopwatch();
 
-        _taskProcessingService.Process(SubmissionTaskType.DON_TRT, 1, (tasks) =>
+        _tasksProcessingService.Process(SubmissionTaskType.DON_TRT, 1, (tasks) =>
         {
             stopwatch.Restart();
 
@@ -56,19 +57,16 @@ public class TreatmentsSubmissionHandler
             return true;
         });
     }
+
     private void ProcessSubmission(string submissionId)
     {
         var submittedData = _submissionService.FindTreatmentsSubmission(submissionId);
         var convertedData = submittedData.Select(_modelConverter.Convert).ToArray();
 
         _dataWriter.SaveData(convertedData, out var audit);
-
-        _indexingTaskService.PopulateTasks(audit.Donors);
-
-        _submissionService.DeleteTreatmentssSubmission(submissionId);
+        _tasksService.PopulateTasks(audit.Donors);
+        _submissionService.DeleteTreatmentsSubmission(submissionId);
 
         _logger.LogInformation("{audit}", audit.ToString());
     }
-
-
 }

@@ -3,18 +3,18 @@ using Unite.Donors.Feed.Web.Handlers.Submission;
 
 namespace Unite.Donors.Feed.Web.Workers;
 
-public class DonorSubmissionWorker : BackgroundService
+public class SubmissionsWorker : BackgroundService
 {
-    private readonly DonorSubmissionHandler _donorSubmissionHandler;
-
+    private readonly DonorsSubmissionHandler _donorsSubmissionHandler;
     private readonly TreatmentsSubmissionHandler _treatmentsSubmissionHandler;
     private readonly ILogger _logger;
 
-    public DonorSubmissionWorker(DonorSubmissionHandler donorSubmissionHandler,
+    public SubmissionsWorker(
+        DonorsSubmissionHandler donorsSubmissionHandler,
         TreatmentsSubmissionHandler treatmentsSubmissionHandler,
-        ILogger<DonorSubmissionWorker> logger)
+        ILogger<SubmissionsWorker> logger)
     {
-        _donorSubmissionHandler = donorSubmissionHandler;
+        _donorsSubmissionHandler = donorsSubmissionHandler;
         _treatmentsSubmissionHandler = treatmentsSubmissionHandler;
         _logger = logger;
     }
@@ -31,7 +31,7 @@ public class DonorSubmissionWorker : BackgroundService
         {
             try
             {
-                _donorSubmissionHandler.Handle();
+                _donorsSubmissionHandler.Handle();
                 _treatmentsSubmissionHandler.Handle();
             }
             catch (Exception exception)
@@ -44,5 +44,4 @@ public class DonorSubmissionWorker : BackgroundService
             }
         }
     }
-
 }

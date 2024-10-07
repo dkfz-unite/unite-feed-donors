@@ -1,31 +1,29 @@
-using MongoDB.Bson;
-using Npgsql.Replication;
 using Unite.Cache.Configuration.Options;
 
 namespace Unite.Donors.Feed.Web.Submissions;
 
-public class DonorSubmissionService
+public class DonorsSubmissionService
 {
     private readonly Repositories.DonorsSubmissionRepository _donorsSubmissionRepository;
     private readonly Repositories.TreatmentsSubmissionRepository _treatmentsSubmissionRepository;
 
-    public DonorSubmissionService(IMongoOptions options)
+    public DonorsSubmissionService(IMongoOptions options)
 	{
 		_donorsSubmissionRepository = new Repositories.DonorsSubmissionRepository(options);
 		_treatmentsSubmissionRepository = new Repositories.TreatmentsSubmissionRepository(options);
 	}
 
-    public string AddDonorSubmission(Models.Donors.DonorModel[] data)
+    public string AddDonorsSubmission(Models.Donors.DonorModel[] data)
 	{
 	 	return _donorsSubmissionRepository.Add(data);
 	}
 
-    public Models.Donors.DonorModel[] FindDonorSubmission(string id)
+    public Models.Donors.DonorModel[] FindDonorsSubmission(string id)
 	{
 		return _donorsSubmissionRepository.Find(id)?.Document;
 	}
 
-    public void DeleteDonorSubmission(string id)
+    public void DeleteDonorsSubmission(string id)
     {
         _donorsSubmissionRepository.Delete(id);
     }
@@ -40,7 +38,7 @@ public class DonorSubmissionService
 		return _treatmentsSubmissionRepository.Find(id)?.Document;
 	}
 
-    public void DeleteTreatmentssSubmission(string id)
+    public void DeleteTreatmentsSubmission(string id)
     {
         _treatmentsSubmissionRepository.Delete(id);
     }

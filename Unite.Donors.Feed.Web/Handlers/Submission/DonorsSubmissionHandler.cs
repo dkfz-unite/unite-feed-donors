@@ -7,28 +7,28 @@ using Unite.Donors.Feed.Web.Submissions;
 
 namespace Unite.Donors.Feed.Web.Handlers.Submission;
 
-public class DonorSubmissionHandler
+public class DonorsSubmissionHandler
 {
     private readonly DonorsWriter _dataWriter;
-    private readonly DonorIndexingTasksService _indexingTaskService;
-    private readonly DonorSubmissionService _submissionService;
-    private readonly TasksProcessingService _taskProcessingService;
+    private readonly DonorIndexingTasksService _tasksService;
+    private readonly DonorsSubmissionService _submissionService;
+    private readonly TasksProcessingService _tasksProcessingService;
 
     private readonly Models.Donors.Converters.DonorModelConverter _modelConverter;
 
     private readonly ILogger _logger;
 
-    public DonorSubmissionHandler
-           (DonorsWriter dataWriter,
-           DonorIndexingTasksService indexingTasksService,
-           DonorSubmissionService submissionService,
-           TasksProcessingService tasksProcessingService,
-           ILogger<DonorSubmissionHandler> logger)
+    public DonorsSubmissionHandler(
+        DonorsWriter dataWriter,
+        DonorIndexingTasksService tasksService,
+        DonorsSubmissionService submissionService,
+        TasksProcessingService tasksProcessingService,
+        ILogger<DonorsSubmissionHandler> logger)
     {
         _dataWriter = dataWriter;
-        _indexingTaskService = indexingTasksService;
+        _tasksService = tasksService;
         _submissionService = submissionService;
-        _taskProcessingService = tasksProcessingService;
+        _tasksProcessingService = tasksProcessingService;
         _logger = logger;
 
         _modelConverter = new Models.Donors.Converters.DonorModelConverter ();
@@ -44,7 +44,7 @@ public class DonorSubmissionHandler
     {
         var stopwatch = new Stopwatch();
 
-        _taskProcessingService.Process(SubmissionTaskType.DON, 1, (tasks) =>
+        _tasksProcessingService.Process(SubmissionTaskType.DON, 1, (tasks) =>
         {
             stopwatch.Restart();
 
@@ -60,14 +60,12 @@ public class DonorSubmissionHandler
 
     private void ProcessSubmission(string submissionId)
     {
-        var submittedData = _submissionService.FindDonorSubmission(submissionId);
-       var convertedData = submittedData.Select(_modelConverter.Convert).ToArray();
+        var submittedData = _submissionService.FindDonorsSubmission(submissionId);
+        var convertedData = submittedData.Select(_modelConverter.Convert).ToArray();
 
         _dataWriter.SaveData(convertedData, out var audit);
-
-        _indexingTaskService.PopulateTasks(audit.Donors);
-
-        _submissionService.DeleteDonorSubmission(submissionId);
+        _tasksService.PopulateTasks(audit.Donors);
+        _submissionService.DeleteDonorsSubmission(submissionId);
 
         _logger.LogInformation("{audit}", audit.ToString());
     }

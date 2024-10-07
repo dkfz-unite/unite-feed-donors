@@ -7,7 +7,7 @@ namespace Unite.Donors.Feed.Web.Submissions.Repositories;
 public class TreatmentsSubmissionRepository : CacheRepository<TreatmentsModel[]>
 {
     public override string DatabaseName => "submissions";
-    public override string CollectionName => "don_treat";
+    public override string CollectionName => "don_trt";
 
     public TreatmentsSubmissionRepository(IMongoOptions options) : base(options)
     {

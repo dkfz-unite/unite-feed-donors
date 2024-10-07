@@ -36,22 +36,22 @@ public static class ConfigurationExtensions
         services.AddTransient<DonorsRemover>();
         services.AddTransient<TreatmentsWriter>();
 
-        services.AddTransient<DonorIndexingTasksService>();
+        services.AddTransient<DonorsSubmissionService>();
         services.AddTransient<TasksProcessingService>();
 
+        services.AddTransient<SubmissionTaskService>();
+        services.AddTransient<DonorIndexingTasksService>();
+
+        // Indexing hosted service
         services.AddHostedService<DonorsIndexingWorker>();
         services.AddTransient<DonorsIndexingOptions>();
         services.AddTransient<DonorsIndexingHandler>();
         services.AddTransient<DonorIndexCreator>();
         services.AddTransient<DonorIndexRemover>();
 
-        // Submission service
-        services.AddTransient<SubmissionTaskService>();
-        services.AddTransient<DonorSubmissionService>();
-
         // Submissions hosted services
-        services.AddHostedService<DonorSubmissionWorker>();
-        services.AddTransient<DonorSubmissionHandler>();
+        services.AddHostedService<SubmissionsWorker>();
+        services.AddTransient<DonorsSubmissionHandler>();
         services.AddTransient<TreatmentsSubmissionHandler>();
     }
 
