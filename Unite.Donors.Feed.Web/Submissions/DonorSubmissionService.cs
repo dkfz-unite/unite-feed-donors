@@ -20,9 +20,9 @@ public class DonorSubmissionService
 	 	return _donorsSubmissionRepository.Add(data);
 	}
 
-    public Models.Donors.DonorModel FindDonorSubmission(string id)
+    public Models.Donors.DonorModel[] FindDonorSubmission(string id)
 	{
-		return _donorsSubmissionRepository.Find(id)?.Document.FirstOrDefault();
+		return _donorsSubmissionRepository.Find(id)?.Document;
 	}
 
     public void DeleteDonorSubmission(string id)
@@ -35,9 +35,9 @@ public class DonorSubmissionService
 		return _treatmentsSubmissionRepository.Add(data);
 	}
 
-    public Models.Donors.TreatmentsModel FindTreatmentsSubmission(string id)
+    public Models.Donors.TreatmentsModel[] FindTreatmentsSubmission(string id)
 	{
-		return _treatmentsSubmissionRepository.Find(id)?.Document.FirstOrDefault();
+		return _treatmentsSubmissionRepository.Find(id)?.Document;
 	}
 
     public void DeleteTreatmentssSubmission(string id)

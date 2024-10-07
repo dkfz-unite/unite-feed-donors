@@ -9,29 +9,29 @@ namespace Unite.Donors.Feed.Web.Handlers.Submission;
 
 public class DonorSubmissionHandler
 {
-    private readonly DonorsWriter _donorDataWriter;
-    private readonly DonorIndexingTasksService _donorIndexingTaskService;
-    private readonly DonorSubmissionService _donorSubmissionService;
+    private readonly DonorsWriter _dataWriter;
+    private readonly DonorIndexingTasksService _indexingTaskService;
+    private readonly DonorSubmissionService _submissionService;
     private readonly TasksProcessingService _taskProcessingService;
 
-    private readonly Models.Donors.Converters.DonorModelConverter _donorModelConverter;
+    private readonly Models.Donors.Converters.DonorModelConverter _modelConverter;
 
     private readonly ILogger _logger;
 
     public DonorSubmissionHandler
-           (DonorsWriter donorDataWriter,
-           DonorIndexingTasksService donorIndexingTasksService,
-           DonorSubmissionService donorSubmissionService,
+           (DonorsWriter dataWriter,
+           DonorIndexingTasksService indexingTasksService,
+           DonorSubmissionService submissionService,
            TasksProcessingService tasksProcessingService,
            ILogger<DonorSubmissionHandler> logger)
     {
-        _donorDataWriter = donorDataWriter;
-        _donorIndexingTaskService = donorIndexingTasksService;
-        _donorSubmissionService = donorSubmissionService;
+        _dataWriter = dataWriter;
+        _indexingTaskService = indexingTasksService;
+        _submissionService = submissionService;
         _taskProcessingService = tasksProcessingService;
         _logger = logger;
 
-        _donorModelConverter = new Models.Donors.Converters.DonorModelConverter ();
+        _modelConverter = new Models.Donors.Converters.DonorModelConverter ();
     }
 
 
@@ -60,14 +60,14 @@ public class DonorSubmissionHandler
 
     private void ProcessSubmission(string submissionId)
     {
-        var submittedData = _donorSubmissionService.FindDonorSubmission(submissionId);
-        var convertedData = _donorModelConverter.Convert(submittedData);
+        var submittedData = _submissionService.FindDonorSubmission(submissionId);
+       var convertedData = submittedData.Select(_modelConverter.Convert).ToArray();
 
-        _donorDataWriter.SaveData(convertedData, out var audit);
+        _dataWriter.SaveData(convertedData, out var audit);
 
-        _donorIndexingTaskService.PopulateTasks(audit.Donors);
+        _indexingTaskService.PopulateTasks(audit.Donors);
 
-        _donorSubmissionService.DeleteDonorSubmission(submissionId);
+        _submissionService.DeleteDonorSubmission(submissionId);
 
         _logger.LogInformation("{audit}", audit.ToString());
     }

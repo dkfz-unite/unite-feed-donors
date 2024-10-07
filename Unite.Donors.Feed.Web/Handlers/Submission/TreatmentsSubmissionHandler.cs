@@ -9,29 +9,29 @@ namespace Unite.Donors.Feed.Web.Handlers.Submission;
 
 public class TreatmentsSubmissionHandler
 {
-    private readonly TreatmentsWriter _treatmentDataWriter;
-     private readonly DonorIndexingTasksService _donorIndexingTaskService;
-    private readonly DonorSubmissionService _donorSubmissionService;
+    private readonly TreatmentsWriter _dataWriter;
+     private readonly DonorIndexingTasksService _indexingTaskService;
+    private readonly DonorSubmissionService _submissionService;
     private readonly TasksProcessingService _taskProcessingService;
-    private readonly Models.Donors.Converters.TreatmentsModelConverter _treatmentModelConverter;
+    private readonly Models.Donors.Converters.TreatmentsModelConverter _modelConverter;
 
     private readonly ILogger _logger;
 
  public TreatmentsSubmissionHandler
-           (TreatmentsWriter treatmentsWriter,
-           DonorIndexingTasksService donorIndexingTasksService,
-           DonorSubmissionService donorSubmissionService,
+           (TreatmentsWriter dataWriter,
+           DonorIndexingTasksService indexingTasksService,
+           DonorSubmissionService submissionService,
            TasksProcessingService tasksProcessingService,
            ILogger<TreatmentsSubmissionHandler> logger)
     {
-        _treatmentDataWriter = treatmentsWriter;
-        _donorIndexingTaskService = donorIndexingTasksService;
-        _donorSubmissionService = donorSubmissionService;
+        _dataWriter = dataWriter;
+        _indexingTaskService = indexingTasksService;
+        _submissionService = submissionService;
         _taskProcessingService = tasksProcessingService;
         _logger = logger;
 
-        _treatmentModelConverter = new Models.Donors.Converters.TreatmentsModelConverter ();
-
+        _modelConverter = new Models.Donors.Converters.TreatmentsModelConverter ();
+   
     }
 
     public void Handle()
@@ -58,14 +58,14 @@ public class TreatmentsSubmissionHandler
     }
     private void ProcessSubmission(string submissionId)
     {
-        var submittedData = _donorSubmissionService.FindTreatmentsSubmission(submissionId);
-        var convertedData = _treatmentModelConverter.Convert(submittedData);
+        var submittedData = _submissionService.FindTreatmentsSubmission(submissionId);
+        var convertedData = submittedData.Select(_modelConverter.Convert).ToArray();
 
-        _treatmentDataWriter.SaveData(convertedData, out var audit);
+        _dataWriter.SaveData(convertedData, out var audit);
 
-        _donorIndexingTaskService.PopulateTasks(audit.Donors);
+        _indexingTaskService.PopulateTasks(audit.Donors);
 
-        _donorSubmissionService.DeleteTreatmentssSubmission(submissionId);
+        _submissionService.DeleteTreatmentssSubmission(submissionId);
 
         _logger.LogInformation("{audit}", audit.ToString());
     }

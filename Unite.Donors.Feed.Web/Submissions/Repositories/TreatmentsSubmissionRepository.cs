@@ -1,7 +1,6 @@
 using Unite.Cache.Configuration.Options;
 using Unite.Cache.Repositories;
 using Unite.Donors.Feed.Web.Models.Donors;
-// using Unite.Donors.Feed.Web.Models.Base;
 
 namespace Unite.Donors.Feed.Web.Submissions.Repositories;
 

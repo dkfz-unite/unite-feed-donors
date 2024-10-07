@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Unite.Data.Context.Services.Tasks;
 using Unite.Data.Entities.Tasks.Enums;
 using Unite.Donors.Feed.Data;
-using Unite.Donors.Feed.Data.Exceptions;
 using Unite.Donors.Feed.Web.Configuration.Constants;
 using Unite.Donors.Feed.Web.Models.Donors;
 using Unite.Donors.Feed.Web.Models.Donors.Binders;
@@ -16,28 +15,23 @@ namespace Unite.Donors.Feed.Web.Controllers;
 [Authorize(Policy = Policies.Data.Writer)]
 public class TreatmentsController : Controller
 {
-    private readonly TreatmentsWriter _dataWriter;
+    private readonly DonorSubmissionService _submissionService;
     private readonly SubmissionTaskService _submissionTaskService;
-    private readonly DonorSubmissionService _donorsSubmissionsService;
-
-    private readonly TreatmentsModelConverter _converter = new();
 
 
     public TreatmentsController(
-        TreatmentsWriter dataWriter,
-        SubmissionTaskService submissionTasksService,
-        DonorSubmissionService donorsSubmissionsService
-        )
+        DonorSubmissionService submissionService,
+
+        SubmissionTaskService submissionTaskService)
     {
-        _dataWriter = dataWriter;
-        _submissionTaskService = submissionTasksService;
-        _donorsSubmissionsService = donorsSubmissionsService;
+        _submissionService = submissionService;
+        _submissionTaskService = submissionTaskService;
     }
 
     [HttpPost("")]
     public IActionResult Post([FromBody]TreatmentsModel[] models)
     {
-        var submissionId = _donorsSubmissionsService.AddTreatmentsSubmission(models);
+        var submissionId = _submissionService.AddTreatmentsSubmission(models);
         _submissionTaskService.CreateTask(SubmissionTaskType.DON_TRT, submissionId);
 
         return Ok();

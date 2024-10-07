@@ -15,27 +15,21 @@ namespace Unite.Donors.Feed.Web.Controllers;
 [Authorize(Policy = Policies.Data.Writer)]
 public class DonorsController : Controller
 {
-    private readonly DonorsWriter _dataWriter;
-    private readonly DonorSubmissionService _donorSubmissionsService;
+    private readonly DonorSubmissionService _submissionService;
     private readonly SubmissionTaskService _submissionTaskService;
-    
-    private readonly DonorModelConverter _converter = new();
-
 
     public DonorsController(
-        DonorsWriter dataWriter,
-        SubmissionTaskService submissionTaskService,
-        DonorSubmissionService donorsSubmissionsService)
+        DonorSubmissionService submissionService,
+        SubmissionTaskService submissionTaskService)
     {
-        _dataWriter = dataWriter;
-        _donorSubmissionsService = donorsSubmissionsService;
+        _submissionService = submissionService;
         _submissionTaskService = submissionTaskService;
     }
 
     [HttpPost("")]
     public IActionResult Post([FromBody] DonorModel[] models)
     {
-        var submissionId = _donorSubmissionsService.AddDonorSubmission(models);
+        var submissionId = _submissionService.AddDonorSubmission(models);
 
         _submissionTaskService.CreateTask(SubmissionTaskType.DON, submissionId);
 
