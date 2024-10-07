@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Unite.Data.Context.Services.Tasks;
+using Unite.Data.Entities.Tasks.Enums;
 using Unite.Donors.Feed.Data;
 using Unite.Donors.Feed.Data.Exceptions;
 using Unite.Donors.Feed.Web.Configuration.Constants;
 using Unite.Donors.Feed.Web.Models.Donors;
 using Unite.Donors.Feed.Web.Models.Donors.Binders;
 using Unite.Donors.Feed.Web.Models.Donors.Converters;
-using Unite.Donors.Feed.Web.Services;
+using Unite.Donors.Feed.Web.Submissions;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 
@@ -15,42 +17,30 @@ namespace Unite.Donors.Feed.Web.Controllers;
 public class TreatmentsController : Controller
 {
     private readonly TreatmentsWriter _dataWriter;
-    private readonly DonorIndexingTasksService _tasksService;
-    private readonly ILogger _logger;
+    private readonly SubmissionTaskService _submissionTaskService;
+    private readonly DonorSubmissionService _donorsSubmissionsService;
 
     private readonly TreatmentsModelConverter _converter = new();
 
 
     public TreatmentsController(
         TreatmentsWriter dataWriter,
-        DonorIndexingTasksService tasksService,
-        ILogger<TreatmentsController> logger
+        SubmissionTaskService submissionTasksService,
+        DonorSubmissionService donorsSubmissionsService
         )
     {
         _dataWriter = dataWriter;
-        _tasksService = tasksService;
-        _logger = logger;
+        _submissionTaskService = submissionTasksService;
+        _donorsSubmissionsService = donorsSubmissionsService;
     }
 
     [HttpPost("")]
-    public IActionResult Post([FromBody]TreatmentsModel[] models)
+    public IActionResult Post([FromBody]TreatmentsModel[] model)
     {
-        try
-        {
-            var data = models.Select(_converter.Convert).ToArray();
+        var submissionId = _donorsSubmissionsService.AddTreatmentsSubmission(model);
+        _submissionTaskService.CreateTask(SubmissionTaskType.DON_TRT, submissionId);
 
-            _dataWriter.SaveData(data, out var audit);
-            _tasksService.PopulateTasks(audit.Donors);
-            _logger.LogInformation("{audit}", audit.ToString());
-
-            return Ok();
-        }
-        catch (NotFoundException exception)
-        {
-            _logger.LogWarning("{error}", exception.Message);
-
-            return NotFound(exception.Message);
-        }
+        return Ok();
     }
 
     [HttpPost("tsv")]

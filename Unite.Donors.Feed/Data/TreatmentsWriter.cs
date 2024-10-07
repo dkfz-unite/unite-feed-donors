@@ -13,6 +13,8 @@ public class TreatmentsWriter : DonorsWriterBase<DonorModel, TreatmentsWriteAudi
 
     public TreatmentsWriter(IDbContextFactory<DomainDbContext> dbContextFactory) : base(dbContextFactory)
     {
+        var dbContext = dbContextFactory.CreateDbContext();
+        Initialize(dbContext);
     }
 
 

@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Unite.Data.Context.Services.Tasks;
+using Unite.Data.Entities.Tasks.Enums;
 using Unite.Donors.Feed.Data;
 using Unite.Donors.Feed.Web.Configuration.Constants;
 using Unite.Donors.Feed.Web.Models.Donors;
 using Unite.Donors.Feed.Web.Models.Donors.Binders;
 using Unite.Donors.Feed.Web.Models.Donors.Converters;
-using Unite.Donors.Feed.Web.Services;
+using Unite.Donors.Feed.Web.Submissions;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 
@@ -14,31 +16,28 @@ namespace Unite.Donors.Feed.Web.Controllers;
 public class DonorsController : Controller
 {
     private readonly DonorsWriter _dataWriter;
-    private readonly DonorIndexingTasksService _tasksService;
-    private readonly ILogger _logger;
-
+    private readonly DonorSubmissionService _donorSubmissionsService;
+    private readonly SubmissionTaskService _submissionTaskService;
+    
     private readonly DonorModelConverter _converter = new();
 
 
     public DonorsController(
         DonorsWriter dataWriter,
-        DonorIndexingTasksService tasksService,
-        ILogger<DonorsController> logger)
+        SubmissionTaskService submissionTaskService,
+        DonorSubmissionService donorsSubmissionsService)
     {
         _dataWriter = dataWriter;
-        _tasksService = tasksService;
-        _logger = logger;
+        _donorSubmissionsService = donorsSubmissionsService;
+        _submissionTaskService = submissionTaskService;
     }
 
-
     [HttpPost("")]
-    public IActionResult Post([FromBody]DonorModel[] models)
+    public IActionResult Post([FromBody] DonorModel[] model)
     {
-        var data = models.Select(_converter.Convert).ToArray();
+        var submissionId = _donorSubmissionsService.AddDonorSubmission(model);
 
-        _dataWriter.SaveData(data, out var audit);
-        _tasksService.PopulateTasks(audit.Donors);
-        _logger.LogInformation("{audit}", audit.ToString());
+        _submissionTaskService.CreateTask(SubmissionTaskType.DON, submissionId);
 
         return Ok();
     }
