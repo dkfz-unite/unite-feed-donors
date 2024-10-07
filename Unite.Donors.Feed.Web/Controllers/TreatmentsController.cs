@@ -35,9 +35,9 @@ public class TreatmentsController : Controller
     }
 
     [HttpPost("")]
-    public IActionResult Post([FromBody]TreatmentsModel[] model)
+    public IActionResult Post([FromBody]TreatmentsModel[] models)
     {
-        var submissionId = _donorsSubmissionsService.AddTreatmentsSubmission(model);
+        var submissionId = _donorsSubmissionsService.AddTreatmentsSubmission(models);
         _submissionTaskService.CreateTask(SubmissionTaskType.DON_TRT, submissionId);
 
         return Ok();

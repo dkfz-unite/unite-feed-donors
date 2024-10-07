@@ -33,9 +33,9 @@ public class DonorsController : Controller
     }
 
     [HttpPost("")]
-    public IActionResult Post([FromBody] DonorModel[] model)
+    public IActionResult Post([FromBody] DonorModel[] models)
     {
-        var submissionId = _donorSubmissionsService.AddDonorSubmission(model);
+        var submissionId = _donorSubmissionsService.AddDonorSubmission(models);
 
         _submissionTaskService.CreateTask(SubmissionTaskType.DON, submissionId);
 
