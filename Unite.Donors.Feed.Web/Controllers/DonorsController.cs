@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Unite.Donors.Feed.Data;
+using Unite.Data.Context.Services.Tasks;
+using Unite.Data.Entities.Tasks.Enums;
 using Unite.Donors.Feed.Web.Configuration.Constants;
 using Unite.Donors.Feed.Web.Models.Donors;
 using Unite.Donors.Feed.Web.Models.Donors.Binders;
-using Unite.Donors.Feed.Web.Models.Donors.Converters;
-using Unite.Donors.Feed.Web.Services;
+using Unite.Donors.Feed.Web.Submissions;
 
 namespace Unite.Donors.Feed.Web.Controllers;
 
@@ -13,32 +13,24 @@ namespace Unite.Donors.Feed.Web.Controllers;
 [Authorize(Policy = Policies.Data.Writer)]
 public class DonorsController : Controller
 {
-    private readonly DonorsWriter _dataWriter;
-    private readonly DonorIndexingTasksService _tasksService;
-    private readonly ILogger _logger;
-
-    private readonly DonorModelConverter _converter = new();
+    private readonly DonorsSubmissionService _submissionService;
+    private readonly SubmissionTaskService _submissionTaskService;
 
 
     public DonorsController(
-        DonorsWriter dataWriter,
-        DonorIndexingTasksService tasksService,
-        ILogger<DonorsController> logger)
+        DonorsSubmissionService submissionService,
+        SubmissionTaskService submissionTaskService)
     {
-        _dataWriter = dataWriter;
-        _tasksService = tasksService;
-        _logger = logger;
+        _submissionService = submissionService;
+        _submissionTaskService = submissionTaskService;
     }
 
-
     [HttpPost("")]
-    public IActionResult Post([FromBody]DonorModel[] models)
+    public IActionResult Post([FromBody] DonorModel[] models)
     {
-        var data = models.Select(_converter.Convert).ToArray();
+        var submissionId = _submissionService.AddDonorsSubmission(models);
 
-        _dataWriter.SaveData(data, out var audit);
-        _tasksService.PopulateTasks(audit.Donors);
-        _logger.LogInformation("{audit}", audit.ToString());
+        _submissionTaskService.CreateTask(SubmissionTaskType.DON, submissionId);
 
         return Ok();
     }

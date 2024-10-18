@@ -18,6 +18,8 @@ public class DonorsWriter : DonorsWriterBase<DonorModel, DonorsWriteAudit>
 
     public DonorsWriter(IDbContextFactory<DomainDbContext> dbContextFactory) : base(dbContextFactory)
     {
+        var dbContext = dbContextFactory.CreateDbContext();
+        Initialize(dbContext);
     }
 
 
