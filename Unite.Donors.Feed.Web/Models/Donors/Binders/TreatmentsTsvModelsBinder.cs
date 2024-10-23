@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Unite.Essentials.Tsv;
 
 namespace Unite.Donors.Feed.Web.Models.Donors.Binders;
@@ -31,7 +30,7 @@ public class TreatmentsTsvModelsBinder : IModelBinder
             .Select(group => new TreatmentsModel
             {
                 DonorId = group.Key,
-                Entries = group.ToArray()
+                Entries = group.Select(treatment => treatment.AsBase()).ToArray()
             })
             .ToArray();
 
@@ -39,10 +38,26 @@ public class TreatmentsTsvModelsBinder : IModelBinder
     }
 }
 
+/// <summary>
+/// Treatment tsv model. This model <b>should not</b> be used to save as BSON document.
+/// </summary> 
 public class TreatmentModel : Base.TreatmentModel
 {
     private string _donorId;
 
-    [JsonPropertyName("donor_id")]
     public string DonorId { get => _donorId?.Trim(); set => _donorId = value; }
+
+    public Base.TreatmentModel AsBase()
+    {
+        return new Base.TreatmentModel
+        {
+            Therapy = Therapy,
+            Details = Details,
+            StartDate = StartDate,
+            StartDay = StartDay,
+            EndDate = EndDate,
+            DurationDays = DurationDays,
+            Results = Results
+        };
+    }
 }
