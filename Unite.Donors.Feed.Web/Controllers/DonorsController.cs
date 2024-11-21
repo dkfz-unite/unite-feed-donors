@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using Unite.Data.Context.Services.Tasks;
 using Unite.Data.Entities.Tasks.Enums;
 using Unite.Donors.Feed.Web.Configuration.Constants;
@@ -30,9 +31,17 @@ public class DonorsController : Controller
     {
         var submissionId = _submissionService.AddDonorsSubmission(models);
 
-        _submissionTaskService.CreateTask(SubmissionTaskType.DON, submissionId);
+        long taskId = _submissionTaskService.CreateTask(SubmissionTaskType.DON, submissionId, TaskStatusType.Preparing);
 
-        return Ok();
+        return Ok(taskId.ToString());
+    }
+
+    [HttpGet("{id}")]
+    public IActionResult Get(string id)
+    {
+        var task = _submissionTaskService.GetTask(long.Parse(id));
+        var submissionDocument = _submissionService.FindDonorsSubmission(task.Target).ToJson();
+        return Ok(submissionDocument);
     }
 
     [HttpPost("tsv")]
