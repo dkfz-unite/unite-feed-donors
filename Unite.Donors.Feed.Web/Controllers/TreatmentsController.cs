@@ -45,7 +45,7 @@ public class TreatmentsController : Controller
 
         var taskId = _submissionTaskService.CreateTask(SubmissionTaskType.DON_TRT, submissionId, taskStatus);
 
-        return Ok(taskId.ToString());
+        return Ok(taskId);
     }
 
     [HttpPost("tsv")]
