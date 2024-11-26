@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 using Unite.Data.Context.Services.Tasks;
 using Unite.Data.Entities.Tasks.Enums;
 using Unite.Donors.Feed.Web.Configuration.Constants;
@@ -26,27 +25,32 @@ public class TreatmentsController : Controller
         _submissionTaskService = submissionTaskService;
     }
 
+
+    [HttpGet("{id}")]
+    public IActionResult Get(long id)
+    {
+        var task = _submissionTaskService.GetTask(id);
+
+        var submission = _submissionService.FindTreatmentsSubmission(task.Target);
+
+        return Ok(submission);
+    }
+
     [HttpPost("")]
-    public IActionResult Post([FromBody]TreatmentsModel[] models)
+    public IActionResult Post([FromBody] TreatmentsModel[] models, [FromQuery] bool validate = true)
     {
         var submissionId = _submissionService.AddTreatmentsSubmission(models);
 
-        long taskId = _submissionTaskService.CreateTask(SubmissionTaskType.DON_TRT, submissionId, TaskStatusType.Preparing);
+        var taskStatus = validate ? TaskStatusType.Preparing : TaskStatusType.Prepared;
+
+        var taskId = _submissionTaskService.CreateTask(SubmissionTaskType.DON_TRT, submissionId, taskStatus);
 
         return Ok(taskId.ToString());
     }
 
-     [HttpGet("{id}")]
-    public IActionResult Get(string id)
-    {
-        var task = _submissionTaskService.GetTask(long.Parse(id));
-        var submissionDocument = _submissionService.FindTreatmentsSubmission(task.Target).ToJson();
-        return Ok(submissionDocument);
-    }
-
     [HttpPost("tsv")]
-    public IActionResult PostTsv([ModelBinder(typeof(TreatmentsTsvModelsBinder))]TreatmentsModel[] models)
+    public IActionResult PostTsv([ModelBinder(typeof(TreatmentsTsvModelsBinder))] TreatmentsModel[] models, [FromQuery] bool validate = true)
     {
-        return Post(models);
+        return Post(models, validate);
     }
 }
