@@ -37,11 +37,11 @@ public class TreatmentsController : Controller
     }
 
     [HttpPost("")]
-    public IActionResult Post([FromBody] TreatmentsModel[] models, [FromQuery] bool validate = true)
+    public IActionResult Post([FromBody] TreatmentsModel[] models, [FromQuery] bool review = true)
     {
         var submissionId = _submissionService.AddTreatmentsSubmission(models);
 
-        var taskStatus = validate ? TaskStatusType.Preparing : TaskStatusType.Prepared;
+        var taskStatus = review ? TaskStatusType.Preparing : TaskStatusType.Prepared;
 
         var taskId = _submissionTaskService.CreateTask(SubmissionTaskType.DON_TRT, submissionId, taskStatus);
 
@@ -49,8 +49,8 @@ public class TreatmentsController : Controller
     }
 
     [HttpPost("tsv")]
-    public IActionResult PostTsv([ModelBinder(typeof(TreatmentsTsvModelsBinder))] TreatmentsModel[] models, [FromQuery] bool validate = true)
+    public IActionResult PostTsv([ModelBinder(typeof(TreatmentsTsvModelsBinder))] TreatmentsModel[] models, [FromQuery] bool review = true)
     {
-        return Post(models, validate);
+        return Post(models, review);
     }
 }
