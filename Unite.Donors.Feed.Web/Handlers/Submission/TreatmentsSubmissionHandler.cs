@@ -44,7 +44,7 @@ public class TreatmentsSubmissionHandler
     {
         var stopwatch = new Stopwatch();
 
-        _tasksProcessingService.Process(SubmissionTaskType.DON_TRT, 1, (tasks) =>
+        _tasksProcessingService.Process(SubmissionTaskType.DON_TRT, TaskStatusType.Prepared, 1, (tasks) =>
         {
             stopwatch.Restart();
 
