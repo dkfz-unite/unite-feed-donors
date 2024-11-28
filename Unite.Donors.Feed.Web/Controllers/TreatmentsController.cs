@@ -25,19 +25,32 @@ public class TreatmentsController : Controller
         _submissionTaskService = submissionTaskService;
     }
 
+
+    [HttpGet("{id}")]
+    public IActionResult Get(long id)
+    {
+        var task = _submissionTaskService.GetTask(id);
+
+        var submission = _submissionService.FindTreatmentsSubmission(task.Target);
+
+        return Ok(submission);
+    }
+
     [HttpPost("")]
-    public IActionResult Post([FromBody]TreatmentsModel[] models)
+    public IActionResult Post([FromBody] TreatmentsModel[] models, [FromQuery] bool review = true)
     {
         var submissionId = _submissionService.AddTreatmentsSubmission(models);
 
-        _submissionTaskService.CreateTask(SubmissionTaskType.DON_TRT, submissionId);
+        var taskStatus = review ? TaskStatusType.Preparing : TaskStatusType.Prepared;
 
-        return Ok();
+        var taskId = _submissionTaskService.CreateTask(SubmissionTaskType.DON_TRT, submissionId, taskStatus);
+
+        return Ok(taskId);
     }
 
     [HttpPost("tsv")]
-    public IActionResult PostTsv([ModelBinder(typeof(TreatmentsTsvModelsBinder))]TreatmentsModel[] models)
+    public IActionResult PostTsv([ModelBinder(typeof(TreatmentsTsvModelsBinder))] TreatmentsModel[] models, [FromQuery] bool review = true)
     {
-        return Post(models);
+        return Post(models, review);
     }
 }

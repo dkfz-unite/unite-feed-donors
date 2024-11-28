@@ -25,19 +25,32 @@ public class DonorsController : Controller
         _submissionTaskService = submissionTaskService;
     }
 
+
+    [HttpGet("{id}")]
+    public IActionResult Get(long id)
+    {
+        var task = _submissionTaskService.GetTask(id);
+
+        var submission = _submissionService.FindDonorsSubmission(task.Target);
+
+        return Ok(submission);
+    }
+
     [HttpPost("")]
-    public IActionResult Post([FromBody] DonorModel[] models)
+    public IActionResult Post([FromBody] DonorModel[] models, [FromQuery] bool review = true)
     {
         var submissionId = _submissionService.AddDonorsSubmission(models);
 
-        _submissionTaskService.CreateTask(SubmissionTaskType.DON, submissionId);
+        var taskStatus = review ? TaskStatusType.Preparing : TaskStatusType.Prepared;
 
-        return Ok();
+        var taskId = _submissionTaskService.CreateTask(SubmissionTaskType.DON, submissionId, taskStatus);
+
+        return Ok(taskId);
     }
 
     [HttpPost("tsv")]
-    public IActionResult PostTsv([ModelBinder(typeof(DonorTsvModelsBinder))]DonorModel[] models)
+    public IActionResult PostTsv([ModelBinder(typeof(DonorTsvModelsBinder))] DonorModel[] models, [FromQuery] bool review = true)
     {
-        return Post(models);
+        return Post(models, review);
     }
 }

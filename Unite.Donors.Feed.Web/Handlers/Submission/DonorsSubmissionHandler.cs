@@ -44,7 +44,7 @@ public class DonorsSubmissionHandler
     {
         var stopwatch = new Stopwatch();
 
-        _tasksProcessingService.Process(SubmissionTaskType.DON, 1, (tasks) =>
+        _tasksProcessingService.Process(SubmissionTaskType.DON, TaskStatusType.Prepared, 1, (tasks) =>
         {
             stopwatch.Restart();
 
