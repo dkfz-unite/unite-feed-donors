@@ -14,7 +14,9 @@ All data submision request implement **UPSERT** logic:
 
 ## Overview
 - get:[api](#get-api) - health check.
+- get:[api/entries/{id}](#get-apientriesid) - get patients data submission document. 
 - post:[api/entries/{type?}](#post-apientriestype) - submit patients and their clinical data in given type.
+- get:[api/treatments/{id}](#get-apitreatmentsid) - get patients treatments data submission document.
 - post:[api/treatments/{type?}](#post-apitreatmentstype) - submit patients treatments data in given type.
 - delete:[api/entry/{id}](#delete-apientryid) - delete donor data.
 
@@ -29,8 +31,24 @@ Health check.
 `"2022-03-17T09:45:10.9359202Z"` - Current UTC date and time in JSON format, if service is up and running
 
 
+## GET: [api/entries/{id}](http://localhost:5100/api/entries/1)
+Get patients data (including clinical and treatments data) submission document.
+
+### Parameters
+- `id` - submission ID.
+
+### Responses
+- `200` - submission document in JSON format
+- `401` - missing JWT token
+- `403` - missing required permissions
+- `404` - submission with given ID was not found
+
+
 ## POST: [api/entries/{type?}](http://localhost:5100/api/entries)
 Submit patients data (including clinical and treatments data).
+
+### Parameters
+- `review` - indicates if submitted data requires reviewal. Default is `true`.
 
 ### Body
 Supported formats are:
@@ -97,14 +115,30 @@ Donor2	true	Project1	Study1	Female	75	Diagnosis1	2020-01-01	Brain	Right	false	20
 Fields description can be found [here](./api-models-donors.md).
 
 ### Responses
-- `200` - request was processed successfully
+- `200` - submission ID (can be used to track submission status)
 - `400` - request data didn't pass validation
 - `401` - missing JWT token
 - `403` - missing required permissions
 
 
+## GET: [api/treatments/{id}](http://localhost:5100/api/treatments/1)
+Get patients treatments data submission document.
+
+### Parameters
+- `id` - submission ID.
+
+### Responses
+- `200` - submission document in JSON format
+- `401` - missing JWT token
+- `403` - missing required permissions
+- `404` - submission with given ID was not found
+
+
 ## POST: [api/treatments/{type?}](http://localhost:5100/api/treatments)
 Submit patients treatment data. Patients should exist in the system.
+
+### Parameters
+- `review` - indicates if submitted data requires reviewal. Default is `true`.
 
 ### Body
 Supported formats are:
@@ -167,7 +201,7 @@ Donor2	Therapy2	Patient specific therapy details.	2020-02-01		2020-03-01		Patien
 Fields description can be found [here](api-models-treatments.md).
 
 ### Responses
-- `200` - request was processed successfully
+- `200` - submission ID (can be used to track submission status)
 - `400` - request data didn't pass validation
 - `401` - missing JWT token
 - `403` - missing required permissions
