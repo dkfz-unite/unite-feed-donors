@@ -12,10 +12,10 @@ using Unite.Data.Entities.Images.Enums;
 using Unite.Data.Entities.Specimens;
 using Unite.Data.Entities.Specimens.Analysis.Drugs;
 using Unite.Data.Entities.Specimens.Enums;
+using Unite.Donors.Indices.Services.Mapping;
 using Unite.Essentials.Extensions;
 using Unite.Indices.Entities;
 using Unite.Indices.Entities.Donors;
-using Unite.Mapping;
 
 using CNV = Unite.Data.Entities.Genome.Analysis.Dna.Cnv;
 using SSM = Unite.Data.Entities.Genome.Analysis.Dna.Ssm;
@@ -25,8 +25,6 @@ namespace Unite.Donors.Indices.Services;
 
 public class DonorIndexCreator
 {
-    private record GenomicStats(int NumberOfGenes, int NumberOfSsms, int NumberOfCnvs, int NumberOfSvs);
-
     private readonly IDbContextFactory<DomainDbContext> _dbContextFactory;
     private readonly DonorsRepository _donorsRepository;
     private readonly SpecimensRepository _specimensRepository;
@@ -66,14 +64,8 @@ public class DonorIndexCreator
 
         index.Images = CreateImageIndices(donor.Id, diagnosisDate);
         index.Specimens = CreateSpecimenIndices(donor.Id, diagnosisDate);
+        index.Stats = CreateStatsIndex(donor.Id);
         index.Data = CreateDataIndex(donor.Id);
-        
-        var stats = LoadGenomicStats(donor.Id);
-
-        index.NumberOfGenes = stats.NumberOfGenes;
-        index.NumberOfSsms = stats.NumberOfSsms;
-        index.NumberOfCnvs = stats.NumberOfCnvs;
-        index.NumberOfSvs = stats.NumberOfSvs;
 
         return index;
     }
@@ -112,8 +104,6 @@ public class DonorIndexCreator
 
         return dbContext.Set<Image>()
             .AsNoTracking()
-            .IncludeMriImage()
-            .IncludeRadiomicsFeatures()
             .Where(image => imageIds.Contains(image.Id))
             .ToArray();
     }
@@ -143,13 +133,6 @@ public class DonorIndexCreator
 
         return dbContext.Set<Specimen>()
             .AsNoTracking()
-            .IncludeMaterial()
-            .IncludeLine()
-            .IncludeOrganoid()
-            .IncludeXenograft()
-            .IncludeMolecularData()
-            .IncludeInterventions()
-            .IncludeDrugScreenings()
             .Where(specimen => specimenIds.Contains(specimen.Id))
             .ToArray();
     }
@@ -169,16 +152,20 @@ public class DonorIndexCreator
         var ssm = CheckSampleVariants<SSM.Variant, SSM.VariantEntry>(sample.Id);
         var cnv = CheckSampleVariants<CNV.Variant, CNV.VariantEntry>(sample.Id);
         var sv = CheckSampleVariants<SV.Variant, SV.VariantEntry>(sample.Id);
+        var meth = CheckSampleMethylation(sample.Id);
         var exp = CheckSampleGeneExp(sample.Id);
+        var expSc = CheckSampleGeneExpSc(sample.Id);
 
-        if (ssm || cnv || sv || exp)
+        if (ssm || cnv || sv || meth || exp || expSc)
         {
             index.Data = new Unite.Indices.Entities.Basic.Analysis.SampleDataIndex
             {
                 Ssm = ssm,
                 Cnv = cnv,
                 Sv = sv,
-                Exp = exp
+                Meth = meth,
+                Exp = exp,
+                ExpSc = expSc
             };
         }
 
@@ -211,6 +198,15 @@ public class DonorIndexCreator
             .Any(entity => entity.SampleId == sampleId);
     }
 
+    private bool CheckSampleMethylation(int sampleId)
+    {
+        using var dbContext = _dbContextFactory.CreateDbContext();
+
+        return dbContext.Set<SampleResource>()
+            .AsNoTracking()
+            .Any(resource => resource.SampleId == sampleId && resource.Type == "dna-meth");
+    }
+
     private bool CheckSampleGeneExp(int sampleId)
     {
         using var dbContext = _dbContextFactory.CreateDbContext();
@@ -220,6 +216,33 @@ public class DonorIndexCreator
             .Any(expression => expression.SampleId == sampleId);
     }
 
+    private bool CheckSampleGeneExpSc(int sampleId)
+    {
+        using var dbContext = _dbContextFactory.CreateDbContext();
+
+        return dbContext.Set<SampleResource>()
+            .AsNoTracking()
+            .Any(resource => resource.SampleId == sampleId && resource.Type == "rnasc-exp");
+    }
+
+
+    private StatsIndex CreateStatsIndex(int donorId)
+    {
+        var specimenIds = _donorsRepository.GetRelatedSpecimens([donorId]).Result;
+
+        var geneIds = _specimensRepository.GetVariantRelatedGenes(specimenIds).Result;
+        var ssmIds = _specimensRepository.GetRelatedVariants<SSM.Variant>(specimenIds).Result;
+        var cnvIds = _specimensRepository.GetRelatedVariants<CNV.Variant>(specimenIds).Result;
+        var svIds = _specimensRepository.GetRelatedVariants<SV.Variant>(specimenIds).Result;
+        
+        return new StatsIndex
+        {
+            Genes = geneIds.Length,
+            Ssms = ssmIds.Length,
+            Cnvs = cnvIds.Length,
+            Svs = svIds.Length
+        };
+    }
 
     private DataIndex CreateDataIndex(int donorId)
     {
@@ -251,22 +274,12 @@ public class DonorIndexCreator
             Ssms = CheckVariants<SSM.Variant, SSM.VariantEntry>(specimenIds),
             Cnvs = CheckVariants<CNV.Variant, CNV.VariantEntry>(specimenIds),
             Svs = CheckVariants<SV.Variant, SV.VariantEntry>(specimenIds),
-            GeneExp = CheckGeneExp(specimenIds),
-            GeneExpSc = CheckGeneExpSc(specimenIds)
+            Meth = CheckMethylation(specimenIds),
+            Exp = CheckGeneExp(specimenIds),
+            ExpSc = CheckGeneExpSc(specimenIds)
         };
     }
 
-    private GenomicStats LoadGenomicStats(int donorId)
-    {
-        var specimenIds = _donorsRepository.GetRelatedSpecimens([donorId]).Result;
-
-        var ssmIds = _specimensRepository.GetRelatedVariants<SSM.Variant>(specimenIds).Result;
-        var cnvIds = _specimensRepository.GetRelatedVariants<CNV.Variant>(specimenIds).Result;
-        var svIds = _specimensRepository.GetRelatedVariants<SV.Variant>(specimenIds).Result;
-        var geneIds = _specimensRepository.GetVariantRelatedGenes(specimenIds).Result;
-
-        return new GenomicStats(geneIds.Length, ssmIds.Length, cnvIds.Length, svIds.Length);
-    }
 
     private bool CheckClinicalData(int donorId)
     {
@@ -361,6 +374,20 @@ public class DonorIndexCreator
         return dbContext.Set<TVariantEntry>()
             .AsNoTracking()
             .Any(entry => specimenIds.Contains(entry.Sample.SpecimenId));
+    }
+
+    /// <summary>
+    /// Checks if methylation data is available for given specimens.
+    /// </summary>
+    /// <param name="specimenIds">Specimen identifiers.</param>
+    /// <returns>'true' if methylation data exists or 'false' otherwise.</returns>
+    private bool CheckMethylation(int[] specimenIds)
+    {
+        using var dbContext = _dbContextFactory.CreateDbContext();
+
+        return dbContext.Set<SampleResource>()
+            .AsNoTracking()
+            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == "dna-meth");
     }
 
     /// <summary>
