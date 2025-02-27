@@ -4,8 +4,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Unite.Data.Context" Version="9.4.0" />
-    <PackageReference Include="Unite.Indices.Context" Version="10.0.0" />
+    <PackageReference Include="Unite.Data.Context" Version="9.5.0" />
+    <PackageReference Include="Unite.Indices.Context" Version="10.1.0" />
   </ItemGroup>
   <!-- <ItemGroup>
     <ProjectReference Include="../../unite-data/Unite.Data.Context/Unite.Data.Context.csproj" />
