@@ -1,6 +1,6 @@
-﻿namespace Unite.Donors.Feed.Web.Configuration.Options;
+namespace Unite.Donors.Feed.Web.Configuration.Options;
 
-public class DonorsIndexingOptions
+public class ProjectsIndexingOptions
 {
     /// <summary>
     /// Indexing bucket size
@@ -9,7 +9,7 @@ public class DonorsIndexingOptions
     {
         get
         {
-            var option = Environment.GetEnvironmentVariable("UNITE_DONORS_INDEXING_BUCKET_SIZE");
+            var option = Environment.GetEnvironmentVariable("UNITE_PROJECTS_INDEXING_BUCKET_SIZE");
             var size = int.Parse(option);
 
             return size;

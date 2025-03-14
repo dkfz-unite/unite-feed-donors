@@ -7,7 +7,7 @@ public class DonorModel
 {
     private string _id;
     private bool? _mtaProtected;
-    private string[] _projects;
+    private string[] _projects = ["Other"];
     private string[] _studies;
 
 

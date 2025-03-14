@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Unite.Data.Context;
 using Unite.Donors.Feed.Data.Models;
+using Unite.Donors.Feed.Data.Repositories;
 
-namespace Unite.Donors.Feed.Data.Repositories;
+namespace Unite.Donors.Feed.Data;
 
 public abstract class DonorsWriterBase<TModel, TAudit> : Unite.Data.Context.Services.DataWriter<TModel, TAudit>
     where TModel : class

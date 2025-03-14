@@ -7,7 +7,6 @@ using Unite.Donors.Feed.Data;
 using Unite.Donors.Feed.Web.Configuration.Options;
 using Unite.Donors.Feed.Web.Handlers;
 using Unite.Donors.Feed.Web.Workers;
-using Unite.Donors.Feed.Web.Models;
 using Unite.Donors.Feed.Web.Services;
 using Unite.Donors.Indices.Services;
 using Unite.Indices.Context.Configuration.Extensions;
@@ -35,14 +34,23 @@ public static class ConfigurationExtensions
         services.AddTransient<DonorsWriter>();
         services.AddTransient<DonorsRemover>();
         services.AddTransient<TreatmentsWriter>();
+        services.AddTransient<ProjectsRemover>();
 
         services.AddTransient<DonorsSubmissionService>();
         services.AddTransient<TasksProcessingService>();
 
         services.AddTransient<SubmissionTaskService>();
+        services.AddTransient<ProjectIndexingTasksService>();
         services.AddTransient<DonorIndexingTasksService>();
 
-        // Indexing hosted service
+        // Projects indexing hosted service
+        services.AddHostedService<ProjectsIndexingWorker>();
+        services.AddTransient<ProjectsIndexingOptions>();
+        services.AddTransient<ProjectsIndexingHandler>();
+        services.AddTransient<ProjectIndexCreator>();
+        services.AddTransient<ProjectIndexRemover>();
+
+        // Donors indexing hosted service
         services.AddHostedService<DonorsIndexingWorker>();
         services.AddTransient<DonorsIndexingOptions>();
         services.AddTransient<DonorsIndexingHandler>();
