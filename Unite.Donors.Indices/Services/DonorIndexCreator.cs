@@ -93,7 +93,7 @@ public class DonorIndexCreator
 
     private static ImageIndex CreateImageIndex(Image image, DateOnly? diagnosisDate)
     {
-        return ImageIndexMapper.CreateFrom<ImageIndex>(image, diagnosisDate);
+        return ImageNavIndexMapper.CreateFrom<ImageIndex>(image, diagnosisDate);
     }
 
     private Image[] LoadImages(int donorId)
@@ -118,7 +118,7 @@ public class DonorIndexCreator
 
     private SpecimenIndex CreateSpecimenIndex(Specimen specimen, DateOnly? diagnosisDate)
     {
-        var index =  SpecimenIndexMapper.CreateFrom<SpecimenIndex>(specimen, diagnosisDate);
+        var index =  SpecimenNavIndexMapper.CreateFrom<SpecimenIndex>(specimen, diagnosisDate);
 
         index.Samples = CreateSampleIndices(specimen.Id, diagnosisDate);
 

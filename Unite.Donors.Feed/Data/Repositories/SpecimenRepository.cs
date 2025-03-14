@@ -17,17 +17,14 @@ public class SpecimenRepository
     }
 
 
-    public void DeleteByDonorId(int donorId)
+    public void Delete(params int[] ids)
     {
         var specimens = _dbContext.Set<Specimen>()
             .AsNoTracking()
-            .Where(entity => entity.ParentId == null)
-            .Where(entity => entity.DonorId == donorId)
+            .Where(entity => ids.Contains(entity.Id))
             .ToArray();
 
         specimens.ForEach(Delete);
-
-        _dbContext.SaveChanges();
     }
 
     

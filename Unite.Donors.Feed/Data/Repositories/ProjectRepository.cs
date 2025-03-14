@@ -15,6 +15,13 @@ public class ProjectRepository
     }
 
 
+    public Project Find(int id)
+    {
+        return _dbContext.Set<Project>().AsNoTracking().FirstOrDefault(entity =>
+            entity.Id == id
+        );
+    }
+
     public Project Find(string name)
     {
         return _dbContext.Set<Project>().AsNoTracking().FirstOrDefault(entity =>
@@ -63,5 +70,16 @@ public class ProjectRepository
         }
 
         return entitiesToAdd;
+    }
+
+    public void Delete(params int[] ids)
+    {
+        var projects = _dbContext.Set<Project>()
+            .AsNoTracking()
+            .Where(entity => ids.Contains(entity.Id))
+            .ToArray();
+
+        _dbContext.RemoveRange(projects);
+        _dbContext.SaveChanges();
     }
 }

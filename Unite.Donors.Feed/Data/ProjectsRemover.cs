@@ -7,17 +7,18 @@ using Unite.Donors.Feed.Data.Repositories;
 
 namespace Unite.Donors.Feed.Data;
 
-public class DonorsRemover : DataWriter<Donor>
+public class ProjectsRemover : DataWriter<Project>
 {
-    private readonly DonorsRepository _donorsRepository;
+    private readonly ProjectsRepository _projectsRepository;
+    private ProjectRepository _projectRepository;
     private DonorRepository _donorRepository;
     private ImageRepository _imageRepository;
     private SpecimenRepository _specimenRepository;
 
 
-    public DonorsRemover(IDbContextFactory<DomainDbContext> dbContextFactory) : base(dbContextFactory)
+    public ProjectsRemover(IDbContextFactory<DomainDbContext> dbContextFactory) : base(dbContextFactory)
     {
-        _donorsRepository = new DonorsRepository(dbContextFactory);
+        _projectsRepository = new ProjectsRepository(dbContextFactory);
 
         var dbContext = dbContextFactory.CreateDbContext();
 
@@ -25,25 +26,28 @@ public class DonorsRemover : DataWriter<Donor>
     }
 
 
-    public Donor Find(int id)
+    public Project Find(int id)
     {
-        return _donorRepository.Find(id);
+        return _projectRepository.Find(id);
     }
 
     protected override void Initialize(DomainDbContext dbContext)
     {
+        _projectRepository = new ProjectRepository(dbContext);
         _donorRepository = new DonorRepository(dbContext);
         _imageRepository = new ImageRepository(dbContext);
         _specimenRepository = new SpecimenRepository(dbContext);
     }
 
-    protected override void ProcessModel(Donor donor)
+    protected override void ProcessModel(Project project)
     {
-        var specimenIds = _donorsRepository.GetRelatedSpecimens([donor.Id]).Result;
-        var imageIds = _donorsRepository.GetRelatedImages([donor.Id]).Result;
-        
+        var donorIds = _projectsRepository.GetRelatedDonors([project.Id]).Result;
+        var specimenIds = _projectsRepository.GetRelatedSpecimens([project.Id]).Result;
+        var imageIds = _projectsRepository.GetRelatedImages([project.Id]).Result;
+
         _specimenRepository.Delete(specimenIds);
         _imageRepository.Delete(imageIds);
-        _donorRepository.Delete(donor.Id);
+        _donorRepository.Delete(donorIds);
+        _projectRepository.Delete(project.Id);
     }
 }

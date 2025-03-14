@@ -4,7 +4,7 @@ using Unite.Indices.Entities.Basic.Specimens;
 
 namespace Unite.Donors.Indices.Services.Mapping;
 
-public class SpecimenIndexMapper
+public class SpecimenNavIndexMapper
 {
     /// <summary>
     /// Creates an index from the entity. Returns null if entity is null.

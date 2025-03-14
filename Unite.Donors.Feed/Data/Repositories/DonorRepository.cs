@@ -57,9 +57,13 @@ internal class DonorRepository
         _dbContext.SaveChanges();
     }
 
-    public void Delete(Donor entity)
+    public void Delete(params int[] ids)
     {
-        _dbContext.Remove(entity);
+        var entities = _dbContext.Set<Donor>()
+            .Where(entity => ids.Contains(entity.Id))
+            .ToArray();
+
+        _dbContext.RemoveRange(entities);
         _dbContext.SaveChanges();
     }
 
