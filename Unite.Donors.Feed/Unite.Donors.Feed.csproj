@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Unite.Data.Context" Version="9.6.0" />
+    <PackageReference Include="Unite.Data.Context" Version="9.7.0" />
   </ItemGroup>
   <!-- <ItemGroup>
     <ProjectReference Include="../../unite-data/Unite.Data.Context/Unite.Data.Context.csproj" />
