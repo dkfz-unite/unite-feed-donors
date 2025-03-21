@@ -38,6 +38,7 @@ public class ResourceIndexMapper
             return;
         }
 
+        index.Name = entity.Name;
         index.Id = entity.Id;
         index.Type = entity.Type;
         index.Format = entity.Format;
