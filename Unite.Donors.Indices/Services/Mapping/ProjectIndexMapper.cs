@@ -1,9 +1,9 @@
-using Unite.Data.Entities.Base;
-using Unite.Indices.Entities.Basic.Analysis;
+using Unite.Data.Entities.Donors;
+using Unite.Indices.Entities.Basic.Projects;
 
 namespace Unite.Donors.Indices.Services.Mapping;
 
-public class ResourceIndexMapper
+public class ProjectIndexMapper
 {
     /// <summary>
     /// Creates an index from the entity. Returns null if entity is null.
@@ -11,7 +11,7 @@ public class ResourceIndexMapper
     /// <param name="entity">Entity.</param>
     /// <typeparam name="T">Type of the index.</typeparam>
     /// <returns>Index created from the entity.</returns>
-    public static T CreateFrom<T>(in SampleResource entity) where T : ResourceIndex, new()
+    public static T CreateFrom<T>(in Project entity) where T : ProjectIndex, new()
     {
         if (entity == null)
         {
@@ -25,13 +25,12 @@ public class ResourceIndexMapper
         return index;
     }
 
-
     /// <summary>
     /// Maps entity to index. Does nothing if either entity or index is null.
     /// </summary>
     /// <param name="entity">Entity.</param>
     /// <param name="index">Index.</param>
-    public static void Map(in SampleResource entity, ResourceIndex index)
+    public static void Map(in Project entity, ProjectIndex index)
     {
         if (entity == null || index == null)
         {
@@ -40,9 +39,5 @@ public class ResourceIndexMapper
 
         index.Id = entity.Id;
         index.Name = entity.Name;
-        index.Type = entity.Type;
-        index.Format = entity.Format;
-        index.Archive = entity.Archive;
-        index.Url = entity.Url;
     }
 }

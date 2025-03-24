@@ -1,19 +1,19 @@
-﻿using Unite.Donors.Feed.Web.Configuration.Options;
+using Unite.Donors.Feed.Web.Configuration.Options;
 using Unite.Donors.Feed.Web.Handlers;
 using Unite.Essentials.Extensions;
 
 namespace Unite.Donors.Feed.Web.Workers;
 
-public class DonorsIndexingWorker : BackgroundService
+public class ProjectsIndexingWorker : BackgroundService
 {
-    private readonly DonorsIndexingOptions _options;
-    private readonly DonorsIndexingHandler _handler;
+    private readonly ProjectsIndexingOptions _options;
+    private readonly ProjectsIndexingHandler _handler;
     private readonly ILogger _logger;
 
-    public DonorsIndexingWorker(
-        DonorsIndexingOptions options,
-        DonorsIndexingHandler handler,
-        ILogger<DonorsIndexingWorker> logger)
+    public ProjectsIndexingWorker(
+        ProjectsIndexingOptions options,
+        ProjectsIndexingHandler handler,
+        ILogger<ProjectsIndexingWorker> logger)
     {
         _options = options;
         _handler = handler;
@@ -22,9 +22,9 @@ public class DonorsIndexingWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Donors indexing worker started");
+        _logger.LogInformation("Projects indexing worker started");
 
-        cancellationToken.Register(() => _logger.LogInformation("Donors indexing worker stopped"));
+        cancellationToken.Register(() => _logger.LogInformation("Projects indexing worker stopped"));
 
         // Delay 5 seconds to let the web api start working
         await Task.Delay(5000, cancellationToken);

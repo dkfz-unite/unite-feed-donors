@@ -9,18 +9,29 @@ namespace Unite.Donors.Feed.Web.Controllers;
 [Authorize(Policy = Policies.Data.Writer)]
 public class IndexingController : Controller
 {
-    private readonly DonorIndexingTasksService _tasksService;
+    private readonly ProjectIndexingTasksService _projectTasksService;
+    private readonly DonorIndexingTasksService _donorTasksService;
 
     public IndexingController(
-        DonorIndexingTasksService tasksService)
+        ProjectIndexingTasksService projectTasksService,
+        DonorIndexingTasksService donorTasksService)
     {
-        _tasksService = tasksService;
+        _projectTasksService = projectTasksService;
+        _donorTasksService = donorTasksService;
     }
 
-    [HttpPost]
+    [HttpPost("projects")]
+    public IActionResult PostProjects()
+    {
+        _projectTasksService.CreateTasks();
+
+        return Ok();
+    }
+
+    [HttpPost("donors")]
     public IActionResult Post()
     {
-        _tasksService.CreateTasks();
+        _donorTasksService.CreateTasks();
 
         return Ok();
     }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Unite.Data.Constants;
 using Unite.Data.Context;
 using Unite.Data.Context.Extensions.Queryable;
 using Unite.Data.Context.Repositories;
@@ -93,7 +94,7 @@ public class DonorIndexCreator
 
     private static ImageIndex CreateImageIndex(Image image, DateOnly? diagnosisDate)
     {
-        return ImageIndexMapper.CreateFrom<ImageIndex>(image, diagnosisDate);
+        return ImageNavIndexMapper.CreateFrom<ImageIndex>(image, diagnosisDate);
     }
 
     private Image[] LoadImages(int donorId)
@@ -118,7 +119,7 @@ public class DonorIndexCreator
 
     private SpecimenIndex CreateSpecimenIndex(Specimen specimen, DateOnly? diagnosisDate)
     {
-        var index =  SpecimenIndexMapper.CreateFrom<SpecimenIndex>(specimen, diagnosisDate);
+        var index =  SpecimenNavIndexMapper.CreateFrom<SpecimenIndex>(specimen, diagnosisDate);
 
         index.Samples = CreateSampleIndices(specimen.Id, diagnosisDate);
 
@@ -204,7 +205,9 @@ public class DonorIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => resource.SampleId == sampleId && resource.Type == "dna-meth");
+            .Any(resource => resource.SampleId == sampleId &&
+                ((resource.Type == DataTypes.Genome.Meth.Sample && resource.Format == FileTypes.Sequence.Idat) ||
+                (resource.Type == DataTypes.Genome.Meth.Levels)));
     }
 
     private bool CheckSampleGeneExp(int sampleId)
@@ -222,7 +225,7 @@ public class DonorIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => resource.SampleId == sampleId && resource.Type == "rnasc-exp");
+            .Any(resource => resource.SampleId == sampleId && resource.Type == DataTypes.Genome.Rnasc.Exp);
     }
 
 
@@ -387,7 +390,9 @@ public class DonorIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == "dna-meth");
+            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) &&
+                ((resource.Type == DataTypes.Genome.Meth.Sample && resource.Format == FileTypes.Sequence.Idat) ||
+                (resource.Type == DataTypes.Genome.Meth.Levels)));
     }
 
     /// <summary>
@@ -415,6 +420,6 @@ public class DonorIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == "rnasc-exp");
+            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Genome.Rnasc.Exp);
     }
 }

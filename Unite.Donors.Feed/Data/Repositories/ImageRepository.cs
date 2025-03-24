@@ -16,17 +16,17 @@ public class ImageRepository
     }
 
 
-    public void DeleteByDonorId(int donorId)
+    public void Delete(params int[] ids)
     {
         var images = _dbContext.Set<Image>()
             .AsNoTracking()
-            .Where(entity => entity.DonorId == donorId)
+            .Where(entity => ids.Contains(entity.Id))
             .ToArray();
 
         var analyses = _dbContext.Set<Sample>()
             .AsNoTracking()
             .Include(entity => entity.Analysis)
-            .Where(entity => entity.Specimen.DonorId == donorId)
+            .Where(entity => ids.Contains(entity.SpecimenId))
             .Select(entity => entity.Analysis)
             .Distinct()
             .ToArray();

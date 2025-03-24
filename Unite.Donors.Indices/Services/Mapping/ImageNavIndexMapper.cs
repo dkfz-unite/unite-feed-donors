@@ -1,17 +1,19 @@
-using Unite.Data.Entities.Base;
-using Unite.Indices.Entities.Basic.Analysis;
+using Unite.Data.Entities.Images;
+using Unite.Essentials.Extensions;
+using Unite.Indices.Entities.Basic.Images;
 
 namespace Unite.Donors.Indices.Services.Mapping;
 
-public class ResourceIndexMapper
+public class ImageNavIndexMapper
 {
     /// <summary>
     /// Creates an index from the entity. Returns null if entity is null.
     /// </summary>
     /// <param name="entity">Entity.</param>
+    /// <param name="diagnosisDate">Diagnosis date (anchor date for calculation of relative days).</param>
     /// <typeparam name="T">Type of the index.</typeparam>
     /// <returns>Index created from the entity.</returns>
-    public static T CreateFrom<T>(in SampleResource entity) where T : ResourceIndex, new()
+    public static T CreateFrom<T>(in Image entity, DateOnly? diagnosisDate) where T : ImageNavIndex, new()
     {
         if (entity == null)
         {
@@ -20,18 +22,18 @@ public class ResourceIndexMapper
 
         var index = new T();
 
-        Map(entity, index);
+        Map(entity, index, diagnosisDate);
 
         return index;
     }
-
 
     /// <summary>
     /// Maps entity to index. Does nothing if either entity or index is null.
     /// </summary>
     /// <param name="entity">Entity.</param>
     /// <param name="index">Index.</param>
-    public static void Map(in SampleResource entity, ResourceIndex index)
+    /// <param name="diagnosisDate">Diagnosis date (anchor date for calculation of relative days).</param>
+    public static void Map(in Image entity, ImageNavIndex index, DateOnly? diagnosisDate)
     {
         if (entity == null || index == null)
         {
@@ -39,10 +41,7 @@ public class ResourceIndexMapper
         }
 
         index.Id = entity.Id;
-        index.Name = entity.Name;
-        index.Type = entity.Type;
-        index.Format = entity.Format;
-        index.Archive = entity.Archive;
-        index.Url = entity.Url;
+        index.ReferenceId = entity.ReferenceId;
+        index.Type = entity.TypeId.ToDefinitionString();
     }
 }

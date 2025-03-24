@@ -54,7 +54,7 @@ public class DonorIndexingTasksService : IndexingTaskService<Donor, int>
 
     protected override IEnumerable<int> LoadRelatedProjects(IEnumerable<int> keys)
     {
-        return [];
+        return _donorsRepository.GetRelatedProjects(keys).Result;
     }
 
     protected override IEnumerable<int> LoadRelatedDonors(IEnumerable<int> keys)

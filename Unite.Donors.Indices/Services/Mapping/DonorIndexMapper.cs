@@ -2,6 +2,7 @@ using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Donors.Clinical;
 using Unite.Essentials.Extensions;
 using Unite.Indices.Entities.Basic.Donors;
+using Unite.Indices.Entities.Basic.Projects;
 
 namespace Unite.Donors.Indices.Services.Mapping;
 
