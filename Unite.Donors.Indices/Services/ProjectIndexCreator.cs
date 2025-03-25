@@ -271,6 +271,7 @@ public class ProjectIndexCreator
             .AsNoTracking()
             .Include(image => image.MriImage)
             // .Include(image => image.CtImage)
+            .Where(image => ids.Contains(image.Id))
             .ToArray();
 
         // MRI
@@ -334,8 +335,10 @@ public class ProjectIndexCreator
         var stats = new SpecimensStats();
 
         var ids = _projectsRepository.GetRelatedSpecimens([projectId]).Result;
+
         var entries = dbContext.Set<Specimen>()
             .AsNoTracking()
+            .Where(specimen => ids.Contains(specimen.Id))
             .ToArray();
 
         // Materials
