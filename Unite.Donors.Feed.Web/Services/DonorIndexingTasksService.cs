@@ -54,7 +54,10 @@ public class DonorIndexingTasksService : IndexingTaskService<Donor, int>
 
     protected override IEnumerable<int> LoadRelatedProjects(IEnumerable<int> keys)
     {
-        return _donorsRepository.GetRelatedProjects(keys).Result;
+        var defaultProjects = LoadDefaultProjects();
+        var relatedProjects = _donorsRepository.GetRelatedProjects(keys).Result;
+
+        return Enumerable.Concat(defaultProjects, relatedProjects);
     }
 
     protected override IEnumerable<int> LoadRelatedDonors(IEnumerable<int> keys)
