@@ -660,9 +660,9 @@ public class ProjectIndexCreator
             .GroupBy(entry => entry.Entity.Symbol ?? entry.Entity.StableId)
             .Select(group => new {
                 Key = group.Key,
-                Reads = group.Select(entry => entry.FPKM),
-                Min = Math.Round(group.Min(entry => entry.FPKM)),
-                Max = Math.Round(group.Max(entry => entry.FPKM))
+                Reads = group.Select(entry => entry.TPM),
+                Min = Math.Round(group.Min(entry => entry.TPM)),
+                Max = Math.Round(group.Max(entry => entry.TPM))
             })
             .ToArray();
 
