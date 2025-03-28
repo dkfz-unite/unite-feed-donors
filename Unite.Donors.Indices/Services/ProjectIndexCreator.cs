@@ -651,25 +651,68 @@ public class ProjectIndexCreator
             value => withAnalyses.Count(sample => sample.Analysis.TypeId == value)
         );
 
-
         // Per variation
-        stats.PerVariation = dbContext.Set<GeneExpression>()
+        // In memory calculation using standard deviation
+        var StandardDeviation = new Func<double[], double>(values =>
+        {
+            var mean = values.Average();
+            var sum = values.Sum(value => Math.Pow(value - mean, 2));
+            return Math.Sqrt(sum / values.Length);
+        });
+
+        var expressionGroups = dbContext.Set<GeneExpression>()
             .AsNoTracking()
             .Include(entry => entry.Entity)
             .Where(entry => donorIds.Contains(entry.Sample.Specimen.DonorId))
             .GroupBy(entry => entry.Entity.Symbol ?? entry.Entity.StableId)
             .Select(group => new {
                 Key = group.Key,
-                Min = Math.Round(group.Min(value => value.FPKM)),
-                Max = Math.Round(group.Max(value => value.FPKM)),
-                Delta = Math.Round(group.Max(value => value.FPKM) - group.Min(value => value.FPKM))
+                Reads = group.Select(entry => entry.FPKM),
+                Min = Math.Round(group.Min(entry => entry.FPKM)),
+                Max = Math.Round(group.Max(entry => entry.FPKM))
             })
-            .OrderByDescending(entry => entry.Delta)
+            .ToArray();
+
+        stats.PerVariation = expressionGroups
+            .Select(group => new {
+                Key = group.Key,
+                Min = group.Min,
+                Max = group.Max,
+                Mean = Math.Round(group.Reads.Average()),
+                SD = Math.Round(StandardDeviation(group.Reads.ToArray()))
+            })
+            .Where(stats => stats.Mean > 1)
+            .Select(stats => new {
+                Key = stats.Key,
+                Min = stats.Min,
+                Max = stats.Max,
+                CV = stats.SD / stats.Mean
+            })
+            .OrderByDescending(stats => stats.CV)
             .Take(25)
             .ToDictionary(
-                group => group.Key,
-                group => new int[] { (int)group.Min, (int)group.Max }
+                stats => stats.Key,
+                stats => new int[] { (int)stats.Min, (int)stats.Max }
             );
+
+        // In database calculation using delta (max - min)
+        // stats.PerVariation = dbContext.Set<GeneExpression>()
+        //     .AsNoTracking()
+        //     .Include(entry => entry.Entity)
+        //     .Where(entry => donorIds.Contains(entry.Sample.Specimen.DonorId))
+        //     .GroupBy(entry => entry.Entity.Symbol ?? entry.Entity.StableId)
+        //     .Select(group => new {
+        //         Key = group.Key,
+        //         Min = Math.Round(group.Min(value => value.FPKM)),
+        //         Max = Math.Round(group.Max(value => value.FPKM)),
+        //         Delta = Math.Round(group.Max(value => value.FPKM) - group.Min(value => value.FPKM))
+        //     })
+        //     .OrderByDescending(entry => entry.Delta)
+        //     .Take(25)
+        //     .ToDictionary(
+        //         group => group.Key,
+        //         group => new int[] { (int)group.Min, (int)group.Max }
+        //     );
 
 
         // Per mutation
@@ -978,5 +1021,12 @@ public class ProjectIndexCreator
         var step = Math.Round((max - min) / 5);
 
         return [min + step, min + step * 2, min + step * 3, min + step * 4];
+    }
+
+    private static double StandardDeviation(double[] values)
+    {
+        var mean = values.Average();
+        var sum = values.Sum(value => Math.Pow(value - mean, 2));
+        return Math.Sqrt(sum / values.Length);
     }
 }
