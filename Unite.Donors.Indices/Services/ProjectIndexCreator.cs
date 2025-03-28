@@ -483,20 +483,40 @@ public class ProjectIndexCreator
         if (withoutConsequences.Any())
             stats.PerEffectType.Add("No effect", withoutConsequences.Length);
 
+
+        // Per change
+        var aBases = new[] { "A", "T" };
+        var cBases = new[] { "C", "G" };
+        var dBases = new[] { "A", "C" };
+
         // Per base ref
         var withBaseRef = entries.Where(entry => entry.Ref?.Length == 1);
-        var baseRefGroups = withBaseRef.Select(entry => entry.Ref).Distinct().OrderBy(value => (int)value[0]);
-        stats.PerBaseRef = baseRefGroups.ToDictionary(
+        stats.PerBaseRef = dBases.ToDictionary(
             value => value,
-            value => withBaseRef.Count(entry => entry.Ref == value)
+            value => value == dBases[0] ? withBaseRef.Count(entry => aBases.Contains(entry.Ref)) : withBaseRef.Count(entry => cBases.Contains(entry.Ref))
         );
 
         // Per base alt
         var withBaseAlt = entries.Where(entry => entry.Alt?.Length == 1);
-        var baseAltGroups = withBaseAlt.Select(entry => entry.Alt).Distinct().OrderBy(value => (int)value[0]);
-        stats.PerBaseAlt = baseAltGroups.ToDictionary(
+        stats.PerBaseAlt = dBases.ToDictionary(
             value => value,
-            value => withBaseAlt.Count(entry => entry.Alt == value)
+            value => value == dBases[0] ? withBaseAlt.Count(entry => aBases.Contains(entry.Alt)) : withBaseAlt.Count(entry => cBases.Contains(entry.Alt))
+        );
+
+        // Per base change
+        var changeGroups = new (string[] Ref, string[] Alt)[]
+        {
+            ( aBases, ["C"] ), // A -> C
+            ( aBases, ["G"] ), // A -> G
+            ( aBases, ["T", "A"] ), // A -> T
+            ( cBases, ["A"] ), // C -> A
+            ( cBases, ["G", "C"] ), // C -> G
+            ( cBases, ["T"] ) // C -> T
+        };
+        var withBaseChange = entries.Where(entry => entry.Ref?.Length == 1 && entry.Alt?.Length == 1);
+        stats.PerBaseChange = changeGroups.ToDictionary(
+            value => $"{value.Ref[0]} > {value.Alt[0]}",
+            value => withBaseChange.Count(entry => value.Ref.Contains(entry.Ref) && value.Alt.Contains(entry.Alt))
         );
 
         return stats;
