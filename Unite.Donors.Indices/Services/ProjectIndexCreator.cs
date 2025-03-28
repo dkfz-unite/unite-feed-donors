@@ -653,13 +653,6 @@ public class ProjectIndexCreator
 
         // Per variation
         // In memory calculation using standard deviation
-        var StandardDeviation = new Func<double[], double>(values =>
-        {
-            var mean = values.Average();
-            var sum = values.Sum(value => Math.Pow(value - mean, 2));
-            return Math.Sqrt(sum / values.Length);
-        });
-
         var expressionGroups = dbContext.Set<GeneExpression>()
             .AsNoTracking()
             .Include(entry => entry.Entity)
