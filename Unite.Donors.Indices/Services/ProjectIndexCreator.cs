@@ -485,33 +485,33 @@ public class ProjectIndexCreator
 
 
         // Per change
-        var aBases = new[] { "A", "T" };
         var cBases = new[] { "C", "G" };
-        var dBases = new[] { "A", "C" };
+        var tBases = new[] { "T", "A" };
+        var dBases = new[] { "C", "T" };
 
         // Per base ref
         var withBaseRef = entries.Where(entry => entry.Ref?.Length == 1);
         stats.PerBaseRef = dBases.ToDictionary(
             value => value,
-            value => value == dBases[0] ? withBaseRef.Count(entry => aBases.Contains(entry.Ref)) : withBaseRef.Count(entry => cBases.Contains(entry.Ref))
+            value => value == dBases[0] ? withBaseRef.Count(entry => cBases.Contains(entry.Ref)) : withBaseRef.Count(entry => tBases.Contains(entry.Ref))
         );
 
         // Per base alt
         var withBaseAlt = entries.Where(entry => entry.Alt?.Length == 1);
         stats.PerBaseAlt = dBases.ToDictionary(
             value => value,
-            value => value == dBases[0] ? withBaseAlt.Count(entry => aBases.Contains(entry.Alt)) : withBaseAlt.Count(entry => cBases.Contains(entry.Alt))
+            value => value == dBases[0] ? withBaseAlt.Count(entry => cBases.Contains(entry.Alt)) : withBaseAlt.Count(entry => tBases.Contains(entry.Alt))
         );
 
         // Per base change
         var changeGroups = new (string[] Ref, string[] Alt)[]
         {
-            ( aBases, ["C"] ), // A -> C
-            ( aBases, ["G"] ), // A -> G
-            ( aBases, ["T", "A"] ), // A -> T
             ( cBases, ["A"] ), // C -> A
             ( cBases, ["G", "C"] ), // C -> G
-            ( cBases, ["T"] ) // C -> T
+            ( cBases, ["T"] ), // C -> T
+            ( tBases, ["A", "T"] ), // T -> A
+            ( tBases, ["C"] ), // T -> C
+            ( tBases, ["G"] ) // T -> G
         };
         var withBaseChange = entries.Where(entry => entry.Ref?.Length == 1 && entry.Alt?.Length == 1);
         stats.PerBaseChange = changeGroups.ToDictionary(
@@ -673,40 +673,66 @@ public class ProjectIndexCreator
 
         // Per variation
         // In memory calculation using standard deviation
+        // I need to extract or calculate values for box plot
         var expressionGroups = dbContext.Set<GeneExpression>()
             .AsNoTracking()
             .Include(entry => entry.Entity)
             .Where(entry => donorIds.Contains(entry.Sample.Specimen.DonorId))
-            .GroupBy(entry => entry.Entity.Symbol ?? entry.Entity.StableId)
-            .Select(group => new {
-                Key = group.Key,
-                Reads = group.Select(entry => entry.TPM),
-                Min = Math.Round(group.Min(entry => entry.TPM)),
-                Max = Math.Round(group.Max(entry => entry.TPM))
+            .GroupBy(entry => entry.Entity.StableId)
+            .Select(group => new { 
+                Key = group.First().Entity.Symbol, 
+                Reads = group.Select(entry => entry.FPKM),
+                Count = group.Count()
             })
             .ToArray();
 
         stats.PerVariation = expressionGroups
             .Select(group => new {
                 Key = group.Key,
-                Min = group.Min,
-                Max = group.Max,
-                Mean = Math.Round(group.Reads.Average()),
-                SD = Math.Round(StandardDeviation(group.Reads.ToArray()))
+                Reads = group.Reads.Order().ToArray(),
+                Count = group.Count
             })
-            .Where(stats => stats.Mean > 1)
+            .Select(group => new {
+                Key = group.Key,
+                Min = group.Reads.First(),
+                Max = group.Reads.Last(),
+                Mean = group.Reads.Average(),
+                Q1 = group.Reads[group.Count / 4],
+                Q2 = group.Reads[group.Count / 2],
+                Q3 = group.Reads[group.Count * 3 / 4],
+                SD = StandardDeviation(group.Reads)
+            })
+            .Where(stats => stats.Mean >= 1)
             .Select(stats => new {
                 Key = stats.Key,
                 Min = stats.Min,
                 Max = stats.Max,
+                Mean = stats.Mean,
+                Q1 = stats.Q1,
+                Q2 = stats.Q2,
+                Q3 = stats.Q3,
+                SD = stats.SD,
                 CV = stats.SD / stats.Mean
             })
             .OrderByDescending(stats => stats.CV)
             .Take(25)
+            .Select(stats => new {
+                Key = stats.Key,
+                Values = new double[] { stats.Min, stats.Q1, stats.Q2, stats.Q3, stats.Max, stats.Mean, stats.SD, stats.CV }
+            })
             .ToDictionary(
                 stats => stats.Key,
-                stats => new int[] { (int)stats.Min, (int)stats.Max }
+                stats => stats.Values.Select(value => Math.Round(value, 2)).ToArray()
             );
+
+
+        // stats.PerVariation = a
+        //     .Take(25)
+        //     .ToDictionary(
+        //         stats => stats.Key,
+        //         stats => new double[] { stats.Min, stats.Q1, stats.Q2, stats.Q3, stats.Max, stats.Mean, stats.SD, stats.CV }
+
+        //     );
 
         // In database calculation using delta (max - min)
         // stats.PerVariation = dbContext.Set<GeneExpression>()
@@ -1036,10 +1062,11 @@ public class ProjectIndexCreator
         return [min + step, min + step * 2, min + step * 3, min + step * 4];
     }
 
-    private static double StandardDeviation(double[] values)
+    private static double StandardDeviation(IEnumerable<double> values)
     {
         var mean = values.Average();
+        var count = values.Count();
         var sum = values.Sum(value => Math.Pow(value - mean, 2));
-        return Math.Sqrt(sum / values.Length);
+        return Math.Sqrt(sum / count);
     }
 }
