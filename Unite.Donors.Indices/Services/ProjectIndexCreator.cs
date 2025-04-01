@@ -678,15 +678,15 @@ public class ProjectIndexCreator
             .AsNoTracking()
             .Include(entry => entry.Entity)
             .Where(entry => donorIds.Contains(entry.Sample.Specimen.DonorId))
-            .GroupBy(entry => entry.Entity.StableId)
+            .GroupBy(entry => entry.EntityId)
             .Select(group => new { 
-                Key = group.First().Entity.Symbol, 
+                Key = group.Key,
                 Reads = group.Select(entry => entry.TPM),
                 Count = group.Count()
             })
             .ToArray();
 
-        stats.PerVariation = expressionGroups
+        var variabilityMap = expressionGroups
             .Select(group => new {
                 Key = group.Key,
                 Reads = group.Reads.Order().ToArray(),
@@ -725,6 +725,33 @@ public class ProjectIndexCreator
                 stats => stats.Values.Select(value => Math.Round(value, 2)).ToArray()
             );
 
+        var relatedGenesMap = dbContext.Set<Data.Entities.Genome.Gene>()
+            .AsNoTracking()
+            .Where(gene => variabilityMap.Keys.Contains(gene.Id))
+            .ToDictionary(
+                gene => gene.Id,
+                gene => (Symbol: gene.Symbol, Index: 0)
+            );
+
+        stats.PerVariation = [];
+
+        foreach (var entry in variabilityMap)
+        {
+            var mapValue = relatedGenesMap[entry.Key];
+
+            if (stats.PerVariation.ContainsKey(mapValue.Symbol))
+            {
+                mapValue.Index++;
+
+                stats.PerVariation.Add($"{mapValue.Symbol}-{mapValue.Index}", entry.Value);
+            }
+            else
+            {
+                stats.PerVariation.Add(mapValue.Symbol, entry.Value);
+            }
+        }
+            
+                
 
         // stats.PerVariation = a
         //     .Take(25)
