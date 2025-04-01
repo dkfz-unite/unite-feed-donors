@@ -232,7 +232,7 @@ public class ProjectIndexCreator
 
         stats.PerVitalStatus = withVital
             .OrderBy(entry => entry.ClinicalData.VitalStatus.Value ? 1  : 0)
-            .GroupBy(entry => entry.ClinicalData.VitalStatus.Value ? "Alive" : "Deseased")
+            .GroupBy(entry => entry.ClinicalData.VitalStatus.Value ? "Alive" : "Deceased")
             .ToDictionary(
                 group => group.Key,
                 group => group.Count()
