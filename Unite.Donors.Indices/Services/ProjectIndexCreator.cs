@@ -681,7 +681,7 @@ public class ProjectIndexCreator
             .GroupBy(entry => entry.Entity.StableId)
             .Select(group => new { 
                 Key = group.First().Entity.Symbol, 
-                Reads = group.Select(entry => entry.FPKM),
+                Reads = group.Select(entry => entry.TPM),
                 Count = group.Count()
             })
             .ToArray();
