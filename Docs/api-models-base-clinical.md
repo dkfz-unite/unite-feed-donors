@@ -11,7 +11,13 @@ _At least one field has to be set_
 - Possible values: `"Female"`, `"Male"`, `"Other"`
 - Example: `"Other"`
 
-**`age`** - Donor age at diagnosis.
+**`enrollment_date`** - Date of the donor enrollment.
+- Note: **Serves as anchor date for calculation of all other relative dates. Without this date, no other relative dates will be calculated and shown.**
+- Type: _String_
+- Format: "YYYY-MM-DD"
+- Example: `"2020-01-01"`
+
+**`enrollment_age`** - Donor age at enrollment.
 - Type: _Number_
 - Limitations: Integer, greater or equal to 0
 - Example: `56`
@@ -20,12 +26,6 @@ _At least one field has to be set_
 - Type: _String_
 - Limitations: Maximum length 255
 - Example: `"Diagnosis1"`
-
-**`diagnosis_date`** - Date, when diagnosis was stated.
-- Note: **Serves as anchor date for calculation of all other relative dates. Without this date, no other relative dates will be calculated and shown.**
-- Type: _String_
-- Format: "YYYY-MM-DD"
-- Example: `"2020-01-01"`
 
 **`primary_site`** - Primary site of disease.
 - Type: _String_
@@ -47,7 +47,7 @@ _At least one field has to be set_
 - Limitations: Only either 'vital_status_change_date' or 'vital_status_change_day' can be set at once, not both
 - Example: `"2021-01-01"`
 
-**`vital_status_change_day`** - Relative number of days since diagnosis statement, when vital status was last revised.
+**`vital_status_change_day`** - Relative number of days since enrollment, when vital status was last revised.
 - Type: _Number_
 - Limitations: Integer, greater or equal to 1, only either 'vital_status_change_date' or 'vital_status_change_day' can be set at once, not both
 - Example: `367`
@@ -67,11 +67,11 @@ _At least one field has to be set_
 - Limitations: Integer, greater or equal to 1, only either 'progression_status_change_date' or 'progression_status_change_day' can be set at once, not both
 - Example: `37`
 
-**`kps_baseline`** - KPS baseline.
-- Type: _Number_
-- Limitations: Integer, greater or equal to 0, less or equal to 100
-- Example: `90`
-
-**`steroids_baseline`** - Steroids baseline.
+**`steroids_reactive`** - Whether donor is reactive to steroids.
 - Type: _Boolean_
 - Example: `false`
+
+**`kps`** - Karnofsky Performance Status (KPS).
+- Type: _Number_
+- Limitations: Integer, greater or equal to 0, less or equal to 100 (usually measured in 10% increments)
+- Example: `90`

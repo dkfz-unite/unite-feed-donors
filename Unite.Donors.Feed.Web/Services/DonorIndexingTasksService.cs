@@ -4,7 +4,7 @@ using Unite.Data.Context.Repositories;
 using Unite.Data.Context.Services.Tasks;
 using Unite.Data.Entities.Donors;
 
-using SSM = Unite.Data.Entities.Genome.Analysis.Dna.Ssm;
+using SM = Unite.Data.Entities.Genome.Analysis.Dna.Sm;
 using CNV = Unite.Data.Entities.Genome.Analysis.Dna.Cnv;
 using SV = Unite.Data.Entities.Genome.Analysis.Dna.Sv;
 
@@ -80,9 +80,9 @@ public class DonorIndexingTasksService : IndexingTaskService<Donor, int>
         return _donorsRepository.GetRelatedGenes(keys).Result;
     }
 
-    protected override IEnumerable<int> LoadRelatedSsms(IEnumerable<int> keys)
+    protected override IEnumerable<int> LoadRelatedSms(IEnumerable<int> keys)
     {
-        return _donorsRepository.GetRelatedVariants<SSM.Variant>(keys).Result;
+        return _donorsRepository.GetRelatedVariants<SM.Variant>(keys).Result;
     }
 
     protected override IEnumerable<int> LoadRelatedCnvs(IEnumerable<int> keys)

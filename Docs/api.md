@@ -65,9 +65,9 @@ Supported formats are:
     "studies": [ "Study1" ],
     "clinical_data": {
       "sex": "Female",
-      "age": 45,
+      "enrollment_date": "2020-01-01",
+      "enrollment_age": 45,
       "diagnosis": "Diagnosis1",
-      "diagnosis_date": "2020-01-01",
       "primary_site": "Brain",
       "localization": "Left",
       "vital_status": true,
@@ -87,9 +87,9 @@ Supported formats are:
     "studies": [ "Study1" ],
     "clinical_data": {
       "sex": "Female",
-      "age": 75,
+      "enrollment_date": "2020-01-01",
+      "enrollment_age": 75,
       "diagnosis": "Diagnosis1",
-      "diagnosis_date": "2020-01-01",
       "primary_site": "Brain",
       "localization": "Right",
       "vital_status": false,
@@ -107,9 +107,9 @@ Supported formats are:
 
 ##### tsv - text/tab-separated-values
 ```tsv
-id	mta	projects	studies	sex	age	diagnosis	diagnosis_date	primary_site	localization	vital_status	vital_status_change_date	vital_status_change_day	progression_status	progression_status_change_date	progression_status_change_day	kps_baseline	steroids_baseline
-Donor1	true	Project1	Study1	Female	45	Diagnosis1	2020-01-01	Brain	Left	true	2021-01-01		false	2021-01-01		90	true
-Donor2	true	Project1	Study1	Female	75	Diagnosis1	2020-01-01	Brain	Right	false	2021-01-01		true	2020-03-01		50	false
+id	mta	projects	studies	sex	enrollment_date	enrollment_age	diagnosis	primary_site	localization	vital_status	vital_status_change_date	vital_status_change_day	progression_status	progression_status_change_date	progression_status_change_day	kps_baseline	steroids_baseline
+Donor1	true	Project1	Study1	Female	2020-01-01	45	Diagnosis1	Brain	Left	true	2021-01-01		false	2021-01-01		90	true
+Donor2	true	Project1	Study1	Female	2020-01-01	75	Diagnosis1	Brain	Right	false	2021-01-01		true	2020-03-01		50	false
 ```
 
 Fields description can be found [here](./api-models-donors.md).

@@ -19,7 +19,7 @@ Includes information about patient treatment.
 - Limitations: Only either 'start_date' or 'start_day' can be set at once, not both
 - Example: `"2020-01-07"`
 
-**`start_day`** - Relative number of days since diagnosis statement, when treatment has started.
+**`start_day`** - Relative number of days since enrollment, when treatment has started.
 - Type: _Number_
 - Limitations: Integer, greater or equal to 1, only either 'start_date' or 'start_day' can be set at once, not both
 - Example: `7`
