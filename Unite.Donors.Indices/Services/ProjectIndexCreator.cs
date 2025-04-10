@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Unite.Data.Constants;
 using Unite.Data.Context;
-using Unite.Data.Context.Extensions.Queryable;
 using Unite.Data.Context.Repositories;
+using Unite.Data.Context.Repositories.Extensions.Queryable;
 using Unite.Data.Context.Services.Stats;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Donors.Clinical;
@@ -907,66 +907,6 @@ public class ProjectIndexCreator
             .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Genome.Rnasc.Exp);
     }
 
-
-    private static string GetGroupName(int value, int[] groups)
-    {
-        if (value <= groups[0])
-            return $"<{groups[0]}";
-        else if (value <= groups[1])
-            return $"{groups[0] + 1}-{groups[1]}";
-        else if (value < groups[2])
-            return $"{groups[1] + 1}-{groups[2]}";
-        else if (value < groups[3])
-            return $"{groups[2] + 1}-{groups[3]}";
-        else
-            return $">{groups[3] + 1}";
-    }
-
-    private static string GetGroupName(double value, double[] groups)
-    {
-        if (value <= groups[0])
-            return $"<{groups[0]}";
-        else if (value <= groups[1])
-            return $"{groups[0] + 1}-{groups[1]}";
-        else if (value < groups[2])
-            return $"{groups[1] + 1}-{groups[2]}";
-        else if (value < groups[3])
-            return $"{groups[2] + 1}-{groups[3]}";
-        else
-            return $">{groups[3] + 1}";
-    }
-
-    private static int[] DefineGroups(IEnumerable<int> values, int? desiredMin = default, int? desiredMax = default)
-    {
-        if (!values.Any())
-            return [];
-
-        var min = desiredMin ?? values.Min();
-        var max = desiredMax ?? values.Max();
-
-        if (min == max)
-            return [min];
-
-        var step = (max - min) / 5;
-
-        return [min + step, min + step * 2, min + step * 3, min + step * 4];
-    }
-
-    private static double[] DefineGroups(IEnumerable<double> values, int? desiredMin = default, int? desiredMax = default)
-    {
-        if (!values.Any())
-            return [];
-
-        var min = desiredMin ?? Math.Floor(values.Min());
-        var max = desiredMax ?? Math.Ceiling(values.Max());
-
-        if (min == max)
-            return [min];
-
-        var step = Math.Round((max - min) / 5);
-
-        return [min + step, min + step * 2, min + step * 3, min + step * 4];
-    }
 
     private static double StandardDeviation(IEnumerable<double> values)
     {

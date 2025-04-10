@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Unite.Data.Constants;
 using Unite.Data.Context;
-using Unite.Data.Context.Extensions.Queryable;
 using Unite.Data.Context.Repositories;
+using Unite.Data.Context.Repositories.Extensions.Queryable;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Entities.Genome.Analysis;
