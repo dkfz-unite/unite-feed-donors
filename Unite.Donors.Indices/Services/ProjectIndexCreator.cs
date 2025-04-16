@@ -542,6 +542,7 @@ public class ProjectIndexCreator
 
         var donorIds = _projectsRepository.GetRelatedDonors([projectId]).Result;
         var analyses = new AnalysisType[] { AnalysisType.MethArray, AnalysisType.WGBS, AnalysisType.RRBS };
+        var resources = new string[] { DataTypes.Genome.Meth.Level };
         var withAnalyses = dbContext.Set<Sample>()
             .AsNoTracking()
             .Include(sample => sample.Specimen.Donor)
@@ -549,9 +550,7 @@ public class ProjectIndexCreator
             .Include(sample => sample.Resources)
             .Where(sample => donorIds.Contains(sample.Specimen.DonorId))
             .Where(sample => analyses.Contains(sample.Analysis.TypeId))
-            .Where(sample => sample.Resources.Any(resource => 
-                (resource.Type == DataTypes.Genome.Meth.Sample && resource.Format == FileTypes.Sequence.Idat) ||
-                (resource.Type == DataTypes.Genome.Meth.Level)))
+            .Where(sample => sample.Resources.Any(resource => resources.Contains(resource.Type)))
             .ToArray();
 
         // Total donors with the data
@@ -874,9 +873,7 @@ public class ProjectIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && 
-                ((resource.Type == DataTypes.Genome.Meth.Sample && resource.Format == FileTypes.Sequence.Idat) ||
-                 (resource.Type == DataTypes.Genome.Meth.Level)));
+            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Genome.Meth.Level);
     }
 
     /// <summary>
