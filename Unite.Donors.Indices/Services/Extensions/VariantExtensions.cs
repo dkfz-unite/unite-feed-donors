@@ -1,17 +1,17 @@
 using CNV = Unite.Data.Entities.Genome.Analysis.Dna.Cnv;
-using SSM = Unite.Data.Entities.Genome.Analysis.Dna.Ssm;
+using SM = Unite.Data.Entities.Genome.Analysis.Dna.Sm;
 using SV = Unite.Data.Entities.Genome.Analysis.Dna.Sv;
 
 namespace Unite.Donors.Indices.Services.Extensions;
 
 internal static class VariantExtensions
 {
-    public static Data.Entities.Genome.Analysis.Dna.Effect GetMostSevereEffect(this SSM.Variant variant)
+    public static Data.Entities.Genome.Analysis.Dna.Effect GetMostSevereEffect(this SM.Variant variant)
     {
         return variant.AffectedTranscripts?.GetMostSevere().Effects.GetMostSevere();
     }
 
-    public static SSM.AffectedTranscript GetMostSevere(this ICollection<SSM.AffectedTranscript> entries)
+    public static SM.AffectedTranscript GetMostSevere(this ICollection<SM.AffectedTranscript> entries)
     {
         return entries.OrderBy(entry => entry.Effects.GetMostSevere().Severity).First();
     }

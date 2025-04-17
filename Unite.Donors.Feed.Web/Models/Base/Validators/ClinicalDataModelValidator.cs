@@ -18,7 +18,7 @@ public class ClinicalDataModelValidator : AbstractValidator<ClinicalDataModel>
             .MaximumLength(100)
             .WithMessage("Maximum length is 100");
 
-        RuleFor(model => model.Age)
+        RuleFor(model => model.EnrollmentAge)
             .GreaterThanOrEqualTo(0)
             .WithMessage("Should be greater than or equal to 0");
 
@@ -52,7 +52,7 @@ public class ClinicalDataModelValidator : AbstractValidator<ClinicalDataModel>
             .When(model => model.ProgressionStatusChangeDay.HasValue)
             .WithMessage("Should be greater than or equal to 1");
 
-        RuleFor(model => model.KpsBaseline)
+        RuleFor(model => model.Kps)
             .InclusiveBetween(0, 100)
             .WithMessage("Should be in range [0, 100]");
     }

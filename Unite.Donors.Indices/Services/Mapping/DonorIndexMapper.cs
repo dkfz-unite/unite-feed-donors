@@ -40,20 +40,20 @@ public class DonorIndexMapper
             return;
         }
 
-        var diagnosisDate = entity.ClinicalData?.DiagnosisDate;
+        var enrollmentDate = entity.ClinicalData?.EnrollmentDate;
 
         index.Id = entity.Id;
         index.ReferenceId = entity.ReferenceId;
         index.MtaProtected = entity.MtaProtected;
 
-        index.ClinicalData = CreateFrom(entity.ClinicalData, diagnosisDate);
-        index.Treatments = CreateFrom(entity.Treatments, diagnosisDate);
+        index.ClinicalData = CreateFrom(entity.ClinicalData, enrollmentDate);
+        index.Treatments = CreateFrom(entity.Treatments, enrollmentDate);
         index.Projects = CreateFrom(entity.DonorProjects);
         index.Studies = CreateFrom(entity.DonorStudies);
     }
 
 
-    private static ClinicalDataIndex CreateFrom(in ClinicalData entity, DateOnly? diagnosisDate)
+    private static ClinicalDataIndex CreateFrom(in ClinicalData entity, DateOnly? enrollmentDate)
     {
         if (entity == null)
         {
@@ -62,21 +62,21 @@ public class DonorIndexMapper
 
         return new ClinicalDataIndex
         {
-            Gender = entity.GenderId?.ToDefinitionString(),
-            Age = entity.Age,
+            Sex = entity.SexId?.ToDefinitionString(),
+            Age = entity.EnrollmentAge,
             Diagnosis = entity.Diagnosis,
             PrimarySite = entity.PrimarySite?.Value,
             Localization = entity.Localization?.Value,
             VitalStatus = entity.VitalStatus,
-            VitalStatusChangeDay = entity.VitalStatusChangeDay ?? entity.VitalStatusChangeDate?.RelativeFrom(diagnosisDate),
+            VitalStatusChangeDay = entity.VitalStatusChangeDay ?? entity.VitalStatusChangeDate?.RelativeFrom(enrollmentDate),
             ProgressionStatus = entity.ProgressionStatus,
-            ProgressionStatusChangeDay = entity.ProgressionStatusChangeDay ?? entity.ProgressionStatusChangeDate?.RelativeFrom(diagnosisDate),
-            KpsBaseline = entity.KpsBaseline,
-            SteroidsBaseline = entity.SteroidsBaseline
+            ProgressionStatusChangeDay = entity.ProgressionStatusChangeDay ?? entity.ProgressionStatusChangeDate?.RelativeFrom(enrollmentDate),
+            SteroidsReactive = entity.SteroidsReactive,
+            Kps = entity.Kps
         };
     }
 
-    private static TreatmentIndex[] CreateFrom(in IEnumerable<Treatment> entities, DateOnly? diagnosisDate)
+    private static TreatmentIndex[] CreateFrom(in IEnumerable<Treatment> entities, DateOnly? enrollmentDate)
     {
         if (entities?.Any() != true)
         {
@@ -89,7 +89,7 @@ public class DonorIndexMapper
             {
                 Therapy = entity.Therapy.Name,
                 Details = entity.Details,
-                StartDay = entity.StartDay ?? entity.StartDate?.RelativeFrom(diagnosisDate),
+                StartDay = entity.StartDay ?? entity.StartDate?.RelativeFrom(enrollmentDate),
                 DurationDays = entity.DurationDays ?? entity.EndDate?.RelativeFrom(entity.StartDate),
                 Results = entity.Results
             };

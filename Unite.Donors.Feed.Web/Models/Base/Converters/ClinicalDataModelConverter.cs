@@ -17,10 +17,10 @@ public class ClinicalDataModelConverter
     
     private static void Map(in ClinicalDataModel source, ref Data.Models.ClinicalDataModel target)
     {
-        target.Gender = source.Gender;
-        target.Age = source.Age;
+        target.Sex = source.Sex;
+        target.EnrollmentDate = source.EnrollmentDate;
+        target.EnrollmentAge = source.EnrollmentAge;
         target.Diagnosis = source.Diagnosis;
-        target.DiagnosisDate = source.DiagnosisDate;
         target.PrimarySite = source.PrimarySite;
         target.Localization = source.Localization;
         target.VitalStatus = source.VitalStatus;
@@ -29,7 +29,7 @@ public class ClinicalDataModelConverter
         target.ProgressionStatus = source.ProgressionStatus;
         target.ProgressionStatusChangeDate = source.ProgressionStatusChangeDate;
         target.ProgressionStatusChangeDay = source.ProgressionStatusChangeDay;
-        target.KpsBaseline = source.KpsBaseline;
-        target.SteroidsBaseline = source.SteroidsBaseline;
+        target.SteroidsReactive = source.SteroidsReactive;
+        target.Kps = source.Kps;
     }
 }
