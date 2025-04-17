@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Unite.Data.Constants;
 using Unite.Data.Context;
-using Unite.Data.Context.Extensions.Queryable;
 using Unite.Data.Context.Repositories;
+using Unite.Data.Context.Repositories.Extensions.Queryable;
+using Unite.Data.Context.Services.Stats;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Entities.Genome.Analysis;
@@ -20,9 +21,10 @@ using Unite.Essentials.Extensions;
 using Unite.Indices.Entities;
 using Unite.Indices.Entities.Projects;
 using Unite.Indices.Entities.Projects.Stats;
+using Unite.Indices.Entities.Projects.Stats.Base;
 
+using SM = Unite.Data.Entities.Genome.Analysis.Dna.Sm;
 using CNV = Unite.Data.Entities.Genome.Analysis.Dna.Cnv;
-using SSM = Unite.Data.Entities.Genome.Analysis.Dna.Ssm;
 using SV = Unite.Data.Entities.Genome.Analysis.Dna.Sv;
 
 
@@ -196,65 +198,24 @@ public class ProjectIndexCreator
         stats.Number = entries.Length;
 
         // Per age
-        var withAge = entries.Where(donor => donor.ClinicalData?.Age != null);
-        var withoutAge = entries.Where(donor => donor.ClinicalData?.Age == null);
-        var ageGroups = DefineGroups(withAge.Select(entry => entry.ClinicalData.Age.Value), desiredMin: 0);
-        
-        stats.PerAge = withAge
-            .OrderBy(entry => entry.ClinicalData.Age.Value)
-            .GroupBy(entry => GetGroupName(entry.ClinicalData.Age.Value, ageGroups))
-            .ToDictionary(
-                group => group.Key,
-                group => group.Count()
-            );
+        stats.PerAge = StatsService.GetRangeBreakdown(entries, donor => donor.ClinicalData?.EnrollmentAge)
+            .Select(stat => new Stat<int?, int>(stat.Key, stat.Count))
+            .ToArrayOrNull();
 
-        if (withoutAge.Any())
-            stats.PerAge.Add("Unknown", withoutAge.Count());
-
-        // Per gender
-        var withGender = entries.Where(donor => donor.ClinicalData?.GenderId != null);
-        var withoutGender = entries.Where(donor => donor.ClinicalData?.GenderId == null);
-
-        stats.PerGender = withGender
-            .OrderBy(entry => (int)entry.ClinicalData.GenderId.Value)
-            .GroupBy(entry => entry.ClinicalData.GenderId.Value)
-            .ToDictionary(
-                group => group.Key.ToDefinitionString(),
-                group => group.Count()
-            );
-
-        if (withoutGender.Any())
-            stats.PerGender.Add("Unknown", withoutGender.Count());
+        // Per sex
+        stats.PerSex = StatsService.GetPropertyBreakdown(entries, donor => donor.ClinicalData?.SexId)
+            .Select(stat => new Stat<string, int>(stat.Key?.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
 
         // Per vital status
-        var withVital = entries.Where(donor => donor.ClinicalData?.VitalStatus != null);
-        var withoutVital = entries.Where(donor => donor.ClinicalData?.VitalStatus == null);
-
-        stats.PerVitalStatus = withVital
-            .OrderBy(entry => entry.ClinicalData.VitalStatus.Value ? 1  : 0)
-            .GroupBy(entry => entry.ClinicalData.VitalStatus.Value ? "Alive" : "Deceased")
-            .ToDictionary(
-                group => group.Key,
-                group => group.Count()
-            );
-        
-        if (withoutVital.Any())
-            stats.PerVitalStatus.Add("Unknown", withoutVital.Count());
+        stats.PerVitalStatus = StatsService.GetPropertyBreakdown(entries, donor => donor.ClinicalData?.VitalStatus)
+            .Select(stat => new Stat<bool?, int>(stat.Key, stat.Count))
+            .ToArrayOrNull();
 
         // Per progression status
-        var withProgression = entries.Where(donor => donor.ClinicalData?.ProgressionStatus != null);
-        var withoutProgression = entries.Where(donor => donor.ClinicalData?.ProgressionStatus == null);
-
-        stats.PerProgressionStatus = withProgression
-            .OrderBy(entry => entry.ClinicalData.ProgressionStatus.Value ? 1 : 0)
-            .GroupBy(entry => entry.ClinicalData.ProgressionStatus.Value ? "Progression" : "No progression")
-            .ToDictionary(
-                group => group.Key,
-                group => group.Count()
-            );
-
-        if (withoutProgression.Any())
-            stats.PerProgressionStatus.Add("Unknown", withoutProgression.Count());
+        stats.PerProgressionStatus = StatsService.GetPropertyBreakdown(entries, donor => donor.ClinicalData?.ProgressionStatus)
+            .Select(stat => new Stat<bool?, int>(stat.Key, stat.Count))
+            .ToArrayOrNull();
 
         return stats;
     }
@@ -269,50 +230,38 @@ public class ProjectIndexCreator
 
         var entries = dbContext.Set<Image>()
             .AsNoTracking()
-            .Include(image => image.MriImage)
+            .Include(image => image.MrImage)
             // .Include(image => image.CtImage)
             .Where(image => ids.Contains(image.Id))
             .ToArray();
 
-        // MRI
-        stats.Mri = CountMriStats(entries.Where(image => image.TypeId == ImageType.MRI));
+        // MR
+        stats.Mr = CountMrStats(entries.Where(image => image.TypeId == ImageType.MR));
 
         // CT
         // stats.Ct = CountCtStats(entries.Where(image => image.TypeId == ImageType.CT));
 
         // Per type
-        var typeGroups = entries.Select(image => image.TypeId).OrderBy(value => (int)value).Distinct();
-
-        stats.PerType = typeGroups.ToDictionary(
-            value => value.ToDefinitionString(),
-            value => entries.Count(image => image.TypeId == value)
-        );
+        stats.PerType = StatsService.GetPropertyBreakdown(entries, image => image.TypeId)
+            .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
 
         return stats;
     }
 
-    private static MriStats CountMriStats(IEnumerable<Image> entries)
+    private static MrStats CountMrStats(IEnumerable<Image> entries)
     {
-        var stats = new MriStats();
+        var stats = new MrStats();
 
         // Total number
         var withData = entries.Select(image => image.DonorId).Distinct().Count();
-
         stats.Number = [withData, entries.Count()];
         
-
         // Per whole tumor size
-        var withSize = entries.Where(image => image.MriImage?.WholeTumor != null);
-        var withoutSize = entries.Where(image => image.MriImage?.WholeTumor == null);
-        
-        var sizeGroups = DefineGroups(withSize.Select(image => image.MriImage.WholeTumor.Value));
-        stats.PerSize = sizeGroups.ToDictionary(
-            value => GetGroupName(value, sizeGroups),
-            value => entries.Count(image => image.MriImage?.WholeTumor <= value)
-        );
-
-        if (withoutSize.Any())
-            stats.PerSize.Add("Unknown", withoutSize.Count());
+        stats.PerSize = StatsService
+            .GetRangeBreakdown(entries, image => image.MrImage.WholeTumor)
+            .Select(stat => new Stat<double?, int>(stat.Key, stat.Count))
+            .ToArrayOrNull();
 
         return stats;
     }
@@ -354,11 +303,9 @@ public class ProjectIndexCreator
         stats.Xenograft = CountXenograftStats(entries.Where(specimen => specimen.TypeId == SpecimenType.Xenograft));
 
         // Per type
-        var typeGroups = entries.Select(specimen => specimen.TypeId).OrderBy(value => (int)value).Distinct();
-        stats.PerType = typeGroups.ToDictionary(
-            value => value.ToDefinitionString(),
-            value => entries.Count(specimen => specimen.TypeId == value)
-        );
+        stats.PerType = StatsService.GetPropertyBreakdown(entries, specimen => specimen.TypeId)
+            .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
 
         return stats;
     }
@@ -411,17 +358,17 @@ public class ProjectIndexCreator
     {
         return new DnaStats
         {
-            Ssm = CountSsmStats(projectId),
+            Sm = CountSmStats(projectId),
             Cnv = CountCnvStats(projectId),
             Sv = CountSvStats(projectId)
         };
     }
 
-    private SsmStats CountSsmStats(int projectId)
+    private SmStats CountSmStats(int projectId)
     {
         using var dbContext = _dbContextFactory.CreateDbContext();
 
-        var stats = new SsmStats();
+        var stats = new SmStats();
 
         var donorIds = _projectsRepository.GetRelatedDonors([projectId]).Result;
         var analyses = new AnalysisType[] { AnalysisType.WGS, AnalysisType.WES };
@@ -432,78 +379,47 @@ public class ProjectIndexCreator
             .Include(sample => sample.Resources)
             .Where(sample => donorIds.Contains(sample.Specimen.DonorId))
             .Where(sample => analyses.Contains(sample.Analysis.TypeId))
-            .Where(sample => sample.SsmEntries.Any())
+            .Where(sample => sample.SmEntries.Any())
             .ToArray();
 
         // Total donors with the data
         stats.Number = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
 
         // Per analysis
-        var analysisGroups = withAnalyses.Select(sample => sample.Analysis.TypeId).Distinct().OrderBy(value => (int)value);
-        stats.PerAnalysis = analysisGroups.ToDictionary(
-            value => value.ToDefinitionString(),
-            value => withAnalyses.Count(sample => sample.Analysis.TypeId == value)
-        );
+        stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
+            .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
 
-        var entryIds = _projectsRepository.GetRelatedVariants<SSM.Variant>([projectId]).Result;
-        var entries = dbContext.Set<SSM.Variant>()
+        var entryIds = _projectsRepository.GetRelatedVariants<SM.Variant>([projectId]).Result;
+        var entries = dbContext.Set<SM.Variant>()
             .AsNoTracking()
             .IncludeAffectedTranscripts()
             .Where(variant => entryIds.Contains(variant.Id))
             .ToArray();
 
         // Per type
-        var typeGroups = entries.Select(entry => entry.TypeId).Distinct().OrderBy(value => (int)value);
-        stats.PerType = typeGroups.ToDictionary(
-            value => value.ToDefinitionString(),
-            value => entries.Count(entry => entry.TypeId == value)
-        );
+        stats.PerType = StatsService.GetPropertyBreakdown(entries, entry => entry.TypeId)
+            .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
 
         // Per effect
         var withConsequences = entries.Where(entry => entry.AffectedTranscripts?.Count > 0).ToArray();
         var withoutConsequences = entries.Where(entry => entry.AffectedTranscripts?.Count < 1).ToArray();
 
         // Per effect impact
-        var effectImpactGroups = withConsequences.OrderBy(entry => entry.GetMostSevereEffect().Severity).Select(entry => entry.GetMostSevereEffect().Impact).Distinct();
-        stats.PerEffectImpact = effectImpactGroups.ToDictionary(
-            value => value ?? "Undetermined",
-            value => withConsequences.Count(entry => entry.GetMostSevereEffect().Impact == value)
-        );
-
-        if (withConsequences.Any())
-            stats.PerEffectImpact.Add("No impact", withoutConsequences.Length);
+        stats.PerEffectImpact = StatsService.GetPropertyBreakdown(entries, entry => entry.MostAffectedTranscript?.MostSevereEffect.Impact)
+            .Select(stat => new Stat<string, int>(stat.Key ?? "No impact", stat.Count))
+            .ToArrayOrNull();
 
         // Per effect type
-        var effectTypeGroups = withConsequences.OrderBy(entry => entry.GetMostSevereEffect().Severity).Select(entry => entry.GetMostSevereEffect().Type).Distinct();
-        stats.PerEffectType = effectTypeGroups.ToDictionary(
-            value => value,
-            value => withConsequences.Count(entry => entry.GetMostSevereEffect().Type == value)
-        );
-
-        if (withoutConsequences.Any())
-            stats.PerEffectType.Add("No effect", withoutConsequences.Length);
-
+        stats.PerEffectType = StatsService.GetPropertyBreakdown(withConsequences, entry => entry.GetMostSevereEffect().Type)
+            .Select(stat => new Stat<string, int>(stat.Key ?? "No effect", stat.Count))
+            .ToArrayOrNull();
 
         // Per change
         var cBases = new[] { "C", "G" };
         var tBases = new[] { "T", "A" };
         var dBases = new[] { "C", "T" };
-
-        // Per base ref
-        var withBaseRef = entries.Where(entry => entry.Ref?.Length == 1);
-        stats.PerBaseRef = dBases.ToDictionary(
-            value => value,
-            value => value == dBases[0] ? withBaseRef.Count(entry => cBases.Contains(entry.Ref)) : withBaseRef.Count(entry => tBases.Contains(entry.Ref))
-        );
-
-        // Per base alt
-        var withBaseAlt = entries.Where(entry => entry.Alt?.Length == 1);
-        stats.PerBaseAlt = dBases.ToDictionary(
-            value => value,
-            value => value == dBases[0] ? withBaseAlt.Count(entry => cBases.Contains(entry.Alt)) : withBaseAlt.Count(entry => tBases.Contains(entry.Alt))
-        );
-
-        // Per base change
         var changeGroups = new (string[] Ref, string[] Alt)[]
         {
             ( cBases, ["A"] ), // C -> A
@@ -513,11 +429,27 @@ public class ProjectIndexCreator
             ( tBases, ["C"] ), // T -> C
             ( tBases, ["G"] ) // T -> G
         };
+
+        // Per base ref
+        var withBaseRef = entries.Where(entry => entry.Ref?.Length == 1);
+        stats.PerBaseRef = dBases.Select(value => new Stat<string, int>(
+            value, value == dBases[0] ? withBaseRef.Count(entry => cBases.Contains(entry.Ref)) : withBaseRef.Count(entry => tBases.Contains(entry.Ref))
+        ))
+        .ToArrayOrNull();
+
+        // Per base alt
+        var withBaseAlt = entries.Where(entry => entry.Alt?.Length == 1);
+        stats.PerBaseAlt = dBases.Select(value => new Stat<string, int>(
+            value, value == dBases[0] ? withBaseAlt.Count(entry => cBases.Contains(entry.Alt)) : withBaseAlt.Count(entry => tBases.Contains(entry.Alt))
+        ))
+        .ToArrayOrNull();
+
+        // Per base change
         var withBaseChange = entries.Where(entry => entry.Ref?.Length == 1 && entry.Alt?.Length == 1);
-        stats.PerBaseChange = changeGroups.ToDictionary(
-            value => $"{value.Ref[0]} > {value.Alt[0]}",
-            value => withBaseChange.Count(entry => value.Ref.Contains(entry.Ref) && value.Alt.Contains(entry.Alt))
-        );
+        stats.PerBaseChange = changeGroups.Select(value => new Stat<string, int>(
+            $"{value.Ref[0]} > {value.Alt[0]}", withBaseChange.Count(entry => value.Ref.Contains(entry.Ref) && value.Alt.Contains(entry.Alt))
+        ))
+        .ToArrayOrNull();
 
         return stats;
     }
@@ -544,11 +476,9 @@ public class ProjectIndexCreator
         stats.Number = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
 
         // Per analysis
-        var analysisGroups = withAnalyses.Select(sample => sample.Analysis.TypeId).Distinct().OrderBy(value => (int)value);
-        stats.PerAnalysis = analysisGroups.ToDictionary(
-            value => value.ToDefinitionString(),
-            value => withAnalyses.Count(sample => sample.Analysis.TypeId == value)
-        );
+        stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
+            .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
 
         var entryIds = _projectsRepository.GetRelatedVariants<CNV.Variant>([projectId]).Result;
         var entries = dbContext.Set<CNV.Variant>()
@@ -557,11 +487,9 @@ public class ProjectIndexCreator
             .ToArray();
 
         // Per type
-        var typeGroups = entries.Select(entry => entry.TypeId).Distinct().OrderBy(value => (int)value);
-        stats.PerType = typeGroups.ToDictionary(
-            value => value.ToDefinitionString(),
-            value => entries.Count(entry => entry.TypeId == value)
-        );
+        stats.PerType = StatsService.GetPropertyBreakdown(entries, entry => entry.TypeId)
+            .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
 
         return stats;
     }
@@ -588,11 +516,9 @@ public class ProjectIndexCreator
         stats.Number = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
 
         // Per analysis
-        var analysisGroups = withAnalyses.Select(sample => sample.Analysis.TypeId).Distinct().OrderBy(value => (int)value);
-        stats.PerAnalysis = analysisGroups.ToDictionary(
-            value => value.ToDefinitionString(),
-            value => withAnalyses.Count(sample => sample.Analysis.TypeId == value)
-        );
+        stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
+            .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
 
         var entryIds = _projectsRepository.GetRelatedVariants<SV.Variant>([projectId]).Result;
         var entries = dbContext.Set<SV.Variant>()
@@ -601,11 +527,9 @@ public class ProjectIndexCreator
             .ToArray();
 
         // Per type
-        var typeGroups = entries.Select(entry => entry.TypeId).Distinct().OrderBy(value => (int)value);
-        stats.PerType = typeGroups.ToDictionary(
-            value => value.ToDefinitionString(),
-            value => entries.Count(entry => entry.TypeId == value)
-        );
+        stats.PerType = StatsService.GetPropertyBreakdown(entries, entry => entry.TypeId)
+            .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
 
         return stats;
     }
@@ -618,6 +542,7 @@ public class ProjectIndexCreator
 
         var donorIds = _projectsRepository.GetRelatedDonors([projectId]).Result;
         var analyses = new AnalysisType[] { AnalysisType.MethArray, AnalysisType.WGBS, AnalysisType.RRBS };
+        var resources = new string[] { DataTypes.Genome.Meth.Level };
         var withAnalyses = dbContext.Set<Sample>()
             .AsNoTracking()
             .Include(sample => sample.Specimen.Donor)
@@ -625,20 +550,16 @@ public class ProjectIndexCreator
             .Include(sample => sample.Resources)
             .Where(sample => donorIds.Contains(sample.Specimen.DonorId))
             .Where(sample => analyses.Contains(sample.Analysis.TypeId))
-            .Where(sample => sample.Resources.Any(resource => 
-                (resource.Type == DataTypes.Genome.Meth.Sample && resource.Format == FileTypes.Sequence.Idat) ||
-                (resource.Type == DataTypes.Genome.Meth.Levels)))
+            .Where(sample => sample.Resources.Any(resource => resources.Contains(resource.Type)))
             .ToArray();
 
         // Total donors with the data
         stats.Number = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
 
         // Per analysis
-        var analysisGroups = withAnalyses.Select(sample => sample.Analysis.TypeId).Distinct().OrderBy(value => (int)value);
-        stats.PerAnalysis = analysisGroups.ToDictionary(
-            value => value.ToDefinitionString(),
-            value => withAnalyses.Count(sample => sample.Analysis.TypeId == value)
-        );
+        stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
+            .Select(stat => new Stat<string, int>() { Key = stat.Key.ToDefinitionString(), Value = stat.Count })
+            .ToArrayOrNull();
 
         return stats;
     }
@@ -665,11 +586,9 @@ public class ProjectIndexCreator
         stats.Number = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
 
         // Per analysis
-        var analysisGroups = withAnalyses.Select(sample => sample.Analysis.TypeId).Distinct().OrderBy(value => (int)value);
-        stats.PerAnalysis = analysisGroups.ToDictionary(
-            value => value.ToDefinitionString(),
-            value => withAnalyses.Count(sample => sample.Analysis.TypeId == value)
-        );
+        stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
+            .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
 
         // Per variation
         // In memory calculation using standard deviation
@@ -681,19 +600,22 @@ public class ProjectIndexCreator
             .GroupBy(entry => entry.EntityId)
             .Select(group => new { 
                 Key = group.Key,
+                Name = group.First().Entity.Symbol ?? group.First().Entity.StableId,
                 Reads = group.Select(entry => entry.TPM),
                 Count = group.Count()
             })
             .ToArray();
 
-        var variabilityMap = expressionGroups
+        stats.PerVariation = expressionGroups
             .Select(group => new {
                 Key = group.Key,
+                Name = group.Name,
                 Reads = group.Reads.Order().ToArray(),
                 Count = group.Count
             })
             .Select(group => new {
                 Key = group.Key,
+                Name = group.Name,
                 Min = group.Reads.First(),
                 Max = group.Reads.Last(),
                 Mean = group.Reads.Average(),
@@ -705,6 +627,7 @@ public class ProjectIndexCreator
             .Where(stats => stats.Mean >= 1)
             .Select(stats => new {
                 Key = stats.Key,
+                Name = stats.Name,
                 Min = stats.Min,
                 Max = stats.Max,
                 Mean = stats.Mean,
@@ -718,48 +641,11 @@ public class ProjectIndexCreator
             .Take(25)
             .Select(stats => new {
                 Key = stats.Key,
+                Name = stats.Name,
                 Values = new double[] { stats.Min, stats.Q1, stats.Q2, stats.Q3, stats.Max, stats.Mean, stats.SD, stats.CV }
             })
-            .ToDictionary(
-                stats => stats.Key,
-                stats => stats.Values.Select(value => Math.Round(value, 2)).ToArray()
-            );
-
-        var relatedGenesMap = dbContext.Set<Data.Entities.Genome.Gene>()
-            .AsNoTracking()
-            .Where(gene => variabilityMap.Keys.Contains(gene.Id))
-            .ToDictionary(
-                gene => gene.Id,
-                gene => (Symbol: gene.Symbol, Index: 0)
-            );
-
-        stats.PerVariation = [];
-
-        foreach (var entry in variabilityMap)
-        {
-            var mapValue = relatedGenesMap[entry.Key];
-
-            if (stats.PerVariation.ContainsKey(mapValue.Symbol))
-            {
-                mapValue.Index++;
-
-                stats.PerVariation.Add($"{mapValue.Symbol}-{mapValue.Index}", entry.Value);
-            }
-            else
-            {
-                stats.PerVariation.Add(mapValue.Symbol, entry.Value);
-            }
-        }
-            
-                
-
-        // stats.PerVariation = a
-        //     .Take(25)
-        //     .ToDictionary(
-        //         stats => stats.Key,
-        //         stats => new double[] { stats.Min, stats.Q1, stats.Q2, stats.Q3, stats.Max, stats.Mean, stats.SD, stats.CV }
-
-        //     );
+            .Select(stats => new Stat<string, double[]>(stats.Name, stats.Values.Select(value => Math.Round(value, 2)).ToArray()))
+            .ToArrayOrNull();
 
         // In database calculation using delta (max - min)
         // stats.PerVariation = dbContext.Set<GeneExpression>()
@@ -782,8 +668,8 @@ public class ProjectIndexCreator
 
 
         // Per mutation
-        var variantIds = _projectsRepository.GetRelatedVariants<SSM.Variant>([projectId]).Result;
-        var variantEntries = dbContext.Set<SSM.VariantEntry>()
+        var variantIds = _projectsRepository.GetRelatedVariants<SM.Variant>([projectId]).Result;
+        var variantEntries = dbContext.Set<SM.VariantEntry>()
             .AsNoTracking()
             .Include(entry => entry.Entity)
             .Include(entry => entry.Entity.AffectedTranscripts)
@@ -793,17 +679,16 @@ public class ProjectIndexCreator
             .ToArray();
 
         stats.PerMutation = variantEntries
-            .GroupBy(entry => entry.Entity.AffectedTranscripts.GetMostSevere().Feature.Gene.Symbol ?? entry.Entity.AffectedTranscripts.GetMostSevere().Feature.Gene.StableId)
+            .GroupBy(entry => entry.Entity.MostAffectedTranscript.Feature.GeneId)
             .Select(group => new {
                 Key = group.Key,
+                Name = group.First().Entity.MostAffectedTranscript.Feature.Gene.Symbol ?? group.First().Entity.MostAffectedTranscript.Feature.Gene.StableId,
                 Count = group.Count()
             })
             .OrderByDescending(entry => entry.Count)
             .Take(25)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Count
-            );
+            .Select(entry => new Stat<string, int>(entry.Name, entry.Count))
+            .ToArrayOrNull();
 
         return stats;
     }
@@ -831,22 +716,15 @@ public class ProjectIndexCreator
         stats.Number = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
 
         // Per analysis
-        var analysisGroups = withAnalyses.Select(sample => sample.Analysis.TypeId).Distinct();
-        stats.PerAnalysis = analysisGroups.ToDictionary(
-            value => value.ToDefinitionString(),
-            value => withAnalyses.Count(sample => sample.Analysis.TypeId == value));
+        stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
+            .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
 
         // Per cells
-        var withCells = withAnalyses.Where(sample => sample.Cells != null);
-        var withoutCells = withAnalyses.Where(sample => sample.Cells == null);
-        var cellGroups = DefineGroups(withCells.Select(sample => sample.Cells.Value));
-        stats.PerCells = cellGroups.ToDictionary(
-            value => GetGroupName(value, cellGroups),
-            value => withCells.Count(sample => sample.Cells <= value)
-        );
-
-        if (withoutCells.Any())
-            stats.PerCells.Add("Unknown", withoutCells.Count());
+        stats.PerCells = StatsService
+            .GetRangeBreakdown(withAnalyses, sample => sample.Cells)
+            .Select(stat => new Stat<int?, int>(stat.Key, stat.Count))
+            .ToArrayOrNull();
 
         return stats;
     }
@@ -864,7 +742,7 @@ public class ProjectIndexCreator
             Donors = donorIds.Length > 0,
             Clinical = CheckClinicalData(donorIds),
             Treatments = CheckTreatments(donorIds),
-            Mris = CheckImages(donorIds, ImageType.MRI),
+            Mrs = CheckImages(donorIds, ImageType.MR),
             Cts = CheckImages(donorIds, ImageType.CT),
             Materials = CheckSpecimens(donorIds, SpecimenType.Material),
             MaterialsMolecular = CheckMolecularData(donorIds, SpecimenType.Material),
@@ -880,7 +758,7 @@ public class ProjectIndexCreator
             XenograftsMolecular = CheckMolecularData(donorIds, SpecimenType.Xenograft),
             XenograftsInterventions = CheckInterventions(donorIds, SpecimenType.Xenograft),
             XenograftsDrugs = CheckDrugScreenings(donorIds, SpecimenType.Xenograft),
-            Ssms = CheckVariants<SSM.Variant, SSM.VariantEntry>(specimenIds),
+            Sms = CheckVariants<SM.Variant, SM.VariantEntry>(specimenIds),
             Cnvs = CheckVariants<CNV.Variant, CNV.VariantEntry>(specimenIds),
             Svs = CheckVariants<SV.Variant, SV.VariantEntry>(specimenIds),
             Meth = CheckMethylation(specimenIds),
@@ -995,9 +873,7 @@ public class ProjectIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && 
-                ((resource.Type == DataTypes.Genome.Meth.Sample && resource.Format == FileTypes.Sequence.Idat) ||
-                 (resource.Type == DataTypes.Genome.Meth.Levels)));
+            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Genome.Meth.Level);
     }
 
     /// <summary>
@@ -1028,66 +904,6 @@ public class ProjectIndexCreator
             .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Genome.Rnasc.Exp);
     }
 
-
-    private static string GetGroupName(int value, int[] groups)
-    {
-        if (value <= groups[0])
-            return $"<{groups[0]}";
-        else if (value <= groups[1])
-            return $"{groups[0] + 1}-{groups[1]}";
-        else if (value < groups[2])
-            return $"{groups[1] + 1}-{groups[2]}";
-        else if (value < groups[3])
-            return $"{groups[2] + 1}-{groups[3]}";
-        else
-            return $">{groups[3] + 1}";
-    }
-
-    private static string GetGroupName(double value, double[] groups)
-    {
-        if (value <= groups[0])
-            return $"<{groups[0]}";
-        else if (value <= groups[1])
-            return $"{groups[0] + 1}-{groups[1]}";
-        else if (value < groups[2])
-            return $"{groups[1] + 1}-{groups[2]}";
-        else if (value < groups[3])
-            return $"{groups[2] + 1}-{groups[3]}";
-        else
-            return $">{groups[3] + 1}";
-    }
-
-    private static int[] DefineGroups(IEnumerable<int> values, int? desiredMin = default, int? desiredMax = default)
-    {
-        if (!values.Any())
-            return [];
-
-        var min = desiredMin ?? values.Min();
-        var max = desiredMax ?? values.Max();
-
-        if (min == max)
-            return [min];
-
-        var step = (max - min) / 5;
-
-        return [min + step, min + step * 2, min + step * 3, min + step * 4];
-    }
-
-    private static double[] DefineGroups(IEnumerable<double> values, int? desiredMin = default, int? desiredMax = default)
-    {
-        if (!values.Any())
-            return [];
-
-        var min = desiredMin ?? Math.Floor(values.Min());
-        var max = desiredMax ?? Math.Ceiling(values.Max());
-
-        if (min == max)
-            return [min];
-
-        var step = Math.Round((max - min) / 5);
-
-        return [min + step, min + step * 2, min + step * 3, min + step * 4];
-    }
 
     private static double StandardDeviation(IEnumerable<double> values)
     {

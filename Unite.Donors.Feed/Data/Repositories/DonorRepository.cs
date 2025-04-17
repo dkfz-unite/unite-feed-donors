@@ -77,16 +77,18 @@ internal class DonorRepository
             if (target.ClinicalData == null)
                 target.ClinicalData = new ClinicalData();
 
-            target.ClinicalData.GenderId = source.ClinicalData.Gender;
-            target.ClinicalData.Age = source.ClinicalData.Age;
+            target.ClinicalData.SexId = source.ClinicalData.Sex;
+            target.ClinicalData.EnrollmentDate = source.ClinicalData.EnrollmentDate;
+            target.ClinicalData.EnrollmentAge = source.ClinicalData.EnrollmentAge;
             target.ClinicalData.Diagnosis = source.ClinicalData.Diagnosis;
-            target.ClinicalData.DiagnosisDate = source.ClinicalData.DiagnosisDate;
             target.ClinicalData.PrimarySite = FindOrCreatePrimarySite(source.ClinicalData.PrimarySite);
             target.ClinicalData.Localization = FindOrCreateLocalization(source.ClinicalData.Localization);
             target.ClinicalData.VitalStatus = source.ClinicalData.VitalStatus;
             target.ClinicalData.VitalStatusChangeDate = source.ClinicalData.VitalStatusChangeDate;
             target.ClinicalData.VitalStatusChangeDay = source.ClinicalData.VitalStatusChangeDay;
             target.ClinicalData.ProgressionStatus = source.ClinicalData.ProgressionStatus;
+            target.ClinicalData.SteroidsReactive = source.ClinicalData.SteroidsReactive;
+            target.ClinicalData.Kps = source.ClinicalData.Kps;
         }
     }
 

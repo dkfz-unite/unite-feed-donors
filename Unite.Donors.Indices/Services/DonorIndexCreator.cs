@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Unite.Data.Constants;
 using Unite.Data.Context;
-using Unite.Data.Context.Extensions.Queryable;
 using Unite.Data.Context.Repositories;
+using Unite.Data.Context.Repositories.Extensions.Queryable;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Entities.Genome.Analysis;
@@ -19,7 +19,7 @@ using Unite.Indices.Entities;
 using Unite.Indices.Entities.Donors;
 
 using CNV = Unite.Data.Entities.Genome.Analysis.Dna.Cnv;
-using SSM = Unite.Data.Entities.Genome.Analysis.Dna.Ssm;
+using SM = Unite.Data.Entities.Genome.Analysis.Dna.Sm;
 using SV = Unite.Data.Entities.Genome.Analysis.Dna.Sv;
 
 namespace Unite.Donors.Indices.Services;
@@ -59,12 +59,12 @@ public class DonorIndexCreator
 
     private DonorIndex CreateDonorIndex(Donor donor)
     {
-        var diagnosisDate = donor.ClinicalData?.DiagnosisDate;
+        var enrollmentDate = donor.ClinicalData?.EnrollmentDate;
 
         var index = DonorIndexMapper.CreateFrom<DonorIndex>(donor);
 
-        index.Images = CreateImageIndices(donor.Id, diagnosisDate);
-        index.Specimens = CreateSpecimenIndices(donor.Id, diagnosisDate);
+        index.Images = CreateImageIndices(donor.Id, enrollmentDate);
+        index.Specimens = CreateSpecimenIndices(donor.Id, enrollmentDate);
         index.Stats = CreateStatsIndex(donor.Id);
         index.Data = CreateDataIndex(donor.Id);
 
@@ -85,16 +85,16 @@ public class DonorIndexCreator
     }
 
 
-    private ImageIndex[] CreateImageIndices(int donorId, DateOnly? diagnosisDate)
+    private ImageIndex[] CreateImageIndices(int donorId, DateOnly? enrollmentDate)
     {
         var images = LoadImages(donorId);
 
-        return images.Select(image => CreateImageIndex(image, diagnosisDate)).ToArrayOrNull();
+        return images.Select(image => CreateImageIndex(image, enrollmentDate)).ToArrayOrNull();
     }
 
-    private static ImageIndex CreateImageIndex(Image image, DateOnly? diagnosisDate)
+    private static ImageIndex CreateImageIndex(Image image, DateOnly? enrollmentDate)
     {
-        return ImageNavIndexMapper.CreateFrom<ImageIndex>(image, diagnosisDate);
+        return ImageNavIndexMapper.CreateFrom<ImageIndex>(image, enrollmentDate);
     }
 
     private Image[] LoadImages(int donorId)
@@ -110,18 +110,18 @@ public class DonorIndexCreator
     }
 
 
-    private SpecimenIndex[] CreateSpecimenIndices(int donorId, DateOnly? diagnosisDate)
+    private SpecimenIndex[] CreateSpecimenIndices(int donorId, DateOnly? enrollmentDate)
     {
         var specimens = LoadSpecimens(donorId);
 
-        return specimens.Select(specimen => CreateSpecimenIndex(specimen, diagnosisDate)).ToArrayOrNull();
+        return specimens.Select(specimen => CreateSpecimenIndex(specimen, enrollmentDate)).ToArrayOrNull();
     }
 
-    private SpecimenIndex CreateSpecimenIndex(Specimen specimen, DateOnly? diagnosisDate)
+    private SpecimenIndex CreateSpecimenIndex(Specimen specimen, DateOnly? enrollmentDate)
     {
-        var index =  SpecimenNavIndexMapper.CreateFrom<SpecimenIndex>(specimen, diagnosisDate);
+        var index =  SpecimenNavIndexMapper.CreateFrom<SpecimenIndex>(specimen, enrollmentDate);
 
-        index.Samples = CreateSampleIndices(specimen.Id, diagnosisDate);
+        index.Samples = CreateSampleIndices(specimen.Id, enrollmentDate);
 
         return index;
     }
@@ -139,29 +139,29 @@ public class DonorIndexCreator
     }
 
 
-    private SampleIndex[] CreateSampleIndices(int specimenId, DateOnly? diagnosisDate)
+    private SampleIndex[] CreateSampleIndices(int specimenId, DateOnly? enrollmentDate)
     {
         var samples = LoadSamples(specimenId);
 
-        return samples.Select(sample => CreateSampleIndex(sample, diagnosisDate)).ToArrayOrNull();
+        return samples.Select(sample => CreateSampleIndex(sample, enrollmentDate)).ToArrayOrNull();
     }
 
-    private SampleIndex CreateSampleIndex(Sample sample, DateOnly? diagnosisDate)
+    private SampleIndex CreateSampleIndex(Sample sample, DateOnly? enrollmentDate)
     {
-        var index = SampleIndexMapper.CreateFrom<SampleIndex>(sample, diagnosisDate);
+        var index = SampleIndexMapper.CreateFrom<SampleIndex>(sample, enrollmentDate);
 
-        var ssm = CheckSampleVariants<SSM.Variant, SSM.VariantEntry>(sample.Id);
+        var sm = CheckSampleVariants<SM.Variant, SM.VariantEntry>(sample.Id);
         var cnv = CheckSampleVariants<CNV.Variant, CNV.VariantEntry>(sample.Id);
         var sv = CheckSampleVariants<SV.Variant, SV.VariantEntry>(sample.Id);
         var meth = CheckSampleMethylation(sample.Id);
         var exp = CheckSampleGeneExp(sample.Id);
         var expSc = CheckSampleGeneExpSc(sample.Id);
 
-        if (ssm || cnv || sv || meth || exp || expSc)
+        if (sm || cnv || sv || meth || exp || expSc)
         {
             index.Data = new Unite.Indices.Entities.Basic.Analysis.SampleDataIndex
             {
-                Ssm = ssm,
+                Sm = sm,
                 Cnv = cnv,
                 Sv = sv,
                 Meth = meth,
@@ -184,7 +184,7 @@ public class DonorIndexCreator
             .Include(sample => sample.Analysis)
             .Include(sample => sample.Resources)
             .Where(sample => sample.SpecimenId == specimenId)
-            .Where(sample => sample.SsmEntries.Any() || sample.CnvEntries.Any() || sample.SvEntries.Any() || sample.GeneExpressions.Any() || sample.Resources.Any())
+            .Where(sample => sample.SmEntries.Any() || sample.CnvEntries.Any() || sample.SvEntries.Any() || sample.GeneExpressions.Any() || sample.Resources.Any())
             .ToArray();
     }
 
@@ -205,9 +205,7 @@ public class DonorIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => resource.SampleId == sampleId &&
-                ((resource.Type == DataTypes.Genome.Meth.Sample && resource.Format == FileTypes.Sequence.Idat) ||
-                (resource.Type == DataTypes.Genome.Meth.Levels)));
+            .Any(resource => resource.SampleId == sampleId && resource.Type == DataTypes.Genome.Meth.Level);
     }
 
     private bool CheckSampleGeneExp(int sampleId)
@@ -234,14 +232,14 @@ public class DonorIndexCreator
         var specimenIds = _donorsRepository.GetRelatedSpecimens([donorId]).Result;
 
         var geneIds = _specimensRepository.GetVariantRelatedGenes(specimenIds).Result;
-        var ssmIds = _specimensRepository.GetRelatedVariants<SSM.Variant>(specimenIds).Result;
+        var smIds = _specimensRepository.GetRelatedVariants<SM.Variant>(specimenIds).Result;
         var cnvIds = _specimensRepository.GetRelatedVariants<CNV.Variant>(specimenIds).Result;
         var svIds = _specimensRepository.GetRelatedVariants<SV.Variant>(specimenIds).Result;
         
         return new StatsIndex
         {
             Genes = geneIds.Length,
-            Ssms = ssmIds.Length,
+            Sms = smIds.Length,
             Cnvs = cnvIds.Length,
             Svs = svIds.Length
         };
@@ -258,7 +256,7 @@ public class DonorIndexCreator
             Donors = true,
             Clinical = CheckClinicalData(donorId),
             Treatments = CheckTreatments(donorId),
-            Mris = CheckImages(donorId, ImageType.MRI),
+            Mrs = CheckImages(donorId, ImageType.MR),
             Cts = CheckImages(donorId, ImageType.CT),
             Materials = CheckSpecimens(donorId, SpecimenType.Material),
             MaterialsMolecular = CheckMolecularData(donorId, SpecimenType.Material),
@@ -274,7 +272,7 @@ public class DonorIndexCreator
             XenograftsMolecular = CheckMolecularData(donorId, SpecimenType.Xenograft),
             XenograftsInterventions = CheckInterventions(donorId, SpecimenType.Xenograft),
             XenograftsDrugs = CheckDrugScreenings(donorId, SpecimenType.Xenograft),
-            Ssms = CheckVariants<SSM.Variant, SSM.VariantEntry>(specimenIds),
+            Sms = CheckVariants<SM.Variant, SM.VariantEntry>(specimenIds),
             Cnvs = CheckVariants<CNV.Variant, CNV.VariantEntry>(specimenIds),
             Svs = CheckVariants<SV.Variant, SV.VariantEntry>(specimenIds),
             Meth = CheckMethylation(specimenIds),
@@ -390,9 +388,7 @@ public class DonorIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) &&
-                ((resource.Type == DataTypes.Genome.Meth.Sample && resource.Format == FileTypes.Sequence.Idat) ||
-                (resource.Type == DataTypes.Genome.Meth.Levels)));
+            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Genome.Meth.Level);
     }
 
     /// <summary>

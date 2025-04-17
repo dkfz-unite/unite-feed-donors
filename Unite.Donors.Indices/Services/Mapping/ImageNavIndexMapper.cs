@@ -10,10 +10,10 @@ public class ImageNavIndexMapper
     /// Creates an index from the entity. Returns null if entity is null.
     /// </summary>
     /// <param name="entity">Entity.</param>
-    /// <param name="diagnosisDate">Diagnosis date (anchor date for calculation of relative days).</param>
+    /// <param name="enrollmentDate">Enrollment date (anchor date for calculation of relative days).</param>
     /// <typeparam name="T">Type of the index.</typeparam>
     /// <returns>Index created from the entity.</returns>
-    public static T CreateFrom<T>(in Image entity, DateOnly? diagnosisDate) where T : ImageNavIndex, new()
+    public static T CreateFrom<T>(in Image entity, DateOnly? enrollmentDate) where T : ImageNavIndex, new()
     {
         if (entity == null)
         {
@@ -22,7 +22,7 @@ public class ImageNavIndexMapper
 
         var index = new T();
 
-        Map(entity, index, diagnosisDate);
+        Map(entity, index, enrollmentDate);
 
         return index;
     }
@@ -32,8 +32,8 @@ public class ImageNavIndexMapper
     /// </summary>
     /// <param name="entity">Entity.</param>
     /// <param name="index">Index.</param>
-    /// <param name="diagnosisDate">Diagnosis date (anchor date for calculation of relative days).</param>
-    public static void Map(in Image entity, ImageNavIndex index, DateOnly? diagnosisDate)
+    /// <param name="enrollmentDate">Enrollment date (anchor date for calculation of relative days).</param>
+    public static void Map(in Image entity, ImageNavIndex index, DateOnly? enrollmentDate)
     {
         if (entity == null || index == null)
         {
