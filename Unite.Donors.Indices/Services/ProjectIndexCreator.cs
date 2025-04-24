@@ -198,25 +198,37 @@ public class ProjectIndexCreator
         stats.Number = entries.Length;
 
         // Per age
-        stats.PerAge = StatsService.GetRangeBreakdown(entries, donor => donor.ClinicalData?.EnrollmentAge)
-            .Select(stat => new Stat<int?, int>(stat.Key, stat.Count))
-            .ToArrayOrNull();
+        if (entries.Any(entry => entry.ClinicalData?.EnrollmentAge != null))
+        {
+            stats.PerAge = StatsService.GetRangeBreakdown(entries, donor => donor.ClinicalData?.EnrollmentAge)
+                .Select(stat => new Stat<int?, int>(stat.Key, stat.Count))
+                .ToArrayOrNull();
+        }
 
         // Per sex
-        stats.PerSex = StatsService.GetPropertyBreakdown(entries, donor => donor.ClinicalData?.SexId)
-            .Select(stat => new Stat<string, int>(stat.Key?.ToDefinitionString(), stat.Count))
-            .ToArrayOrNull();
+        if (entries.Any(entry => entry.ClinicalData?.SexId != null))
+        {
+            stats.PerSex = StatsService.GetPropertyBreakdown(entries, donor => donor.ClinicalData?.SexId)
+                .Select(stat => new Stat<string, int>(stat.Key?.ToDefinitionString(), stat.Count))
+                .ToArrayOrNull();
+        }
 
         // Per vital status
-        stats.PerVitalStatus = StatsService.GetPropertyBreakdown(entries, donor => donor.ClinicalData?.VitalStatus)
-            .Select(stat => new Stat<bool?, int>(stat.Key, stat.Count))
-            .ToArrayOrNull();
-
+        if (entries.Any(entry => entry.ClinicalData?.VitalStatus != null))
+        {
+            stats.PerVitalStatus = StatsService.GetPropertyBreakdown(entries, donor => donor.ClinicalData?.VitalStatus)
+                .Select(stat => new Stat<bool?, int>(stat.Key, stat.Count))
+                .ToArrayOrNull();
+        }
+        
         // Per progression status
-        stats.PerProgressionStatus = StatsService.GetPropertyBreakdown(entries, donor => donor.ClinicalData?.ProgressionStatus)
-            .Select(stat => new Stat<bool?, int>(stat.Key, stat.Count))
-            .ToArrayOrNull();
-
+        if (entries.Any(entry => entry.ClinicalData?.ProgressionStatus != null))
+        {
+            stats.PerProgressionStatus = StatsService.GetPropertyBreakdown(entries, donor => donor.ClinicalData?.ProgressionStatus)
+                .Select(stat => new Stat<bool?, int>(stat.Key, stat.Count))
+                .ToArrayOrNull();
+        }
+        
         return stats;
     }
 
