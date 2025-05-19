@@ -4,9 +4,9 @@ using Unite.Data.Context.Repositories;
 using Unite.Data.Context.Services.Tasks;
 using Unite.Data.Entities.Donors;
 
-using SM = Unite.Data.Entities.Genome.Analysis.Dna.Sm;
-using CNV = Unite.Data.Entities.Genome.Analysis.Dna.Cnv;
-using SV = Unite.Data.Entities.Genome.Analysis.Dna.Sv;
+using SM = Unite.Data.Entities.Omics.Analysis.Dna.Sm;
+using CNV = Unite.Data.Entities.Omics.Analysis.Dna.Cnv;
+using SV = Unite.Data.Entities.Omics.Analysis.Dna.Sv;
 
 namespace Unite.Donors.Feed.Web.Services;
 
