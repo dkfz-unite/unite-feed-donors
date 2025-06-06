@@ -5,11 +5,11 @@ using Unite.Data.Context.Repositories;
 using Unite.Data.Context.Repositories.Extensions.Queryable;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Donors.Clinical;
-using Unite.Data.Entities.Genome.Analysis;
-using Unite.Data.Entities.Genome.Analysis.Dna;
-using Unite.Data.Entities.Genome.Analysis.Rna;
 using Unite.Data.Entities.Images;
 using Unite.Data.Entities.Images.Enums;
+using Unite.Data.Entities.Omics.Analysis;
+using Unite.Data.Entities.Omics.Analysis.Dna;
+using Unite.Data.Entities.Omics.Analysis.Rna;
 using Unite.Data.Entities.Specimens;
 using Unite.Data.Entities.Specimens.Analysis.Drugs;
 using Unite.Data.Entities.Specimens.Enums;
@@ -18,9 +18,9 @@ using Unite.Essentials.Extensions;
 using Unite.Indices.Entities;
 using Unite.Indices.Entities.Donors;
 
-using CNV = Unite.Data.Entities.Genome.Analysis.Dna.Cnv;
-using SM = Unite.Data.Entities.Genome.Analysis.Dna.Sm;
-using SV = Unite.Data.Entities.Genome.Analysis.Dna.Sv;
+using CNV = Unite.Data.Entities.Omics.Analysis.Dna.Cnv;
+using SM = Unite.Data.Entities.Omics.Analysis.Dna.Sm;
+using SV = Unite.Data.Entities.Omics.Analysis.Dna.Sv;
 
 namespace Unite.Donors.Indices.Services;
 
@@ -206,7 +206,7 @@ public class DonorIndexCreator
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
             .Any(resource => resource.SampleId == sampleId
-                          && resource.Type == DataTypes.Genome.Meth.Sample
+                          && resource.Type == DataTypes.Omics.Meth.Sample
                           && resource.Format == FileTypes.Sequence.Idat);
     }
 
@@ -225,7 +225,7 @@ public class DonorIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => resource.SampleId == sampleId && resource.Type == DataTypes.Genome.Rnasc.Exp);
+            .Any(resource => resource.SampleId == sampleId && resource.Type == DataTypes.Omics.Rnasc.Exp);
     }
 
 
@@ -391,7 +391,7 @@ public class DonorIndexCreator
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
             .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId)
-                          && resource.Type == DataTypes.Genome.Meth.Sample
+                          && resource.Type == DataTypes.Omics.Meth.Sample
                           && resource.Format == FileTypes.Sequence.Idat);
     }
 
@@ -420,6 +420,6 @@ public class DonorIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Genome.Rnasc.Exp);
+            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Omics.Rnasc.Exp);
     }
 }

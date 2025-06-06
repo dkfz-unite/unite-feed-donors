@@ -1,4 +1,4 @@
-using Unite.Data.Entities.Genome.Analysis;
+using Unite.Data.Entities.Omics.Analysis;
 using Unite.Essentials.Extensions;
 using Unite.Indices.Entities.Basic.Analysis;
 

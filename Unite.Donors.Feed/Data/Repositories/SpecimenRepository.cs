@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Unite.Data.Context;
-using Unite.Data.Entities.Genome.Analysis;
+using Unite.Data.Entities.Omics.Analysis;
 using Unite.Data.Entities.Specimens;
 using Unite.Essentials.Extensions;
 

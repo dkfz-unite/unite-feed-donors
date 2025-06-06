@@ -1,12 +1,12 @@
-using CNV = Unite.Data.Entities.Genome.Analysis.Dna.Cnv;
-using SM = Unite.Data.Entities.Genome.Analysis.Dna.Sm;
-using SV = Unite.Data.Entities.Genome.Analysis.Dna.Sv;
+using CNV = Unite.Data.Entities.Omics.Analysis.Dna.Cnv;
+using SM = Unite.Data.Entities.Omics.Analysis.Dna.Sm;
+using SV = Unite.Data.Entities.Omics.Analysis.Dna.Sv;
 
 namespace Unite.Donors.Indices.Services.Extensions;
 
 internal static class VariantExtensions
 {
-    public static Data.Entities.Genome.Analysis.Dna.Effect GetMostSevereEffect(this SM.Variant variant)
+    public static Data.Entities.Omics.Analysis.Dna.Effect GetMostSevereEffect(this SM.Variant variant)
     {
         return variant.AffectedTranscripts?.GetMostSevere().Effects.GetMostSevere();
     }
@@ -16,7 +16,7 @@ internal static class VariantExtensions
         return entries.OrderBy(entry => entry.Effects.GetMostSevere().Severity).First();
     }
 
-    public static Data.Entities.Genome.Analysis.Dna.Effect GetMostSevere(this ICollection<Data.Entities.Genome.Analysis.Dna.Effect> entries)
+    public static Data.Entities.Omics.Analysis.Dna.Effect GetMostSevere(this ICollection<Data.Entities.Omics.Analysis.Dna.Effect> entries)
     {
         return entries.OrderBy(effect => effect.Severity).First();
     }
