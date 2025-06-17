@@ -610,8 +610,8 @@ public class ProjectIndexCreator
             .Select(group => new { 
                 Key = group.Key,
                 Name = group.First().Entity.Symbol ?? group.First().Entity.StableId,
-                Reads = group.Select(entry => entry.TPM),
-                // Reads = group.Select(entry => Math.Log2(entry.TPM + 1)),
+                // Reads = group.Select(entry => entry.TPM),
+                Reads = group.Select(entry => Math.Log2(entry.TPM + 1)),
                 Count = group.Count()
             })
             .ToArray();
@@ -626,8 +626,8 @@ public class ProjectIndexCreator
                 var q3 = reads[reads.Length * 3 / 4];
                 var iqr = q3 - q1;
 
-                if (q3 == 0) // || iqr < 0.01
-                    return null; // Skip groups with low variation
+                // if (q3 == 0) // || iqr < 0.01
+                //     return null; // Skip groups with low variation
 
                 // Whisker bounds
                 var lowerFence = q1 - 1.5 * iqr;
@@ -638,6 +638,10 @@ public class ProjectIndexCreator
                 var whiskerMax = reads.LastOrDefault(value => value <= upperFence);
 
                 var mean = reads.Average();
+
+                if (mean < 1)
+                    return null; // Skip groups with low mean
+
                 var sd = StandardDeviation(reads);
                 var cv = sd / mean;
                 
