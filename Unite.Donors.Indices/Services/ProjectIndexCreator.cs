@@ -622,7 +622,7 @@ public class ProjectIndexCreator
                 var reads = group.Reads.Order().ToArray();
 
                 var mean = reads.Average();
-                if (mean == 0) // should it be != 0 instead of >= 1?
+                if (mean < 1)
                     return null;
 
                 var q1 = reads[reads.Length / 4];
@@ -636,7 +636,7 @@ public class ProjectIndexCreator
 
                 // Whisker min/max
                 var whiskerMin = reads.FirstOrDefault(value => value >= lowerFence);
-                var whiskerMax = reads.SkipWhile(value => value <= upperFence).FirstOrDefault();
+                var whiskerMax = reads.LastOrDefault(value => value <= upperFence);
 
                 var sd = StandardDeviation(reads);
                 var cv = sd / mean;
