@@ -626,7 +626,7 @@ public class ProjectIndexCreator
                 var q3 = reads[reads.Length * 3 / 4];
                 var iqr = q3 - q1;
 
-                if (q3 < 1) // || iqr < 0.01
+                if (q3 == 0) // || iqr < 0.01
                     return null; // Skip groups with low variation
 
                 // Whisker bounds
