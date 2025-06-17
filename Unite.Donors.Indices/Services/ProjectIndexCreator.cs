@@ -618,22 +618,37 @@ public class ProjectIndexCreator
             .ToArray();
 
         stats.PerVariation = expressionGroups
-            .Select(group => new {
-                Key = group.Key,
-                Name = group.Name,
-                Reads = group.Reads.Order().ToArray(),
-                Count = group.Count
-            })
-            .Select(group => new {
-                Key = group.Key,
-                Name = group.Name,
-                Min = group.Reads.First(),
-                Max = group.Reads.Last(),
-                Mean = group.Reads.Average(),
-                Q1 = group.Reads[group.Count / 4],
-                Q2 = group.Reads[group.Count / 2],
-                Q3 = group.Reads[group.Count * 3 / 4],
-                SD = StandardDeviation(group.Reads)
+            .Select(group => {
+                var reads = group.Reads.Order().ToArray();
+                var count = reads.Length;
+
+                double q1 = reads[count / 4];
+                double q2 = reads[count / 2];
+                double q3 = reads[count * 3 / 4];
+                double iqr = q3 - q1;
+
+                // Whisker bounds
+                double lowerFence = q1 - 1.5 * iqr;
+                double upperFence = q3 + 1.5 * iqr;
+
+                // Whisker min/max
+                double min = reads.FirstOrDefault(v => v >= lowerFence);
+                double max = reads.Reverse().FirstOrDefault(v => v <= upperFence);
+
+                return new {
+                    group.Key,
+                    group.Name,
+                    Count = count,
+                    Reads = reads,
+                    Mean = reads.Average(),
+                    SD = StandardDeviation(reads),
+                    Q1 = q1,
+                    Q2 = q2,
+                    Q3 = q3,
+                    IQR = iqr,
+                    Min = min,
+                    Max = max
+                };
             })
             .Where(stats => stats.Mean >= 1)
             .Select(stats => new {
@@ -657,6 +672,47 @@ public class ProjectIndexCreator
             })
             .Select(stats => new Stat<string, double[]>(stats.Name, stats.Values.Select(value => Math.Round(value, 2)).ToArray()))
             .ToArrayOrNull();
+
+        // stats.PerVariation = expressionGroups
+        //     .Select(group => new {
+        //         Key = group.Key,
+        //         Name = group.Name,
+        //         Reads = group.Reads.Order().ToArray(),
+        //         Count = group.Count
+        //     })
+        //     .Select(group => new {
+        //         Key = group.Key,
+        //         Name = group.Name,
+        //         Min = group.Reads.First(),
+        //         Max = group.Reads.Last(),
+        //         Mean = group.Reads.Average(),
+        //         Q1 = group.Reads[group.Count / 4],
+        //         Q2 = group.Reads[group.Count / 2],
+        //         Q3 = group.Reads[group.Count * 3 / 4],
+        //         SD = StandardDeviation(group.Reads)
+        //     })
+        //     .Where(stats => stats.Mean >= 1)
+        //     .Select(stats => new {
+        //         Key = stats.Key,
+        //         Name = stats.Name,
+        //         Min = stats.Min,
+        //         Max = stats.Max,
+        //         Mean = stats.Mean,
+        //         Q1 = stats.Q1,
+        //         Q2 = stats.Q2,
+        //         Q3 = stats.Q3,
+        //         SD = stats.SD,
+        //         CV = stats.SD / stats.Mean
+        //     })
+        //     .OrderByDescending(stats => stats.CV)
+        //     .Take(25)
+        //     .Select(stats => new {
+        //         Key = stats.Key,
+        //         Name = stats.Name,
+        //         Values = new double[] { stats.Min, stats.Q1, stats.Q2, stats.Q3, stats.Max, stats.Mean, stats.SD, stats.CV }
+        //     })
+        //     .Select(stats => new Stat<string, double[]>(stats.Name, stats.Values.Select(value => Math.Round(value, 2)).ToArray()))
+        //     .ToArrayOrNull();
 
         // In database calculation using delta (max - min)
         // stats.PerVariation = dbContext.Set<GeneExpression>()
