@@ -602,8 +602,6 @@ public class ProjectIndexCreator
             .ToArrayOrNull();
 
         // Per variation
-        // In memory calculation using standard deviation
-        // I need to extract or calculate values for box plot
         var expressionGroups = dbContext.Set<GeneExpression>()
             .AsNoTracking()
             .Include(entry => entry.Entity)
@@ -612,127 +610,58 @@ public class ProjectIndexCreator
             .Select(group => new { 
                 Key = group.Key,
                 Name = group.First().Entity.Symbol ?? group.First().Entity.StableId,
-                Reads = group.Select(entry => entry.TPM),
+                Reads = group.Select(entry => Math.Log2(entry.TPM + 1)), // + offset
                 Count = group.Count()
             })
             .ToArray();
 
         stats.PerVariation = expressionGroups
-            .Select(group => {
+            .Select(group =>
+            {
                 var reads = group.Reads.Order().ToArray();
-                var count = reads.Length;
 
-                double q1 = reads[count / 4];
-                double q2 = reads[count / 2];
-                double q3 = reads[count * 3 / 4];
-                double iqr = q3 - q1;
+                var q1 = reads[reads.Length / 4];
+                var q2 = reads[reads.Length / 2];
+                var q3 = reads[reads.Length * 3 / 4];
+                var iqr = q3 - q1;
 
                 // Whisker bounds
-                double lowerFence = q1 - 1.5 * iqr;
-                double upperFence = q3 + 1.5 * iqr;
+                var lowerFence = q1 - 1.5 * iqr;
+                var upperFence = q3 + 1.5 * iqr;
 
                 // Whisker min/max
-                double min = reads.FirstOrDefault(v => v >= lowerFence);
-                double max = reads.Reverse().FirstOrDefault(v => v <= upperFence);
+                var whiskerMin = reads.FirstOrDefault(value => value >= lowerFence);
+                var whiskerMax = reads.SkipWhile(value => value <= upperFence).FirstOrDefault();
 
-                return new {
+                var mean = reads.Average();
+
+                var sd = StandardDeviation(reads);
+                var cv = mean != 0 ? sd / mean : (double?)null; // should it be != 0 instead of >= 1?
+                
+                return new
+                {
                     group.Key,
                     group.Name,
-                    Count = count,
-                    Reads = reads,
-                    Mean = reads.Average(),
-                    SD = StandardDeviation(reads),
                     Q1 = q1,
                     Q2 = q2,
                     Q3 = q3,
-                    IQR = iqr,
-                    Min = min,
-                    Max = max
+                    Min = whiskerMin,
+                    Max = whiskerMax,
+                    Mean = mean,
+                    SD = sd,
+                    CV = cv
                 };
             })
-            .Where(stats => stats.Mean >= 1)
-            .Select(stats => new {
-                Key = stats.Key,
-                Name = stats.Name,
-                Min = stats.Min,
-                Max = stats.Max,
-                Mean = stats.Mean,
-                Q1 = stats.Q1,
-                Q2 = stats.Q2,
-                Q3 = stats.Q3,
-                SD = stats.SD,
-                CV = stats.SD / stats.Mean
-            })
-            .OrderByDescending(stats => stats.CV)
+            .Where(group => group.CV != null)
+            .OrderByDescending(group => group.CV)
             .Take(25)
-            .Select(stats => new {
-                Key = stats.Key,
-                Name = stats.Name,
-                Values = new double[] { stats.Min, stats.Q1, stats.Q2, stats.Q3, stats.Max, stats.Mean, stats.SD, stats.CV }
+            .Select(group => new {
+                Key = group.Key,
+                Name = group.Name,
+                Values = new double[] { group.Min, group.Q1, group.Q2, group.Q3, group.Max, group.Mean, group.SD, group.CV.Value }
             })
             .Select(stats => new Stat<string, double[]>(stats.Name, stats.Values.Select(value => Math.Round(value, 2)).ToArray()))
             .ToArrayOrNull();
-
-        // stats.PerVariation = expressionGroups
-        //     .Select(group => new {
-        //         Key = group.Key,
-        //         Name = group.Name,
-        //         Reads = group.Reads.Order().ToArray(),
-        //         Count = group.Count
-        //     })
-        //     .Select(group => new {
-        //         Key = group.Key,
-        //         Name = group.Name,
-        //         Min = group.Reads.First(),
-        //         Max = group.Reads.Last(),
-        //         Mean = group.Reads.Average(),
-        //         Q1 = group.Reads[group.Count / 4],
-        //         Q2 = group.Reads[group.Count / 2],
-        //         Q3 = group.Reads[group.Count * 3 / 4],
-        //         SD = StandardDeviation(group.Reads)
-        //     })
-        //     .Where(stats => stats.Mean >= 1)
-        //     .Select(stats => new {
-        //         Key = stats.Key,
-        //         Name = stats.Name,
-        //         Min = stats.Min,
-        //         Max = stats.Max,
-        //         Mean = stats.Mean,
-        //         Q1 = stats.Q1,
-        //         Q2 = stats.Q2,
-        //         Q3 = stats.Q3,
-        //         SD = stats.SD,
-        //         CV = stats.SD / stats.Mean
-        //     })
-        //     .OrderByDescending(stats => stats.CV)
-        //     .Take(25)
-        //     .Select(stats => new {
-        //         Key = stats.Key,
-        //         Name = stats.Name,
-        //         Values = new double[] { stats.Min, stats.Q1, stats.Q2, stats.Q3, stats.Max, stats.Mean, stats.SD, stats.CV }
-        //     })
-        //     .Select(stats => new Stat<string, double[]>(stats.Name, stats.Values.Select(value => Math.Round(value, 2)).ToArray()))
-        //     .ToArrayOrNull();
-
-        // In database calculation using delta (max - min)
-        // stats.PerVariation = dbContext.Set<GeneExpression>()
-        //     .AsNoTracking()
-        //     .Include(entry => entry.Entity)
-        //     .Where(entry => donorIds.Contains(entry.Sample.Specimen.DonorId))
-        //     .GroupBy(entry => entry.Entity.Symbol ?? entry.Entity.StableId)
-        //     .Select(group => new {
-        //         Key = group.Key,
-        //         Min = Math.Round(group.Min(value => value.FPKM)),
-        //         Max = Math.Round(group.Max(value => value.FPKM)),
-        //         Delta = Math.Round(group.Max(value => value.FPKM) - group.Min(value => value.FPKM))
-        //     })
-        //     .OrderByDescending(entry => entry.Delta)
-        //     .Take(25)
-        //     .ToDictionary(
-        //         group => group.Key,
-        //         group => new int[] { (int)group.Min, (int)group.Max }
-        //     );
-
 
         // Per mutation
         var variantIds = _projectsRepository.GetRelatedVariants<SM.Variant>([projectId]).Result;
