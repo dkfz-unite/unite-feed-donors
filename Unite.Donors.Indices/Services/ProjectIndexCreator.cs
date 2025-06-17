@@ -610,7 +610,7 @@ public class ProjectIndexCreator
             .Select(group => new { 
                 Key = group.Key,
                 Name = group.First().Entity.Symbol ?? group.First().Entity.StableId,
-                Reads = group.Select(entry => Math.Log2(entry.TPM + 1)), // + offset
+                Reads = group.Select(entry => entry.TPM), // Maybe Math.Log(entry.TPM + 1) instead?
                 Count = group.Count()
             })
             .ToArray();
@@ -619,6 +619,10 @@ public class ProjectIndexCreator
             .Select(group =>
             {
                 var reads = group.Reads.Order().ToArray();
+
+                var mean = reads.Average();
+                if (mean == 0) // should it be != 0 instead of >= 1?
+                    return null;
 
                 var q1 = reads[reads.Length / 4];
                 var q2 = reads[reads.Length / 2];
@@ -633,10 +637,8 @@ public class ProjectIndexCreator
                 var whiskerMin = reads.FirstOrDefault(value => value >= lowerFence);
                 var whiskerMax = reads.SkipWhile(value => value <= upperFence).FirstOrDefault();
 
-                var mean = reads.Average();
-
                 var sd = StandardDeviation(reads);
-                var cv = mean != 0 ? sd / mean : (double?)null; // should it be != 0 instead of >= 1?
+                var cv = sd / mean;
                 
                 return new
                 {
@@ -652,13 +654,13 @@ public class ProjectIndexCreator
                     CV = cv
                 };
             })
-            .Where(group => group.CV != null)
+            .Where(group => group != null)
             .OrderByDescending(group => group.CV)
             .Take(25)
             .Select(group => new {
                 Key = group.Key,
                 Name = group.Name,
-                Values = new double[] { group.Min, group.Q1, group.Q2, group.Q3, group.Max, group.Mean, group.SD, group.CV.Value }
+                Values = new double[] { group.Min, group.Q1, group.Q2, group.Q3, group.Max, group.Mean, group.SD, group.CV }
             })
             .Select(stats => new Stat<string, double[]>(stats.Name, stats.Values.Select(value => Math.Round(value, 2)).ToArray()))
             .ToArrayOrNull();
@@ -908,6 +910,6 @@ public class ProjectIndexCreator
         var mean = values.Average();
         var count = values.Count();
         var sum = values.Sum(value => Math.Pow(value - mean, 2));
-        return Math.Sqrt(sum / count);
+        return Math.Sqrt(sum / (count - 1));
     }
 }
