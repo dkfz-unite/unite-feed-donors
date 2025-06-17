@@ -610,8 +610,8 @@ public class ProjectIndexCreator
             .Select(group => new { 
                 Key = group.Key,
                 Name = group.First().Entity.Symbol ?? group.First().Entity.StableId,
-                Reads = group.Select(entry => entry.TPM),
-                // Reads = group.Select(entry => Math.Log2(entry.TPM + 1)),
+                // Reads = group.Select(entry => entry.TPM),
+                Reads = group.Select(entry => Math.Log2(entry.TPM + 1)),
                 Count = group.Count()
             })
             .ToArray();
