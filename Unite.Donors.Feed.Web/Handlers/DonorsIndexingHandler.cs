@@ -43,11 +43,8 @@ public class DonorsIndexingHandler
     private async Task ProcessDonorIndexingTasks(int bucketSize)
     {
         if (_taskProcessingService.HasTasks(WorkerType.Submission) || _taskProcessingService.HasTasks(WorkerType.Annotation))
-        {
-            _logger.LogInformation("Waiting for other tasks to complete before indexing donors.");
             return;
-        }
-        
+
         var stopwatch = new Stopwatch();
 
         await _taskProcessingService.Process(IndexingTaskType.Donor, bucketSize, async (tasks) =>
