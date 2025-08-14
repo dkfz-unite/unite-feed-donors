@@ -42,13 +42,13 @@ public class ProjectsIndexingHandler
 
     private async Task ProcessProjectIndexingTasks(int bucketSize)
     {
+        if (_taskProcessingService.HasTasks(WorkerType.Submission) || _taskProcessingService.HasTasks(WorkerType.Annotation))
+            return;
+
         var stopwatch = new Stopwatch();
 
         await _taskProcessingService.Process(IndexingTaskType.Project, bucketSize, async (tasks) =>
         {
-            if (_taskProcessingService.HasTasks(WorkerType.Submission) || _taskProcessingService.HasTasks(WorkerType.Annotation))
-                return false;
-
             stopwatch.Restart();
 
             var indicesToDelete = new List<string>();
