@@ -21,9 +21,9 @@ public class DonorTsvModelsBinder : IModelBinder
             .Map(entity => entity.Studies, "studies", arrayConverter)
             .Map(entity => entity.Projects, "projects", arrayConverter)
             .Map(entity => entity.ClinicalData.Sex, "sex")
-            .Map(entity => entity.ClinicalData.EnrollmentAge, "age")
+            .Map(entity => entity.ClinicalData.EnrollmentAge, "enrollment_age")
+            .Map(entity => entity.ClinicalData.EnrollmentDate, "enrollment_date")
             .Map(entity => entity.ClinicalData.Diagnosis, "diagnosis")
-            .Map(entity => entity.ClinicalData.EnrollmentDate, "diagnosis_date")
             .Map(entity => entity.ClinicalData.PrimarySite, "primary_site")
             .Map(entity => entity.ClinicalData.Localization, "localization")
             .Map(entity => entity.ClinicalData.VitalStatus, "vital_status")
@@ -32,8 +32,8 @@ public class DonorTsvModelsBinder : IModelBinder
             .Map(entity => entity.ClinicalData.ProgressionStatus, "progression_status")
             .Map(entity => entity.ClinicalData.ProgressionStatusChangeDate, "progression_status_change_date")
             .Map(entity => entity.ClinicalData.ProgressionStatusChangeDay, "progression_status_change_day")
-            .Map(entity => entity.ClinicalData.Kps, "kps_baseline")
-            .Map(entity => entity.ClinicalData.SteroidsReactive, "steroids_baseline");
+            .Map(entity => entity.ClinicalData.SteroidsReactive, "steroids_reactive")
+            .Map(entity => entity.ClinicalData.Kps, "kps");
 
         var model = TsvReader.Read(tsv, map).ToArray();
 
