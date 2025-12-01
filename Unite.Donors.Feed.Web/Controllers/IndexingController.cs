@@ -28,20 +28,34 @@ public class IndexingController : Controller
     }
 
     [HttpPost("projects")]
-    public IActionResult PostProjects()
+    public async Task<IActionResult> PostProjects()
     {
-        _projectIndexService.DeleteIndex().Wait();
+        await DeleteIndex(_projectIndexService.DeleteIndex());
+        
         _projectTasksService.CreateTasks();
 
         return Ok();
     }
 
     [HttpPost("donors")]
-    public IActionResult Post()
+    public async Task<IActionResult> Post()
     {
-        _donorIndexService.DeleteIndex().Wait();
+        await DeleteIndex(_donorIndexService.DeleteIndex());
+
         _donorTasksService.CreateTasks();
 
         return Ok();
+    }
+
+    private static async Task DeleteIndex(Task task)
+    {
+        try
+        {
+            await task;
+        }
+        catch
+        {
+            // Ignore errors
+        }
     }
 }
