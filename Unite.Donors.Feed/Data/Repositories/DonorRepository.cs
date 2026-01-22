@@ -87,6 +87,8 @@ internal class DonorRepository
             target.ClinicalData.VitalStatusChangeDate = source.ClinicalData.VitalStatusChangeDate;
             target.ClinicalData.VitalStatusChangeDay = source.ClinicalData.VitalStatusChangeDay;
             target.ClinicalData.ProgressionStatus = source.ClinicalData.ProgressionStatus;
+            target.ClinicalData.ProgressionStatusChangeDate = source.ClinicalData.ProgressionStatusChangeDate;
+            target.ClinicalData.ProgressionStatusChangeDay = source.ClinicalData.ProgressionStatusChangeDay;
             target.ClinicalData.SteroidsReactive = source.ClinicalData.SteroidsReactive;
             target.ClinicalData.Kps = source.ClinicalData.Kps;
         }
