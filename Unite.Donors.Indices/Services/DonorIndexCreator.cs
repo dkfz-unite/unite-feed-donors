@@ -9,6 +9,7 @@ using Unite.Data.Entities.Images;
 using Unite.Data.Entities.Images.Enums;
 using Unite.Data.Entities.Omics.Analysis;
 using Unite.Data.Entities.Omics.Analysis.Dna;
+using Unite.Data.Entities.Omics.Analysis.Prot;
 using Unite.Data.Entities.Omics.Analysis.Rna;
 using Unite.Data.Entities.Specimens;
 using Unite.Data.Entities.Specimens.Analysis.Drugs;
@@ -156,8 +157,9 @@ public class DonorIndexCreator
         var meth = CheckSampleMethylation(sample.Id);
         var exp = CheckSampleGeneExp(sample.Id);
         var expSc = CheckSampleGeneExpSc(sample.Id);
+        var prot = CheckSampleProtExp(sample.Id);
 
-        if (sm || cnv || sv || meth || exp || expSc)
+        if (sm || cnv || sv || meth || exp || expSc || prot)
         {
             index.Data = new Unite.Indices.Entities.Basic.Analysis.SampleDataIndex
             {
@@ -166,7 +168,8 @@ public class DonorIndexCreator
                 Sv = sv,
                 Meth = meth,
                 Exp = exp,
-                ExpSc = expSc
+                ExpSc = expSc,
+                Prot = prot
             };
         }
 
@@ -184,7 +187,13 @@ public class DonorIndexCreator
             .Include(sample => sample.Analysis)
             .Include(sample => sample.Resources)
             .Where(sample => sample.SpecimenId == specimenId)
-            .Where(sample => sample.SmEntries.Any() || sample.CnvEntries.Any() || sample.SvEntries.Any() || sample.GeneExpressions.Any() || sample.Resources.Any())
+            .Where(sample =>
+                sample.SmEntries.Any() ||
+                sample.CnvEntries.Any() ||
+                sample.SvEntries.Any() ||
+                sample.GeneExpressions.Any() ||
+                sample.ProteinExpressions.Any() ||
+                sample.Resources.Any())
             .ToArray();
     }
 
@@ -206,7 +215,7 @@ public class DonorIndexCreator
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
             .Any(resource => resource.SampleId == sampleId
-                          && resource.Type == DataTypes.Omics.Meth.Sample
+                          && resource.Type == DataTypes.Omics.Methylation.Sample
                           && resource.Format == FileTypes.Sequence.Idat);
     }
 
@@ -225,7 +234,16 @@ public class DonorIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => resource.SampleId == sampleId && resource.Type == DataTypes.Omics.Rnasc.Exp);
+            .Any(resource => resource.SampleId == sampleId && resource.Type == DataTypes.Omics.Rnasc.Expression);
+    }
+
+    private bool CheckSampleProtExp(int sampleId)
+    {
+        using var dbContext = _dbContextFactory.CreateDbContext();
+
+        return dbContext.Set<ProteinExpression>()
+            .AsNoTracking()
+            .Any(expression => expression.SampleId == sampleId);
     }
 
 
@@ -279,7 +297,8 @@ public class DonorIndexCreator
             Svs = CheckVariants<SV.Variant, SV.VariantEntry>(specimenIds),
             Meth = CheckMethylation(specimenIds),
             Exp = CheckGeneExp(specimenIds),
-            ExpSc = CheckGeneExpSc(specimenIds)
+            ExpSc = CheckGeneExpSc(specimenIds),
+            Prot = CheckProtExp(specimenIds)
         };
     }
 
@@ -391,7 +410,7 @@ public class DonorIndexCreator
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
             .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId)
-                          && resource.Type == DataTypes.Omics.Meth.Sample
+                          && resource.Type == DataTypes.Omics.Methylation.Sample
                           && resource.Format == FileTypes.Sequence.Idat);
     }
 
@@ -420,6 +439,20 @@ public class DonorIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Omics.Rnasc.Exp);
+            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Omics.Rnasc.Expression);
+    }
+
+    /// <summary>
+    /// Checks if proteomics expression data is available for given specimens.
+    /// </summary>
+    /// <param name="specimenIds">Specimen identifiers.</param>
+    /// <returns>'true' if proteomics expression data exists or 'false' otherwise.</returns>
+    private bool CheckProtExp(int[] specimenIds)
+    {
+        using var dbContext = _dbContextFactory.CreateDbContext();
+
+        return dbContext.Set<ProteinExpression>()
+            .AsNoTracking()
+            .Any(expression => specimenIds.Contains(expression.Sample.SpecimenId));
     }
 }

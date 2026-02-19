@@ -48,6 +48,7 @@ public class DonorIndexingTasksService : IndexingTaskService<Donor, int>
             CreateSpecimenIndexingTasks(donors);
             CreateVariantIndexingTasks(donors);
             CreateGeneIndexingTasks(donors);
+            CreateProteinIndexingTasks(donors);
         });
     }
 
@@ -78,6 +79,11 @@ public class DonorIndexingTasksService : IndexingTaskService<Donor, int>
     protected override IEnumerable<int> LoadRelatedGenes(IEnumerable<int> keys)
     {
         return _donorsRepository.GetRelatedGenes(keys).Result;
+    }
+
+    protected override IEnumerable<int> LoadRelatedProteins(IEnumerable<int> keys)
+    {
+        return _donorsRepository.GetRelatedProteins(keys).Result;
     }
 
     protected override IEnumerable<int> LoadRelatedSms(IEnumerable<int> keys)
