@@ -91,4 +91,10 @@ public class ProjectIndexingTasksService : IndexingTaskService<Project, int>
     {
         return _projectsRepository.GetRelatedVariants<SV.Variant>(keys).Result;
     }
+
+    protected override IEnumerable<int> LoadRelatedCnvProfiles(IEnumerable<int> keys)
+    {
+        return [];
+        // return _projectsRepository.GetRelatedCnvProfiles(keys).Result;
+    }
 }

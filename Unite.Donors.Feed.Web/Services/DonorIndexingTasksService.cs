@@ -100,4 +100,10 @@ public class DonorIndexingTasksService : IndexingTaskService<Donor, int>
     {
         return _donorsRepository.GetRelatedVariants<SV.Variant>(keys).Result;
     }
+
+    protected override IEnumerable<int> LoadRelatedCnvProfiles(IEnumerable<int> keys)
+    {
+        return [];
+        // return _donorsRepository.GetRelatedCnvProfiles(keys).Result;
+    }
 }
