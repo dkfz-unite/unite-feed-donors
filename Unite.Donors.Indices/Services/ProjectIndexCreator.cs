@@ -11,6 +11,7 @@ using Unite.Data.Entities.Images.Enums;
 using Unite.Data.Entities.Omics.Analysis;
 using Unite.Data.Entities.Omics.Analysis.Dna;
 using Unite.Data.Entities.Omics.Analysis.Enums;
+using Unite.Data.Entities.Omics.Analysis.Prot;
 using Unite.Data.Entities.Omics.Analysis.Rna;
 using Unite.Data.Entities.Specimens;
 using Unite.Data.Entities.Specimens.Analysis.Drugs;
@@ -26,7 +27,6 @@ using Unite.Indices.Entities.Projects.Stats.Base;
 using SM = Unite.Data.Entities.Omics.Analysis.Dna.Sm;
 using CNV = Unite.Data.Entities.Omics.Analysis.Dna.Cnv;
 using SV = Unite.Data.Entities.Omics.Analysis.Dna.Sv;
-
 
 namespace Unite.Donors.Indices.Services;
 
@@ -561,7 +561,7 @@ public class ProjectIndexCreator
             .Include(sample => sample.Resources)
             .Where(sample => donorIds.Contains(sample.Specimen.DonorId))
             .Where(sample => analyses.Contains(sample.Analysis.TypeId))
-            .Where(sample => sample.Resources.Any(resource => resource.Type == DataTypes.Omics.Meth.Sample && resource.Format == FileTypes.Sequence.Idat))
+            .Where(sample => sample.Resources.Any(resource => resource.Type == DataTypes.Omics.Methylation.Sample && resource.Format == FileTypes.Sequence.Idat))
             .ToArray();
 
         // Total donors with the data
@@ -700,7 +700,7 @@ public class ProjectIndexCreator
 
         var donorIds = _projectsRepository.GetRelatedDonors([projectId]).Result;
         var analyses = new AnalysisType[] { AnalysisType.RNASeqSc, AnalysisType.RNASeqSn };
-        var resources = new string[] { DataTypes.Omics.Rnasc.Exp };
+        var resources = new string[] { DataTypes.Omics.Rnasc.Expression };
         var withAnalyses = dbContext.Set<Sample>()
             .AsNoTracking()
             .Include(sample => sample.Specimen.Donor)
@@ -762,7 +762,8 @@ public class ProjectIndexCreator
             Svs = CheckVariants<SV.Variant, SV.VariantEntry>(specimenIds),
             Meth = CheckMethylation(specimenIds),
             Exp = CheckGeneExp(specimenIds),
-            ExpSc = CheckGeneExpSc(specimenIds)
+            ExpSc = CheckGeneExpSc(specimenIds),
+            Prot = CheckProtExp(specimenIds)
         };
     }
 
@@ -873,7 +874,7 @@ public class ProjectIndexCreator
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
             .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId)
-                          && resource.Type == DataTypes.Omics.Meth.Sample
+                          && resource.Type == DataTypes.Omics.Methylation.Sample
                           && resource.Format == FileTypes.Sequence.Idat);
     }
 
@@ -902,7 +903,21 @@ public class ProjectIndexCreator
 
         return dbContext.Set<SampleResource>()
             .AsNoTracking()
-            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Omics.Rnasc.Exp);
+            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Omics.Rnasc.Expression);
+    }
+
+    /// <summary>
+    /// Checks if proteomics data is available for given specimens.
+    /// </summary>
+    /// <param name="specimenIds">Specimen identifiers.</param>
+    /// <returns>'true' if proteomics data exists or 'false' otherwise.</returns>
+    private bool CheckProtExp(int[] specimenIds)
+    {
+        using var dbContext = _dbContextFactory.CreateDbContext();
+
+        return dbContext.Set<ProteinExpression>()
+            .AsNoTracking()
+            .Any(expression => specimenIds.Contains(expression.Sample.SpecimenId));
     }
 
 

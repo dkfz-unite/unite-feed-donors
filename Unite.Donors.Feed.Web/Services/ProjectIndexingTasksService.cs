@@ -72,6 +72,11 @@ public class ProjectIndexingTasksService : IndexingTaskService<Project, int>
         return _projectsRepository.GetRelatedGenes(keys).Result;
     }
 
+    protected override IEnumerable<int> LoadRelatedProteins(IEnumerable<int> keys)
+    {
+        return _projectsRepository.GetRelatedProteins(keys).Result;
+    }
+
     protected override IEnumerable<int> LoadRelatedSms(IEnumerable<int> keys)
     {
         return _projectsRepository.GetRelatedVariants<SM.Variant>(keys).Result;
@@ -85,5 +90,11 @@ public class ProjectIndexingTasksService : IndexingTaskService<Project, int>
     protected override IEnumerable<int> LoadRelatedSvs(IEnumerable<int> keys)
     {
         return _projectsRepository.GetRelatedVariants<SV.Variant>(keys).Result;
+    }
+
+    protected override IEnumerable<int> LoadRelatedCnvProfiles(IEnumerable<int> keys)
+    {
+        return [];
+        // return _projectsRepository.GetRelatedCnvProfiles(keys).Result;
     }
 }
