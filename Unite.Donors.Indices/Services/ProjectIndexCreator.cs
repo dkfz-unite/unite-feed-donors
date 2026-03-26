@@ -395,7 +395,9 @@ public class ProjectIndexCreator
             .ToArray();
 
         // Total donors with the data
-        stats.Number = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var donors = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var specimens = withAnalyses.Select(sample => sample.SpecimenId).Distinct().Count();
+        stats.Number = [donors, specimens];
 
         // Per analysis
         stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
@@ -485,7 +487,9 @@ public class ProjectIndexCreator
             .ToArray();
 
         // Total donors with the data
-        stats.Number = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var donors = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var specimens = withAnalyses.Select(sample => sample.SpecimenId).Distinct().Count();
+        stats.Number = [donors, specimens];
 
         // Per analysis
         stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
@@ -525,7 +529,9 @@ public class ProjectIndexCreator
             .ToArray();
 
         // Total donors with the data
-        stats.Number = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var donors = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var specimens = withAnalyses.Select(sample => sample.SpecimenId).Distinct().Count();
+        stats.Number = [donors, specimens];
 
         // Per analysis
         stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
@@ -565,7 +571,9 @@ public class ProjectIndexCreator
             .ToArray();
 
         // Total donors with the data
-        stats.Number = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var donors = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var specimens = withAnalyses.Select(sample => sample.SpecimenId).Distinct().Count();
+        stats.Number = [donors, specimens];
 
         // Per analysis
         stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
@@ -594,7 +602,9 @@ public class ProjectIndexCreator
             .ToArray();
 
         // Total donors with the data
-        stats.Number = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var donors = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var specimens = withAnalyses.Select(sample => sample.SpecimenId).Distinct().Count();
+        stats.Number = [donors, specimens];
 
         // Per analysis
         stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
@@ -711,7 +721,9 @@ public class ProjectIndexCreator
             .ToArray();
 
         // Total donors with the data
-        stats.Number = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var donors = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var specimens = withAnalyses.Select(sample => sample.SpecimenId).Distinct().Count();
+        stats.Number = [donors, specimens];
 
         // Per analysis
         stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
