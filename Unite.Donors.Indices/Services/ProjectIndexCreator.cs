@@ -176,7 +176,8 @@ public class ProjectIndexCreator
             Dna = CountDnaStats(projectId),
             Meth = CountMethStats(projectId),
             Rna = CountRnaStats(projectId),
-            Rnasc = CountRnascStats(projectId)
+            Rnasc = CountRnascStats(projectId),
+            Prot = CountProtStats(projectId)
         };
     }
 
@@ -734,6 +735,37 @@ public class ProjectIndexCreator
         stats.PerCells = StatsService
             .GetRangeBreakdown(withAnalyses, sample => sample.Cells)
             .Select(stat => new Stat<int?, int>(stat.Key, stat.Count))
+            .ToArrayOrNull();
+
+        return stats;
+    }
+
+    private ProtStats CountProtStats(int projectId)
+    {
+        using var dbContext = _dbContextFactory.CreateDbContext();
+
+        var stats = new ProtStats();
+
+        var donorIds = _projectsRepository.GetRelatedDonors([projectId]).Result;
+        var analyses = new AnalysisType[] { AnalysisType.MS };
+        var withAnalyses = dbContext.Set<Sample>()
+            .AsNoTracking()
+            .Include(sample => sample.Specimen.Donor)
+            .Include(sample => sample.Analysis)
+            .Include(sample => sample.Resources)
+            .Where(sample => donorIds.Contains(sample.Specimen.DonorId))
+            .Where(sample => analyses.Contains(sample.Analysis.TypeId))
+            .Where(sample => sample.ProteinExpressions.Any())
+            .ToArray();
+
+        // Total donors with the data
+        var donors = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var specimens = withAnalyses.Select(sample => sample.SpecimenId).Distinct().Count();
+        stats.Number = [donors, specimens];
+
+        // Per analysis
+        stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
+            .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
             .ToArrayOrNull();
 
         return stats;
