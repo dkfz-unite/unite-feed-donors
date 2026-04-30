@@ -154,18 +154,20 @@ public class DonorIndexCreator
         var sm = CheckSampleVariants<SM.Variant, SM.VariantEntry>(sample.Id);
         var cnv = CheckSampleVariants<CNV.Variant, CNV.VariantEntry>(sample.Id);
         var sv = CheckSampleVariants<SV.Variant, SV.VariantEntry>(sample.Id);
+        var cnvp = CheckSampleCnvProfiles(sample.Id);
         var meth = CheckSampleMethylation(sample.Id);
         var exp = CheckSampleGeneExp(sample.Id);
         var expSc = CheckSampleGeneExpSc(sample.Id);
         var prot = CheckSampleProtExp(sample.Id);
 
-        if (sm || cnv || sv || meth || exp || expSc || prot)
+        if (sm || cnv || sv || cnvp || meth || exp || expSc || prot)
         {
             index.Data = new Unite.Indices.Entities.Basic.Analysis.SampleDataIndex
             {
                 Sm = sm,
                 Cnv = cnv,
                 Sv = sv,
+                Cnvp = cnvp,
                 Meth = meth,
                 Exp = exp,
                 ExpSc = expSc,
@@ -206,6 +208,15 @@ public class DonorIndexCreator
         return dbContext.Set<TVariantEntry>()
             .AsNoTracking()
             .Any(entity => entity.SampleId == sampleId);
+    }
+
+    public bool CheckSampleCnvProfiles(int sampleId)
+    {
+        using var dbContext = _dbContextFactory.CreateDbContext();
+
+        return dbContext.Set<CNV.Profile>()
+            .AsNoTracking()
+            .Any(profile => profile.SampleId == sampleId);
     }
 
     private bool CheckSampleMethylation(int sampleId)
@@ -295,6 +306,7 @@ public class DonorIndexCreator
             Sms = CheckVariants<SM.Variant, SM.VariantEntry>(specimenIds),
             Cnvs = CheckVariants<CNV.Variant, CNV.VariantEntry>(specimenIds),
             Svs = CheckVariants<SV.Variant, SV.VariantEntry>(specimenIds),
+            Cnvps = CheckCnvProfiles(specimenIds),
             Meth = CheckMethylation(specimenIds),
             Exp = CheckGeneExp(specimenIds),
             ExpSc = CheckGeneExpSc(specimenIds),
@@ -396,6 +408,21 @@ public class DonorIndexCreator
         return dbContext.Set<TVariantEntry>()
             .AsNoTracking()
             .Any(entry => specimenIds.Contains(entry.Sample.SpecimenId));
+    }
+
+    /// <summary>
+    /// Checks if CNV profiles are available for given specimen.
+    /// </summary>
+    /// <param name="specimenIds">Specimen identifiers.</param>
+    /// <returns>'true' if CNV profiles exist or 'false' otherwise.</returns>
+    private bool CheckCnvProfiles(int[] specimenIds)
+    {
+        using var dbContext = _dbContextFactory.CreateDbContext();
+
+        return dbContext.Set<CNV.Profile>()
+            .AsNoTracking()
+            .Where(profile => specimenIds.Contains(profile.Sample.SpecimenId))
+            .Any();
     }
 
     /// <summary>

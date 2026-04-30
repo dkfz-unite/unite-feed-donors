@@ -373,7 +373,8 @@ public class ProjectIndexCreator
         {
             Sm = CountSmStats(projectId),
             Cnv = CountCnvStats(projectId),
-            Sv = CountSvStats(projectId)
+            Sv = CountSvStats(projectId),
+            Cnvp = CountCnvpStats(projectId)
         };
     }
 
@@ -547,6 +548,37 @@ public class ProjectIndexCreator
 
         // Per type
         stats.PerType = StatsService.GetPropertyBreakdown(entries, entry => entry.TypeId)
+            .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
+
+        return stats;
+    }
+
+    private CnvpStats CountCnvpStats(int projectId)
+    {
+        using var dbContext = _dbContextFactory.CreateDbContext();
+
+        var stats = new CnvpStats();
+
+        var donorIds = _projectsRepository.GetRelatedDonors([projectId]).Result;
+        var analyses = new AnalysisType[] { AnalysisType.WGS, AnalysisType.WES, AnalysisType.MethArray };
+        var withAnalyses = dbContext.Set<Sample>()
+            .AsNoTracking()
+            .Include(sample => sample.Specimen.Donor)
+            .Include(sample => sample.Analysis)
+            .Include(sample => sample.Resources)
+            .Where(sample => donorIds.Contains(sample.Specimen.DonorId))
+            .Where(sample => analyses.Contains(sample.Analysis.TypeId))
+            .Where(sample => sample.CnvProfiles.Any())
+            .ToArray();
+
+        // Total donors with the data
+        var donors = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().Count();
+        var specimens = withAnalyses.Select(sample => sample.SpecimenId).Distinct().Count();
+        stats.Number = [donors, specimens];
+
+        // Per analysis
+        stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
             .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
             .ToArrayOrNull();
 
@@ -803,6 +835,7 @@ public class ProjectIndexCreator
             Sms = CheckVariants<SM.Variant, SM.VariantEntry>(specimenIds),
             Cnvs = CheckVariants<CNV.Variant, CNV.VariantEntry>(specimenIds),
             Svs = CheckVariants<SV.Variant, SV.VariantEntry>(specimenIds),
+            Cnvps = CheckCnvProfiles(specimenIds),
             Meth = CheckMethylation(specimenIds),
             Exp = CheckGeneExp(specimenIds),
             ExpSc = CheckGeneExpSc(specimenIds),
@@ -903,6 +936,21 @@ public class ProjectIndexCreator
         return dbContext.Set<TVariantEntry>()
             .AsNoTracking()
             .Any(entry => specimenIds.Contains(entry.Sample.SpecimenId));
+    }
+
+    /// <summary>
+    /// Checks if CNV profiles are available for given specimen.
+    /// </summary>
+    /// <param name="specimenIds">Specimen identifiers.</param>
+    /// <returns>'true' if CNV profiles exist or 'false' otherwise.</returns>
+    private bool CheckCnvProfiles(int[] specimenIds)
+    {
+        using var dbContext = _dbContextFactory.CreateDbContext();
+
+        return dbContext.Set<CNV.Profile>()
+            .AsNoTracking()
+            .Where(profile => specimenIds.Contains(profile.Sample.SpecimenId))
+            .Any();
     }
 
     /// <summary>
