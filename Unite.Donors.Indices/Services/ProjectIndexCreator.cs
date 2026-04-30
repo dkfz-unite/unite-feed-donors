@@ -9,9 +9,7 @@ using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Entities.Images;
 using Unite.Data.Entities.Images.Enums;
 using Unite.Data.Entities.Omics.Analysis;
-using Unite.Data.Entities.Omics.Analysis.Dna;
 using Unite.Data.Entities.Omics.Analysis.Enums;
-using Unite.Data.Entities.Omics.Analysis.Prot;
 using Unite.Data.Entities.Omics.Analysis.Rna;
 using Unite.Data.Entities.Specimens;
 using Unite.Data.Entities.Specimens.Analysis.Drugs;
@@ -35,6 +33,7 @@ public class ProjectIndexCreator
     private readonly IDbContextFactory<DomainDbContext> _dbContextFactory;
     private readonly ProjectsRepository _projectsRepository;
     private readonly DonorsRepository _donorsRepository;
+    private readonly SpecimensRepository _specimensRepository;
 
 
     public ProjectIndexCreator(IDbContextFactory<DomainDbContext> dbContextFactory)
@@ -42,6 +41,7 @@ public class ProjectIndexCreator
         _dbContextFactory = dbContextFactory;
         _projectsRepository = new ProjectsRepository(dbContextFactory);
         _donorsRepository = new DonorsRepository(dbContextFactory);
+        _specimensRepository = new SpecimensRepository(dbContextFactory);
     }
 
 
@@ -832,14 +832,14 @@ public class ProjectIndexCreator
             XenograftsMolecular = CheckMolecularData(donorIds, SpecimenType.Xenograft),
             XenograftsInterventions = CheckInterventions(donorIds, SpecimenType.Xenograft),
             XenograftsDrugs = CheckDrugScreenings(donorIds, SpecimenType.Xenograft),
-            Sms = CheckVariants<SM.Variant, SM.VariantEntry>(specimenIds),
-            Cnvs = CheckVariants<CNV.Variant, CNV.VariantEntry>(specimenIds),
-            Svs = CheckVariants<SV.Variant, SV.VariantEntry>(specimenIds),
-            Cnvps = CheckCnvProfiles(specimenIds),
-            Meth = CheckMethylation(specimenIds),
-            Exp = CheckGeneExp(specimenIds),
-            ExpSc = CheckGeneExpSc(specimenIds),
-            Prot = CheckProtExp(specimenIds)
+            Sms =  _specimensRepository.HaveVariants<SM.VariantEntry, SM.Variant>(specimenIds).Result,
+            Cnvs = _specimensRepository.HaveVariants<CNV.VariantEntry, CNV.Variant>(specimenIds).Result,
+            Svs = _specimensRepository.HaveVariants<SV.VariantEntry, SV.Variant>(specimenIds).Result,
+            Cnvps = _specimensRepository.HaveProfiles(specimenIds).Result,
+            Meth = _specimensRepository.HaveMethylation(specimenIds).Result,
+            Exp = _specimensRepository.HaveGeneExpressions(specimenIds).Result,
+            ExpSc = _specimensRepository.HaveGeneExpressionsPerCells(specimenIds).Result,
+            Prot = _specimensRepository.HaveProteinExpressions(specimenIds).Result
         };
     }
 
@@ -918,97 +918,6 @@ public class ProjectIndexCreator
             .Where(entry => donorIds.Contains(entry.Sample.Specimen.DonorId))
             .Where(entry => entry.Sample.Specimen.TypeId == type)
             .Any();
-    }
-
-    /// <summary>
-    /// Checks if variants data of given type is available for given specimens.
-    /// </summary>
-    /// <param name="specimenIds">Specimen identifiers.</param>
-    /// <typeparam name="TVariant">Variant type.</typeparam>
-    /// <typeparam name="TVariantEntry">Variant occurrence type.</typeparam>
-    /// <returns>'true' if variants data exists or 'false' otherwise.</returns>
-    private bool CheckVariants<TVariant, TVariantEntry>(int[] specimenIds)
-        where TVariant : Variant
-        where TVariantEntry : VariantEntry<TVariant>
-    {
-        using var dbContext = _dbContextFactory.CreateDbContext();
-
-        return dbContext.Set<TVariantEntry>()
-            .AsNoTracking()
-            .Any(entry => specimenIds.Contains(entry.Sample.SpecimenId));
-    }
-
-    /// <summary>
-    /// Checks if CNV profiles are available for given specimen.
-    /// </summary>
-    /// <param name="specimenIds">Specimen identifiers.</param>
-    /// <returns>'true' if CNV profiles exist or 'false' otherwise.</returns>
-    private bool CheckCnvProfiles(int[] specimenIds)
-    {
-        using var dbContext = _dbContextFactory.CreateDbContext();
-
-        return dbContext.Set<CNV.Profile>()
-            .AsNoTracking()
-            .Where(profile => specimenIds.Contains(profile.Sample.SpecimenId))
-            .Any();
-    }
-
-    /// <summary>
-    /// Checks if methylation data is available for given specimens.
-    /// </summary>
-    /// <param name="specimenIds">Specimen identifiers.</param>
-    /// <returns>'true' if methylation data exists or 'false' otherwise.</returns>
-    private bool CheckMethylation(int[] specimenIds)
-    {
-        using var dbContext = _dbContextFactory.CreateDbContext();
-
-        return dbContext.Set<SampleResource>()
-            .AsNoTracking()
-            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId)
-                          && resource.Type == DataTypes.Omics.Methylation.Sample
-                          && resource.Format == FileTypes.Sequence.Idat);
-    }
-
-    /// <summary>
-    /// Checks if bulk gene expression data is available for given specimens.
-    /// </summary>
-    /// <param name="specimenIds">Specimen identifiers.</param>
-    /// <returns>'true' if gene expression data exists or 'false' otherwise.</returns>
-    private bool CheckGeneExp(int[] specimenIds)
-    {
-        using var dbContext = _dbContextFactory.CreateDbContext();
-
-        return dbContext.Set<GeneExpression>()
-            .AsNoTracking()
-            .Any(expression => specimenIds.Contains(expression.Sample.SpecimenId));
-    }
-
-    /// <summary>
-    /// Checks if single cell gene expression data is available for given specimens.
-    /// </summary>
-    /// <param name="specimenIds">Specimen identifiers.</param>
-    /// <returns>'true' if single cell gene expression data exists or 'false' otherwise.</returns>
-    private bool CheckGeneExpSc(int[] specimenIds)
-    {
-        using var dbContext = _dbContextFactory.CreateDbContext();
-
-        return dbContext.Set<SampleResource>()
-            .AsNoTracking()
-            .Any(resource => specimenIds.Contains(resource.Sample.SpecimenId) && resource.Type == DataTypes.Omics.Rnasc.Expression);
-    }
-
-    /// <summary>
-    /// Checks if proteomics data is available for given specimens.
-    /// </summary>
-    /// <param name="specimenIds">Specimen identifiers.</param>
-    /// <returns>'true' if proteomics data exists or 'false' otherwise.</returns>
-    private bool CheckProtExp(int[] specimenIds)
-    {
-        using var dbContext = _dbContextFactory.CreateDbContext();
-
-        return dbContext.Set<ProteinExpression>()
-            .AsNoTracking()
-            .Any(expression => specimenIds.Contains(expression.Sample.SpecimenId));
     }
 
 
