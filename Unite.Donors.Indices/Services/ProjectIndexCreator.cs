@@ -4,6 +4,7 @@ using Unite.Data.Context;
 using Unite.Data.Context.Repositories;
 using Unite.Data.Context.Repositories.Extensions.Queryable;
 using Unite.Data.Context.Services.Stats;
+using Unite.Data.Entities;
 using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Entities.Images;
@@ -18,6 +19,7 @@ using Unite.Donors.Indices.Services.Extensions;
 using Unite.Donors.Indices.Services.Mapping;
 using Unite.Essentials.Extensions;
 using Unite.Indices.Entities;
+using Unite.Indices.Entities.Basic;
 using Unite.Indices.Entities.Projects;
 using Unite.Indices.Entities.Projects.Stats;
 using Unite.Indices.Entities.Projects.Stats.Base;
@@ -68,8 +70,10 @@ public class ProjectIndexCreator
         var index = ProjectIndexMapper.CreateFrom<ProjectIndex>(project);
 
         index.Donors = CreateDonorIndices(project.Id);
+        index.Users = CreateUserIndices(project.Id);
         index.Stats =  CreateStatsIndex(project.Id); // TODO: Improve performance caching input data
         index.Data = CreateDataIndex(project.Id);
+        index.IsPublic = project.IsPublic;
 
         return index;
     }
@@ -112,8 +116,37 @@ public class ProjectIndexCreator
             .Where(donor => donorsIds.Contains(donor.Id))
             .ToArray();
     }
+    
+    private DataUserNavIndex[] CreateUserIndices(int projectId)
+    {
+        var users = LoadUsers(projectId);
 
+        return users.Select(dataUser => CreateUserIndex(dataUser)).ToArrayOrNull();
+    }
 
+    private DataUserNavIndex CreateUserIndex(DataUser dataUser)
+    {
+        var index = new DataUserNavIndex
+        {
+            Id = dataUser.Id,
+            UserId =  dataUser.UserId
+        };
+
+        return index;
+    }
+    
+    private DataUser[] LoadUsers(int projectId)
+    {
+        var userIds = _projectsRepository.GetRelatedUsers([projectId]).Result;
+
+        using var dbContext = _dbContextFactory.CreateDbContext();
+
+        return dbContext.Set<DataUser>()
+            .AsNoTracking()
+            .Where(user => userIds.Contains(user.Id))
+            .ToArray();
+    }
+    
     private ImageIndex[] CreateImageIndices(int donorId)
     {
         var images = LoadImages(donorId);
