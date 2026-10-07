@@ -37,8 +37,9 @@ public class DonorsWriter : DonorsWriterBase<DonorModel, DonorsWriteAudit>
     protected override void ProcessModel(DonorModel model, ref DonorsWriteAudit audit)
     {
         var donor = FindDonor(model);
+        var created = donor == null;
 
-        if (donor == null)
+        if (created)
             donor = CreateDonor(model, ref audit);
         else
             donor = UpdateDonor(donor, model, ref audit);
@@ -48,6 +49,8 @@ public class DonorsWriter : DonorsWriterBase<DonorModel, DonorsWriteAudit>
 
         if (model.Projects.IsNotEmpty())
             WriteProjects(donor.Id, model.Projects, ref audit);
+        else if (created)
+            WriteProjects(donor.Id, [Project.DefaultName], ref audit);
         
         if (model.Studies.IsNotEmpty())
             WriteStudies(donor.Id, model.Studies, ref audit);

@@ -37,7 +37,8 @@ public class ProjectRepository
         {
             entity = new Project()
             {
-                Name = name
+                Name = name,
+                IsPublic = IsDefault(name)
             };
 
             _dbContext.Add(entity);
@@ -57,7 +58,7 @@ public class ProjectRepository
 
             if (entity == null)
             {
-                entity = new Project() { Name = name };
+                entity = new Project() { Name = name, IsPublic = IsDefault(name) };
 
                 entitiesToAdd.Add(entity);
             }
@@ -81,5 +82,14 @@ public class ProjectRepository
 
         _dbContext.RemoveRange(projects);
         _dbContext.SaveChanges();
+    }
+
+    /// <summary>
+    /// The default project collects donors submitted without a project and is public;
+    /// all other projects are private on creation.
+    /// </summary>
+    private static bool IsDefault(string name)
+    {
+        return name == Project.DefaultName;
     }
 }
