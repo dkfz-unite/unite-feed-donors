@@ -60,18 +60,30 @@ Environment variables are in the [README](README.md); endpoints and models in
 
 | Route | Task type | Notes |
 | --- | --- | --- |
-| `api/entries[/tsv]` | `DON` | Donor and clinical data, upsert. Provided `projects`, `studies` and `treatments` replace the donor's previous ones; a new donor without projects goes to `Other` |
+| `api/entries[/tsv]` | `DON` | Donor and clinical data, upsert. Projects follow the rules below; provided `studies` and `treatments` replace the donor's previous ones |
 | `api/treatments[/tsv]` | `DON_TRT` | Treatments, replaced per donor |
 | `api/entry/{id}` (DELETE) | – | Deletes a donor with its data and index entry |
 | `api/project/{id}` (DELETE) | – | Deletes a project and its index entry |
 | `api/indexing/donors`, `api/indexing/projects` (POST) | – | Administrator reindexing |
 
 `review=false` creates the submission task as `Prepared`. Replacing the
-provided lists (projects, studies, treatments) while keeping omitted ones is
-correct (owner, 2026-10-12). A general switch to "replace" semantics for all
+provided studies and treatments while keeping omitted ones is correct (owner,
+2026-10-12). A general switch to "replace" semantics for all
 data except SM is under consideration (Jira UND-1075).
 
 ### Projects and visibility
+
+Intended project assignment (owner, 2026-10-12; the current code does not
+implement it yet, Jira UND-1080, do not change it without that issue):
+
+- a new donor without projects goes to the default project `Other`;
+- given projects are existing ones, or new ones created **private**, and are
+  **merged** with the donor's assignments, never replaced: two projects may
+  share a donor and submit it independently;
+- `Other` is a placeholder for "no project yet": it is removed when the donor
+  gets a real project;
+- omitted projects leave an existing donor's assignments unchanged;
+- data is opened by making a project public, not by moving donors.
 
 - Projects named in a submission are created if missing, **private**; only the
   default project `Other` is created public (`ProjectRepository.IsDefault`).
