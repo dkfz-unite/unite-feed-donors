@@ -60,6 +60,7 @@ The easiest way to install the application is to use docker-compose:
 ### Docker
 The image of the service is available in our [registry](https://github.com/dkfz-unite/unite-feed-donors/pkgs/container/unite-feed-donors) for the following environments:
 - `linux/amd64`
+- `linux/arm64`
 
 [Dockerfile](Dockerfile) is used to build an image of the application.
 To build an image run the following command:
