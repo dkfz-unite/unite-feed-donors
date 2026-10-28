@@ -98,7 +98,7 @@ implement it yet, Jira UND-1080, do not change it without that issue):
 ### Shared libraries
 
 `Unite.Data.Context` 12.10.20 (latest 12.10.33), `Unite.Indices.Context`
-13.10.4 (latest 13.10.20), `Unite.Cache` 1.0.0 (latest 1.3.0),
+13.12.1-dev.11, `Unite.Cache` 1.0.0 (latest 1.3.0),
 `Unite.Essentials.Tsv` 4.1.0 (latest 4.2.0).
 
 ### CI
