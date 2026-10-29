@@ -9,8 +9,10 @@ using Unite.Data.Entities.Donors;
 using Unite.Data.Entities.Donors.Clinical;
 using Unite.Data.Entities.Images;
 using Unite.Data.Entities.Images.Enums;
+using Unite.Data.Entities.Omics;
 using Unite.Data.Entities.Omics.Analysis;
 using Unite.Data.Entities.Omics.Analysis.Enums;
+using Unite.Data.Entities.Omics.Analysis.Prot;
 using Unite.Data.Entities.Omics.Analysis.Rna;
 using Unite.Data.Entities.Specimens;
 using Unite.Data.Entities.Specimens.Analysis.Drugs;
@@ -247,6 +249,12 @@ public class ProjectIndexCreator
                 .ToArrayOrNull();
         }
 
+        // Per diagnosis
+        if (entries.Any(entry => !string.IsNullOrWhiteSpace(entry.ClinicalData?.Diagnosis)))
+        {
+            stats.PerDiagnosis = GetTopBreakdown(entries.Select(entry => entry.ClinicalData?.Diagnosis), 10);
+        }
+
         // Per vital status
         if (entries.Any(entry => entry.ClinicalData?.VitalStatus != null))
         {
@@ -277,15 +285,11 @@ public class ProjectIndexCreator
         var entries = dbContext.Set<Image>()
             .AsNoTracking()
             .Include(image => image.MrImage)
-            // .Include(image => image.CtImage)
             .Where(image => ids.Contains(image.Id))
             .ToArray();
 
         // MR
         stats.Mr = CountMrStats(entries.Where(image => image.TypeId == ImageType.MR));
-
-        // CT
-        // stats.Ct = CountCtStats(entries.Where(image => image.TypeId == ImageType.CT));
 
         // Per type
         stats.PerType = StatsService.GetPropertyBreakdown(entries, image => image.TypeId)
@@ -308,17 +312,6 @@ public class ProjectIndexCreator
             .GetRangeBreakdown(entries, image => image.MrImage.WholeTumor)
             .Select(stat => new Stat<double?, int>(stat.Key, stat.Count))
             .ToArrayOrNull();
-
-        return stats;
-    }
-
-    private static CtStats CountCtStats(IEnumerable<Image> entries)
-    {
-        var stats = new CtStats();
-
-        // Total number
-        var withData = entries.Select(image => image.DonorId).Distinct().Count();
-        stats.Number = [withData, entries.Count()];
 
         return stats;
     }
@@ -615,6 +608,29 @@ public class ProjectIndexCreator
             .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
             .ToArrayOrNull();
 
+        // Per chromosome arm (dominant state of each sample: [loss, neutral, gain])
+        var sampleIds = withAnalyses.Select(sample => sample.Id).ToArray();
+        var profiles = dbContext.Set<CNV.Profile>()
+            .AsNoTracking()
+            .Where(profile => sampleIds.Contains(profile.SampleId))
+            .Where(profile => profile.ChromosomeArmId != null)
+            .Select(profile => new { profile.ChromosomeId, profile.ChromosomeArmId, profile.Loss, profile.Neutral, profile.Gain })
+            .ToArray();
+
+        stats.PerChromosomeArm = profiles
+            .GroupBy(profile => new { profile.ChromosomeId, profile.ChromosomeArmId })
+            .OrderBy(group => group.Key.ChromosomeId)
+            .ThenBy(group => group.Key.ChromosomeArmId)
+            .Select(group => new Stat<string, int[]>(
+                $"{group.Key.ChromosomeId.ToDefinitionString()}{group.Key.ChromosomeArmId.Value.ToDefinitionString().ToLower()}",
+                [
+                    group.Count(profile => profile.Loss > profile.Neutral && profile.Loss >= profile.Gain),
+                    group.Count(profile => profile.Neutral >= profile.Loss && profile.Neutral >= profile.Gain),
+                    group.Count(profile => profile.Gain > profile.Neutral && profile.Gain > profile.Loss)
+                ]
+            ))
+            .ToArrayOrNull();
+
         return stats;
     }
 
@@ -692,53 +708,11 @@ public class ProjectIndexCreator
             .ToArray();
 
         stats.PerVariation = expressionGroups
-            .Select(group =>
-            {
-                var reads = group.Reads.Order().ToArray();
-
-                var q1 = reads[reads.Length / 4];
-                var q2 = reads[reads.Length / 2];
-                var q3 = reads[reads.Length * 3 / 4];
-                var iqr = q3 - q1;
-
-                if (q3 == 0) // || iqr < 0.01
-                    return null; // Skip groups with low variation
-
-                // Whisker bounds
-                var lowerFence = q1 - 1.5 * iqr;
-                var upperFence = q3 + 1.5 * iqr;
-
-                // Whisker min/max
-                var whiskerMin = reads.FirstOrDefault(value => value >= lowerFence);
-                var whiskerMax = reads.LastOrDefault(value => value <= upperFence);
-
-                var mean = reads.Average();
-                var sd = StandardDeviation(reads);
-                var cv = sd / mean;
-                
-                return new
-                {
-                    group.Key,
-                    group.Name,
-                    Q1 = q1,
-                    Q2 = q2,
-                    Q3 = q3,
-                    Min = whiskerMin,
-                    Max = whiskerMax,
-                    Mean = mean,
-                    SD = sd,
-                    CV = cv
-                };
-            })
-            .Where(group => group != null)
-            .OrderByDescending(group => group.CV)
+            .Select(group => new { group.Name, Values = GetBoxValues(group.Reads) })
+            .Where(group => group.Values[3] != 0) // Skip groups with low variation (Q3 is 0)
+            .OrderByDescending(group => group.Values[7]) // CV
             .Take(25)
-            .Select(group => new {
-                Key = group.Key,
-                Name = group.Name,
-                Values = new double[] { group.Min, group.Q1, group.Q2, group.Q3, group.Max, group.Mean, group.SD, group.CV }
-            })
-            .Select(stats => new Stat<string, double[]>(stats.Name, stats.Values.Select(value => Math.Round(value, 2)).ToArray()))
+            .Select(group => new Stat<string, double[]>(group.Name, group.Values.Select(value => Math.Round(value, 2)).ToArray()))
             .ToArrayOrNull();
 
         // Per mutation
@@ -831,6 +805,50 @@ public class ProjectIndexCreator
         // Per analysis
         stats.PerAnalysis = StatsService.GetPropertyBreakdown(withAnalyses, sample => sample.Analysis.TypeId)
             .Select(stat => new Stat<string, int>(stat.Key.ToDefinitionString(), stat.Count))
+            .ToArrayOrNull();
+
+        // Per variation (normalized intensities are log2 centered, so proteins are ranked by SD, not by CV)
+        // Proteins are merged by UniProt accession: one accession can match several Ensembl proteins with the same values.
+        // Only proteins measured in at least half of the samples (and in at least 3) are ranked, fewer values give unstable SD.
+        var sampleIds = withAnalyses.Select(sample => sample.Id).ToArray();
+        var minSamples = Math.Max(3, (sampleIds.Length + 1) / 2);
+        var expressions = dbContext.Set<ProteinExpression>()
+            .AsNoTracking()
+            .Where(entry => sampleIds.Contains(entry.SampleId))
+            .Select(entry => new { entry.SampleId, entry.Entity.AccessionId, Name = entry.Entity.Symbol ?? entry.Entity.StableId, entry.Normalized })
+            .ToArray();
+
+        stats.PerVariation = expressions
+            .GroupBy(entry => entry.AccessionId)
+            .Select(group => new { Name = group.First().Name, Values = group.DistinctBy(entry => entry.SampleId).Select(entry => entry.Normalized).ToArray() })
+            .Where(group => group.Values.Length >= minSamples)
+            .Select(group => new { group.Name, Values = GetBoxValues(group.Values) })
+            .OrderByDescending(group => group.Values[6]) // SD
+            .Take(25)
+            .Select(group => new Stat<string, double[]>(group.Name, group.Values.Select(value => Math.Round(value, 2)).ToArray()))
+            .ToArrayOrNull();
+
+        // Per mutation (protein changing SMs in donors with proteomics data)
+        var proteinDonorIds = withAnalyses.Select(sample => sample.Specimen.DonorId).Distinct().ToArray();
+        var variantEntries = dbContext.Set<SM.VariantEntry>()
+            .AsNoTracking()
+            .Include(entry => entry.Entity.AffectedTranscripts)
+                .ThenInclude(transcript => transcript.Feature.Protein)
+            .Where(entry => proteinDonorIds.Contains(entry.Sample.Specimen.DonorId))
+            .Where(entry => entry.Entity.AffectedTranscripts.Any(transcript => transcript.ProteinChange != null && transcript.Feature.Protein != null))
+            .ToArray();
+
+        stats.PerMutation = variantEntries
+            .Select(entry => entry.Entity.MostAffectedTranscript)
+            .Where(transcript => transcript.ProteinChange != null && transcript.Feature.Protein != null)
+            .GroupBy(transcript => transcript.Feature.Protein.AccessionId)
+            .Select(group => new {
+                Name = group.First().Feature.Protein.Symbol ?? group.First().Feature.Protein.StableId,
+                Count = group.Count()
+            })
+            .OrderByDescending(entry => entry.Count)
+            .Take(25)
+            .Select(entry => new Stat<string, int>(entry.Name, entry.Count))
             .ToArrayOrNull();
 
         return stats;
@@ -953,6 +971,53 @@ public class ProjectIndexCreator
             .Any();
     }
 
+
+    /// <summary>
+    /// Breakdown of the most frequent text values (trimmed, case insensitive), the rest is grouped as "Other".
+    /// </summary>
+    private static Stat<string, int>[] GetTopBreakdown(IEnumerable<string> values, int number)
+    {
+        var groups = values
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim())
+            .GroupBy(value => value, StringComparer.OrdinalIgnoreCase)
+            .Select(group => new Stat<string, int>(group.First(), group.Count()))
+            .OrderByDescending(stat => stat.Value)
+            .ThenBy(stat => stat.Key)
+            .ToArray();
+
+        if (groups.Length <= number + 1)
+            return groups.ToArrayOrNull();
+
+        var other = new Stat<string, int>("Other", groups.Skip(number).Sum(stat => stat.Value));
+
+        return groups.Take(number).Append(other).ToArray();
+    }
+
+    /// <summary>
+    /// Values for the box plot: [whisker min, Q1, median, Q3, whisker max, mean, SD, CV].
+    /// </summary>
+    private static double[] GetBoxValues(IEnumerable<double> values)
+    {
+        var sorted = values.Order().ToArray();
+
+        var q1 = sorted[sorted.Length / 4];
+        var q2 = sorted[sorted.Length / 2];
+        var q3 = sorted[sorted.Length * 3 / 4];
+        var iqr = q3 - q1;
+
+        var lowerFence = q1 - 1.5 * iqr;
+        var upperFence = q3 + 1.5 * iqr;
+
+        var min = sorted.FirstOrDefault(value => value >= lowerFence);
+        var max = sorted.LastOrDefault(value => value <= upperFence);
+
+        var mean = sorted.Average();
+        var sd = StandardDeviation(sorted);
+        var cv = mean != 0 ? sd / mean : 0;
+
+        return [min, q1, q2, q3, max, mean, sd, cv];
+    }
 
     private static double StandardDeviation(IEnumerable<double> values)
     {
