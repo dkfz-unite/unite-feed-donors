@@ -37,6 +37,14 @@ public class IndexingController : Controller
         return Ok();
     }
 
+    [HttpPost("projects/{id}")]
+    public IActionResult PostProject(int id)
+    {
+        _projectTasksService.CreateTasks([id]);
+
+        return Ok();
+    }
+
     [HttpPost("donors")]
     public async Task<IActionResult> Post()
     {
