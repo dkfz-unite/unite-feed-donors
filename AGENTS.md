@@ -65,6 +65,7 @@ Environment variables are in the [README](README.md); endpoints and models in
 | `api/entry/{id}` (DELETE) | – | Deletes a donor with its data and index entry |
 | `api/project/{id}` (DELETE) | – | Deletes a project and its index entry |
 | `api/indexing/donors`, `api/indexing/projects` (POST) | – | Administrator reindexing |
+| `api/indexing/projects/{id}` (POST) | – | Reindexes one project without dropping the index; used by Composer's project admin endpoints |
 
 `review=false` creates the submission task as `Prepared`. Replacing the
 provided studies and treatments while keeping omitted ones is correct (owner,
@@ -89,8 +90,9 @@ implement it yet, Jira UND-1080, do not change it without that issue):
   default project `Other` is created public (`ProjectRepository.IsDefault`).
   See [Projects and visibility](../unite-meta/docs/domain.md#projects-and-visibility).
 - The projects index carries visibility and members; Composer's project admin
-  endpoints (members, `is-public`) change SQL and then call this feed's project
-  reindexing. Keep that endpoint working when changing project indexing.
+  endpoints (members, `is-public`) change SQL and then call this feed's
+  single-project reindexing (`api/indexing/projects/{id}`). Keep that endpoint
+  working when changing project indexing.
 - Whether other feeds' submissions should wait for pending donor submissions,
   so that donors get their real projects before other data creates them in
   `Other`, is under consideration by the owner; see the omics feed notes.
